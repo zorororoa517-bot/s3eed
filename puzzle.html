@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بازل — S3aS3</title>
+<link rel="icon" href="assets/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tan:#e4d0b4; --tan-deep:#cbb08a; --walnut:#403022; --charcoal:#2e2216; --cream:#FBF6EE;
+    --paper:#37291d; --ink:#292118; --ink-soft:#6e5d4d; --clay:#6F4E37;
+    --line: rgba(228,208,180,.16); --shadow: 0 10px 28px rgba(0,0,0,.45);
+    --bg:#403022; --surface:#37291d; --text:#e4d0b4; --text-soft:#cbb08a; --header-bg: var(--walnut);
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:'Tajawal', sans-serif;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  .topbar{
+    position:relative;
+    background: var(--header-bg); border-bottom: 1px solid var(--line);
+    padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .brand .mark{
+    width:34px; height:34px; border-radius:3px; background: var(--charcoal); color:var(--tan);
+    display:flex; align-items:center; justify-content:center; font-family:'Cairo', sans-serif; font-weight:700;
+    font-size:18px; transform: rotate(-3deg); overflow:hidden; position:relative;
+  }
+  .brand .mark{ animation: mcTorchGlow 2.4s ease-in-out infinite; }
+  .brand .mark::before{ content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); z-index:2; }
+  .brand .mark::after{
+    content:""; position:absolute; inset:-60% -160%; pointer-events:none; z-index:1;
+    background: linear-gradient(75deg, transparent 42%, rgba(255,255,255,.65) 50%, transparent 58%);
+    transform: translateX(-130%); animation: mcEnchantSweep 4.5s ease-in-out infinite; mix-blend-mode: screen;
+  }
+  .brand .mark img{ position:relative; z-index:0; width:100%; height:100%; object-fit:cover; }
+  @keyframes mcTorchGlow{ 0%,100%{ box-shadow: 0 0 5px 1px rgba(255,170,60,.35); } 50%{ box-shadow: 0 0 14px 4px rgba(255,170,60,.6); } }
+  @keyframes mcEnchantSweep{ 0%, 62%{ transform: translateX(-130%); } 82%{ transform: translateX(130%); } 100%{ transform: translateX(130%); } }
+  .brand-name{ font-weight:800; font-size:19px; color:var(--charcoal); font-family:'Cairo', sans-serif; }
+  html[data-theme="dark"] .brand-name{ color:var(--tan); }
+
+  nav.main-nav{ display:flex; align-items:center; gap:60px; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .nav-link{ padding:9px 14px; border-radius:18px; font-size:13.5px; font-weight:700; color:var(--charcoal); opacity:.75; }
+  .nav-link:hover{ opacity:1; background:rgba(43,36,32,.08); }
+  .nav-link.active{ background:var(--charcoal); color:var(--tan); opacity:1; }
+  .nav-item{ position:relative; display:flex; align-items:center; }
+  .nav-dropdown{
+    position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+  }
+  .nav-item.open .nav-dropdown{ display:flex; }
+  .nav-dropdown a{ display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; font-size:13px; font-weight:700; color:var(--tan); opacity:.9; white-space:nowrap; }
+  .nav-dropdown a:hover{ opacity:1; background:rgba(241,233,220,.08); }
+  .nav-dropdown a.active{ opacity:1; background:rgba(241,233,220,.14); }
+  html[data-theme="dark"] .nav-link{ color:var(--tan); }
+  @media(max-width:900px){ nav.main-nav{ display:none; } }
+  .controls{ margin-inline-start:auto; display:flex; align-items:center; gap:10px; flex-shrink:0;}
+
+  .nav-link, button, [class*="btn"]{ transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+  .nav-link:hover, button:hover, [class*="btn"]:hover{ transform: scale(1.05); box-shadow: 0 0 16px 3px rgba(203,176,138,.55); filter: brightness(1.08); }
+
+  html{ scrollbar-width: thin; scrollbar-color: var(--tan) var(--bg); }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background: var(--bg); }
+  ::-webkit-scrollbar-thumb{ background: var(--tan); border-radius:8px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--tan-deep); }
+
+  footer{ text-align:center; padding:16px; color:var(--text-soft); font-size:12px; flex-shrink:0; }
+
+  /* ===================== لعبة الأحجية ===================== */
+  .wrap{ flex:1; width:100%; max-width:1100px; margin:0 auto; padding:24px 16px 50px; }
+  .hub-head{ text-align:center; margin-bottom:20px; }
+  .eyebrow{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); font-weight:700; display:block; margin-bottom:6px;}
+  .hub-head h1{ font-family:'Cairo', sans-serif; font-size:26px; margin:0; color:var(--tan); }
+
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); }
+
+  /* شاشة اللوبي */
+  #lobbyScreen .card{ padding:24px; max-width:840px; margin:0 auto; }
+  .lobby-label{ font-size:13px; font-weight:800; color:var(--text-soft); margin:0 0 10px; }
+  .name-row input{
+    width:100%; font-size:15px; padding:12px 14px; border-radius:12px; border:1px solid var(--line);
+    background:var(--paper); color:var(--text); font-family:inherit;
+  }
+  .theme-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:12px; margin:14px 0 22px; }
+  .theme-card{
+    position:relative; border-radius:14px; overflow:hidden; cursor:pointer; border:2px solid var(--line);
+    aspect-ratio:7/5; background:var(--paper);
+  }
+  .theme-card svg{ width:100%; height:100%; display:block; }
+  .theme-card span{
+    position:absolute; inset-inline:0; bottom:0; padding:6px 8px; font-size:12px; font-weight:800;
+    background:linear-gradient(to top, rgba(0,0,0,.72), transparent); color:#fff; text-align:center;
+  }
+  .theme-card.selected{ border-color:var(--clay); box-shadow:0 0 0 3px rgba(111,78,55,.45); }
+  .theme-card.upload-card{
+    display:flex; align-items:center; justify-content:center;
+    border-style:dashed; background:var(--paper); background-size:cover; background-position:center;
+  }
+  .theme-card.upload-card .upload-inner{
+    display:flex; flex-direction:column; align-items:center; gap:6px; padding:10px;
+    color:var(--text-soft); font-size:11.5px; font-weight:800; text-align:center;
+  }
+  .theme-card.upload-card .upload-icon{ font-size:26px; line-height:1; }
+  .theme-card.upload-card.has-image .upload-inner{ display:none; }
+
+  .diff-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px; }
+  .diff-btn{
+    flex:1; min-width:130px; background:var(--paper); border:2px solid var(--line); color:var(--text);
+    border-radius:12px; padding:12px; font-weight:800; cursor:pointer; font-family:inherit; font-size:13.5px;
+  }
+  .diff-btn b{ display:block; font-size:16px; font-family:'Cairo',sans-serif; color:var(--tan); margin-bottom:2px; }
+  .diff-btn.selected{ border-color:var(--clay); background:rgba(111,78,55,.18); }
+
+  .go-btn{
+    display:block; width:100%; background:var(--clay); color:#fff; font-weight:800; font-size:16px;
+    padding:14px; border-radius:14px; border:none; cursor:pointer; font-family:inherit;
+  }
+  .go-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+  .join-box{ text-align:center; padding:10px 0 4px; }
+  .join-box p{ color:var(--text-soft); font-size:13.5px; margin:0 0 14px; }
+
+  /* تبويب إنشاء غرفة / دخول لغرفة */
+  .mode-tabs{ display:flex; gap:8px; margin-bottom:22px; background:var(--paper); border-radius:14px; padding:5px; }
+  .mode-tab{
+    flex:1; background:transparent; border:none; color:var(--text-soft); font-weight:800; font-size:13.5px;
+    padding:11px; border-radius:10px; cursor:pointer; font-family:inherit;
+  }
+  .mode-tab.active{ background:var(--clay); color:#fff; }
+
+  /* اختيار عدد قطع مخصص */
+  .custom-diff-box{
+    display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; background:var(--paper);
+    border:1px solid var(--line); border-radius:12px; padding:14px; margin:-8px 0 22px;
+  }
+  .custom-diff-box label{ font-size:12px; font-weight:800; color:var(--text-soft); display:flex; flex-direction:column; gap:6px; }
+  .custom-diff-box input{
+    width:90px; font-size:14px; padding:9px 34px 9px 10px; border-radius:10px; border:1px solid var(--line);
+    background:var(--surface); color:var(--text); font-family:inherit;
+    -moz-appearance: textfield;
+  }
+  .custom-diff-box input::-webkit-outer-spin-button,
+  .custom-diff-box input::-webkit-inner-spin-button{ -webkit-appearance: none; margin:0; }
+  .num-stepper{ position:relative; display:flex; }
+  .num-stepper input{ flex:1; }
+  .num-stepper .ns-btns{
+    position:absolute; inset-inline-end:1px; top:1px; bottom:1px; width:28px;
+    display:flex; flex-direction:column; border-inline-start:1px solid var(--line);
+    border-radius:0 9px 9px 0; overflow:hidden;
+  }
+  .num-stepper .ns-btns button{
+    flex:1; background:var(--paper); border:none; border-bottom:1px solid var(--line); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding:0; font-family:inherit;
+  }
+  .num-stepper .ns-btns button:last-child{ border-bottom:none; }
+  .num-stepper .ns-btns button:hover{ background:var(--tan-deep); }
+  .num-stepper .ns-btns button svg{ width:9px; height:9px; display:block; }
+  .num-stepper .ns-btns button svg polygon{ fill:#e4d0b4; }
+  .custom-diff-box .custom-total{ font-size:12.5px; font-weight:800; color:var(--tan); }
+
+  /* شاشة اللعب — صفحة واحدة فول سكرين بدون تقسيم مبورد */
+  #roomScreen{ display:none; position:fixed; inset:0; z-index:50; background:var(--bg); overflow:hidden; }
+  .room-stage{ position:relative; width:100%; height:100%; }
+
+  .panel-toggle-btn{
+    position:fixed; top:14px; inset-inline-start:14px; z-index:71;
+    width:42px; height:42px; border-radius:12px; border:1px solid var(--line); background:var(--paper);
+    color:var(--tan); font-size:19px; cursor:pointer; box-shadow:var(--shadow); font-family:inherit;
+    display:none; align-items:center; justify-content:center;
+  }
+  .panel-toggle-btn.show{ display:flex; }
+
+  .info-panel{
+    position:fixed; top:14px; inset-inline-start:14px; z-index:60;
+    background:var(--surface); border-radius:16px; box-shadow:var(--shadow);
+    display:flex; flex-direction:column; gap:14px; padding:14px;
+    width:280px; max-width:calc(100vw - 28px); max-height:calc(100vh - 28px); overflow-y:auto;
+  }
+  .info-panel.hidden{ display:none; }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .panel-close-btn{
+    flex-shrink:0; width:28px; height:28px; border-radius:9px; border:1px solid var(--line);
+    background:var(--paper); color:var(--tan); font-size:14px; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .room-code{ font-family:'Cairo',sans-serif; font-weight:800; color:var(--tan); font-size:14px; }
+  .room-code b{ color:#fff; background:var(--paper); padding:3px 10px; border-radius:8px; letter-spacing:2px; margin-inline-start:6px;}
+  .copy-btn{
+    background:var(--clay); color:#fff; border:none; border-radius:10px; padding:9px 16px; font-weight:800;
+    font-size:12.5px; cursor:pointer; font-family:inherit; width:100%;
+  }
+  .progress-txt{ font-size:12.5px; color:var(--text-soft); font-weight:700; white-space:nowrap; }
+  .leave-btn{ background:transparent; border:1px solid var(--line); color:var(--text-soft); border-radius:10px; padding:9px 14px; font-size:12px; cursor:pointer; font-family:inherit; flex:1; }
+  .reset-btn{
+    background:var(--paper); border:1px solid var(--line); color:var(--tan); border-radius:10px; padding:9px 14px;
+    font-size:12px; font-weight:800; cursor:pointer; font-family:inherit; flex:1;
+  }
+  .page-actions{ display:flex; gap:8px; margin-top:auto; }
+
+  .ref-image-frame{
+    width:100%; aspect-ratio:4/3; border-radius:12px; overflow:hidden; background:var(--paper);
+    border:1px solid var(--line); cursor:zoom-in; position:relative;
+  }
+  .ref-image-frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ref-image-frame::after{
+    content:"🔍 تكبير"; position:absolute; inset-inline:0; bottom:0; padding:5px 8px; font-size:10.5px; font-weight:800;
+    background:linear-gradient(to top, rgba(0,0,0,.72), transparent); color:#fff; text-align:center; pointer-events:none;
+  }
+
+  #imgLightbox{
+    position:fixed; inset:0; background:rgba(10,7,4,.92); display:none; align-items:center; justify-content:center;
+    z-index:1000; padding:26px; cursor:zoom-out;
+  }
+  #imgLightbox img{ max-width:100%; max-height:100%; border-radius:10px; box-shadow:0 20px 60px rgba(0,0,0,.6); display:block; }
+
+  .players-list{ display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto; }
+  .player-row{
+    display:flex; align-items:center; gap:8px; background:var(--paper); border-radius:10px; padding:6px 8px;
+  }
+  .p-dot{
+    flex-shrink:0; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:10.5px; font-weight:800; color:#fff;
+  }
+  .player-name{ flex:1; font-size:12.5px; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .player-count{ font-size:11px; font-weight:800; color:var(--text-soft); white-space:nowrap; }
+  .kick-btn{
+    flex-shrink:0; width:20px; height:20px; border-radius:50%; border:none; cursor:pointer;
+    background:#a24b3c; color:#fff; font-size:11px; font-weight:800; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; padding:0;
+  }
+
+  .board-outer{
+    overflow:hidden; background:rgba(0,0,0,.14); width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center; position:relative;
+    touch-action:none; overscroll-behavior:contain; cursor:grab;
+  }
+  .board-outer.panning{ cursor:grabbing; }
+  .scale-wrap{ transform-origin: center center; position:relative; flex-shrink:0; }
+  #boardArea{ position:relative; }
+  .board-frame{
+    position:absolute; border-radius:8px; z-index:-1;
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.5);
+    background-color:#1c150e;
+  }
+  .zoom-controls{
+    position:absolute; inset-inline-end:12px; bottom:12px; z-index:600;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .zoom-btn{
+    width:36px; height:36px; border-radius:10px; border:1px solid var(--line); background:var(--paper);
+    color:var(--tan); font-size:18px; font-weight:800; font-family:inherit; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);
+  }
+  .zoom-btn:active{ transform:scale(0.94); }
+  .cell-shadow{ position:absolute; background:rgba(0,0,0,.18); }
+  .piece{
+    position:absolute; top:0; left:0; cursor:grab; touch-action:none; will-change:transform; z-index:10;
+    filter:drop-shadow(0 3px 5px rgba(0,0,0,.5));
+  }
+  .piece.dragging{ cursor:grabbing; filter:drop-shadow(0 8px 14px rgba(0,0,0,.65)); z-index:500 !important; }
+  .piece.placed{ cursor:default; filter:none; z-index:8; }
+  .piece.remote-drag{ z-index:400 !important; }
+  .piece-tag{
+    position:absolute; top:-24px; inset-inline-start:50%; transform:translateX(-50%);
+    background:var(--clay); color:#fff; font-size:11px; font-weight:800; padding:3px 9px;
+    border-radius:9px; white-space:nowrap; pointer-events:none; box-shadow:var(--shadow);
+    border:1px solid rgba(255,255,255,.25); z-index:600;
+  }
+
+  #winOverlay{
+    position:fixed; inset:0; background:rgba(20,14,8,.86); display:none; align-items:center; justify-content:center;
+    z-index:1000; flex-direction:column; gap:14px; text-align:center; padding:20px;
+  }
+  #winOverlay .card{ padding:30px 34px; max-width:380px; }
+  #winOverlay h2{ font-family:'Cairo',sans-serif; color:var(--tan); margin:0 0 8px; font-size:24px; }
+  #winOverlay p{ color:var(--text-soft); margin:0 0 18px; font-size:14px; }
+
+  #nameModal{
+    position:fixed; inset:0; background:rgba(20,14,8,.86); display:none; align-items:center; justify-content:center; z-index:900; padding:20px;
+  }
+  #nameModal .card{ padding:26px; max-width:380px; width:100%; text-align:center; }
+  #nameModal h3{ font-family:'Cairo',sans-serif; color:var(--tan); margin:0 0 14px; }
+
+  .hint{ text-align:center; color:var(--text-soft); font-size:12px; margin-top:10px; }
+  .error-box{ text-align:center; padding:40px 20px; color:var(--text-soft); }
+  .error-box h2{ color:var(--tan); font-family:'Cairo',sans-serif; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"><img src="assets/avatar.png" alt="S3eeD"></div>
+  </div>
+  <nav class="main-nav">
+    <div class="nav-item">
+      <a class="nav-link active" href="games.html">S3aS3 Games</a>
+      <div class="nav-dropdown">
+        <a href="creeper.html">كريبر شات</a>
+        <a href="miners.html">ماينر شات</a>
+        <a href="minshow.html">ماين شو</a>
+        <a href="quiz.html">أسئلة ماين كرافت</a>
+        <a href="toolminer.html">كوكيز كليكر</a>
+        <a href="minecraftle.html">ماينكرافتل</a>
+        <a href="runner.html">ستيف رنر</a>
+        <a href="puzzle.html" class="active">بازل</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="index.html">S3eeD</a>
+      <div class="nav-dropdown">
+        <a href="index.html#video">آخر فيديو</a>
+        <a href="index.html#twitch">آخر بث</a>
+        <a href="index.html#gamesRating">تقييم الألعاب</a>
+        <a href="index.html#archive">الأرشيف</a>
+        <a href="index.html#suggest" class="js-suggest-link">الاقتراحات</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="fanart.html">FAN ART</a>
+      <div class="nav-dropdown">
+        <a href="fanart.html#home">آخر الرسمات</a>
+        <a href="fanart.html#topart">الأعلى تفاعلاً</a>
+        <a href="fanart.html#badges">البادجات</a>
+        <a href="fanart.html#create">نشر رسمة</a>
+      </div>
+    </div>
+  </nav>
+  <div class="controls"></div>
+</header>
+
+<div class="wrap">
+  <div class="hub-head">
+    <span class="eyebrow">اللعبة السابعة</span>
+    <h1>بازل</h1>
+  </div>
+
+  <!-- ============ شاشة الإعداد / اللوبي ============ -->
+  <div id="lobbyScreen">
+    <div class="card">
+      <div class="mode-tabs" id="modeTabs">
+        <button type="button" class="mode-tab active" data-mode="create">إنشاء غرفة جديدة</button>
+        <button type="button" class="mode-tab" data-mode="join">الدخول لغرفة موجودة</button>
+      </div>
+
+      <div id="createBox">
+        <p class="lobby-label">اسمك</p>
+        <div class="name-row" style="margin-bottom:20px;">
+          <input id="nameInput" maxlength="16" placeholder="اكتب اسمك بالشات">
+        </div>
+
+        <p class="lobby-label">صورة الأحجية</p>
+        <div class="theme-grid" id="themeGrid"></div>
+        <input type="file" id="customImageInput" accept="image/*" style="display:none">
+        <p class="hint" id="uploadHint" style="margin:-10px 0 14px;">اضغط وارفع أي صورة من جهازك، وبتصير هي أساس الأحجية</p>
+
+        <p class="lobby-label">اختر الصعوبة</p>
+        <div class="diff-row" id="diffRow">
+          <button class="diff-btn" data-diff="easy"><b>24</b>سهلة — للبداية</button>
+          <button class="diff-btn" data-diff="medium"><b>48</b>متوسطة</button>
+          <button class="diff-btn" data-diff="hard"><b>96</b>صعبة</button>
+          <button class="diff-btn" data-diff="expert"><b>216</b>خبير</button>
+          <button class="diff-btn" data-diff="master"><b>384</b>محترف</button>
+          <button class="diff-btn" data-diff="legend"><b>600</b>أسطورية — تحدي جماعي</button>
+          <button class="diff-btn" data-diff="custom"><b>⚙️</b>مخصص — اختر بنفسك</button>
+        </div>
+        <div class="custom-diff-box" id="customDiffBox" style="display:none;">
+          <label>عدد الأعمدة
+            <div class="num-stepper">
+              <input type="number" id="customCols" min="2" max="50" value="10">
+              <div class="ns-btns">
+                <button type="button" id="customColsUp" aria-label="زيادة"><svg viewBox="0 0 10 6"><polygon points="5,0 10,6 0,6"/></svg></button>
+                <button type="button" id="customColsDown" aria-label="نقصان"><svg viewBox="0 0 10 6"><polygon points="0,0 10,0 5,6"/></svg></button>
+              </div>
+            </div>
+          </label>
+          <label>عدد الصفوف
+            <div class="num-stepper">
+              <input type="number" id="customRows" min="2" max="50" value="7">
+              <div class="ns-btns">
+                <button type="button" id="customRowsUp" aria-label="زيادة"><svg viewBox="0 0 10 6"><polygon points="5,0 10,6 0,6"/></svg></button>
+                <button type="button" id="customRowsDown" aria-label="نقصان"><svg viewBox="0 0 10 6"><polygon points="0,0 10,0 5,6"/></svg></button>
+              </div>
+            </div>
+          </label>
+          <span class="custom-total" id="customTotalTxt">= 70 قطعة</span>
+        </div>
+
+        <button class="go-btn" id="startBtn" disabled>ابدأ الأحجية وشارك الرابط</button>
+        <p class="hint">بعد ما تبدأ، بتاخذ رابط تعطيه لأصحابك عشان يدخلون يحلون وياك بنفس اللحظة</p>
+      </div>
+
+      <div id="joinRoomBox" style="display:none;">
+        <p class="lobby-label">اسمك</p>
+        <div class="name-row" style="margin-bottom:20px;">
+          <input id="joinRoomNameInput" maxlength="16" placeholder="اكتب اسمك بالشات">
+        </div>
+        <p class="lobby-label">كود الغرفة أو رابط الدعوة</p>
+        <div class="name-row" style="margin-bottom:20px;">
+          <input id="joinRoomCodeInput" placeholder="مثلاً ABC123 أو رابط الدعوة كامل">
+        </div>
+        <button class="go-btn" id="joinRoomGoBtn">دخول الأحجية</button>
+        <p class="hint" id="joinRoomHint"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ شاشة انتظار الاسم للمنضم عبر رابط ============ -->
+  <div id="nameModal">
+    <div class="card">
+      <h3>انضم للأحجية</h3>
+      <p class="lobby-label" style="text-align:center;">اكتب اسمك عشان تنضم للحل الجماعي</p>
+      <div class="name-row" style="margin:12px 0 16px;">
+        <input id="joinNameInput" maxlength="16" placeholder="اسمك">
+      </div>
+      <button class="go-btn" id="joinBtn">دخول الأحجية</button>
+    </div>
+  </div>
+
+  <!-- ============ شاشة الغرفة/اللعب — صفحة وحدة فول سكرين ============ -->
+  <div id="roomScreen">
+    <div class="room-stage">
+      <button type="button" class="panel-toggle-btn" id="panelToggleBtn" title="إظهار لوحة التحكم">☰</button>
+
+      <div class="info-panel" id="infoPanel">
+        <div class="panel-head">
+          <div class="room-code">كود الغرفة: <b id="roomCodeTxt">—</b></div>
+          <button type="button" class="panel-close-btn" id="panelCloseBtn" title="إخفاء">✕</button>
+        </div>
+        <button class="copy-btn" id="copyLinkBtn">📋 نسخ رابط الدعوة</button>
+
+        <div>
+          <p class="lobby-label">الصورة الأصلية</p>
+          <div class="ref-image-frame"><img id="refImage" alt="الصورة الأصلية"></div>
+        </div>
+
+        <div>
+          <p class="lobby-label" id="progressTxt">0 / 0 قطعة</p>
+          <div class="players-list" id="playersList"></div>
+        </div>
+
+        <div class="page-actions">
+          <button class="reset-btn" id="resetBtn">🔄 ريسيت القطع</button>
+          <button class="leave-btn" id="leaveBtn">خروج</button>
+        </div>
+      </div>
+
+      <div class="board-outer" id="boardOuter">
+        <div class="scale-wrap" id="scaleWrap">
+          <div id="boardArea"></div>
+        </div>
+        <div class="zoom-controls">
+          <button type="button" class="zoom-btn" id="zoomInBtn" title="تكبير">+</button>
+          <button type="button" class="zoom-btn" id="zoomOutBtn" title="تصغير">−</button>
+          <button type="button" class="zoom-btn" id="zoomResetBtn" title="إعادة الضبط" style="font-size:13px;">⤾</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="errorScreen" class="error-box" style="display:none;">
+    <h2>الغرفة غير موجودة</h2>
+    <p>الرابط منتهي أو غلط. اطلب من صاحبك رابط جديد أو ابدأ أحجية جديدة.</p>
+    <button class="go-btn" style="max-width:260px;margin:16px auto 0;" onclick="location.href='puzzle.html'">أحجية جديدة</button>
+  </div>
+</div>
+
+<div id="imgLightbox">
+  <img id="lightboxImg" alt="الصورة الأصلية مكبّرة">
+</div>
+
+<div id="winOverlay">
+  <div class="card">
+    <h2>🎉 خلصتوا الأحجية!</h2>
+    <p id="winTime"></p>
+    <button class="go-btn" onclick="location.href='puzzle.html'">أحجية جديدة</button>
+  </div>
+</div>
+
+<footer>S3eeD — S3aS3 Games © 2026</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    let closeTimer = null;
+    item.addEventListener("mouseenter", function(){ clearTimeout(closeTimer); item.classList.add("open"); });
+    item.addEventListener("mouseleave", function(){ closeTimer = setTimeout(function(){ item.classList.remove("open"); }, 300); });
+  });
+</script>
+
+<script>
+/* ============================================================
+   إعداد Firebase
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCjThTQY9XutIjTSs7T7PSutEl-Xoo3OII",
+  authDomain: "s3as3-art.firebaseapp.com",
+  databaseURL: "https://s3as3-art-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "s3as3-art",
+  storageBucket: "s3as3-art.firebasestorage.app",
+  messagingSenderId: "438396515177",
+  appId: "1:438396515177:web:a4eea1975abd0b3bcf83f8",
+  measurementId: "G-TR67CYJJLW"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* ============================================================
+   أدوات عامة: RNG بذرة ثابتة، تحويل ألوان، هوية اللاعب
+   ============================================================ */
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seedFromString(str){
+  let h = 1779033703 ^ str.length;
+  for(let i=0;i<str.length;i++){
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return h >>> 0;
+}
+function randCode(len){
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s = "";
+  for(let i=0;i<len;i++) s += chars[Math.floor(Math.random()*chars.length)];
+  return s;
+}
+const PLAYER_COLORS = ["#6F4E37","#3f7d4e","#a24b3c","#3b6ea5","#8a5cb0","#c78c2e","#4a9c9c","#b2455c"];
+function colorFor(id){
+  const seed = seedFromString(id);
+  return PLAYER_COLORS[seed % PLAYER_COLORS.length];
+}
+let myId = sessionStorage.getItem("s3as3_puzzle_pid");
+if(!myId){ myId = "p_" + Math.random().toString(36).slice(2,10); sessionStorage.setItem("s3as3_puzzle_pid", myId); }
+let myName = sessionStorage.getItem("s3as3_puzzle_name") || "";
+let myColor = colorFor(myId);
+
+/* ============================================================
+   الرسومات — 6 مشاهد ستايل بلوكي مستوحاة من ماين كرافت
+   كلها SVG أصلية، مو تكستشرات حقيقية من اللعبة
+   ============================================================ */
+const THEMES = {};
+
+function svgWrap(id, defs, body){
+  return `<svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${body}</svg>`;
+}
+
+// -------- 1) قرية (Village) --------
+THEMES.village = {
+  name: "قرية",
+  svg: (()=>{
+    const defs = `
+      <linearGradient id="skyV" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#8ec9ef"/><stop offset="100%" stop-color="#d8ecf7"/>
+      </linearGradient>
+      <linearGradient id="groundV" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#7fb356"/><stop offset="100%" stop-color="#5c9440"/>
+      </linearGradient>`;
+    let body = `<rect width="700" height="500" fill="url(#skyV)"/>`;
+    body += `<circle cx="600" cy="80" r="42" fill="#ffe27a"/>`;
+    for(let i=0;i<5;i++){
+      body += `<rect x="${40+i*140}" y="${40+ (i%2)*20}" width="70" height="22" rx="10" fill="#ffffff" opacity=".85"/>`;
+    }
+    body += `<rect x="0" y="300" width="700" height="200" fill="url(#groundV)"/>`;
+    body += `<rect x="0" y="300" width="700" height="14" fill="#4a7a35"/>`;
+    // path
+    body += `<path d="M350 500 C 330 420, 380 380, 350 300 L 400 300 C 420 380, 380 420, 400 500 Z" fill="#b08a5a" opacity=".8"/>`;
+    // trees
+    function tree(x,y,s){
+      return `<rect x="${x-4*s}" y="${y}" width="${8*s}" height="${18*s}" fill="#5b3a22"/>
+        <circle cx="${x}" cy="${y-8*s}" r="${16*s}" fill="#3f7d34"/>
+        <circle cx="${x-10*s}" cy="${y-2*s}" r="${11*s}" fill="#458a3a"/>
+        <circle cx="${x+10*s}" cy="${y-2*s}" r="${11*s}" fill="#3a7530"/>`;
+    }
+    body += tree(60,340,1.1) + tree(640,360,1.3) + tree(30,420,1.4) + tree(670,430,1.1);
+    // huts
+    function hut(x,y,w,h,roof){
+      return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#c9a06a" stroke="#7a5a34" stroke-width="3"/>
+        <rect x="${x+8}" y="${y+h-28}" width="20" height="28" fill="#5b3a22"/>
+        <rect x="${x+w-34}" y="${y+14}" width="18" height="18" fill="#a8d8ec" stroke="#5b3a22" stroke-width="2"/>
+        <polygon points="${x-10},${y} ${x+w+10},${y} ${x+w/2},${y-h*0.55}" fill="${roof}" stroke="#3a2717" stroke-width="3"/>`;
+    }
+    body += hut(120,330,120,90,"#a63b2e");
+    body += hut(470,350,140,100,"#7a4a2c");
+    body += hut(280,380,90,70,"#8a5a30");
+    // well
+    body += `<rect x="330" y="410" width="60" height="40" fill="#8a8a8a" stroke="#555" stroke-width="3"/>
+      <rect x="325" y="395" width="10" height="55" fill="#5b3a22"/><rect x="385" y="395" width="10" height="55" fill="#5b3a22"/>
+      <rect x="320" y="392" width="80" height="8" fill="#5b3a22"/>`;
+    // villager
+    body += `<rect x="555" y="420" width="18" height="34" fill="#8a5030"/><circle cx="564" cy="410" r="12" fill="#e2b487"/>
+      <rect x="551" y="400" width="26" height="10" fill="#5b3a22"/>`;
+    return svgWrap("village",defs,body);
+  })()
+};
+
+// -------- 2) قلعة النذر (Nether Fortress) --------
+THEMES.nether = {
+  name: "قلعة النذر",
+  svg: (()=>{
+    const defs = `
+      <linearGradient id="skyN" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2b0d0d"/><stop offset="60%" stop-color="#5c1c14"/><stop offset="100%" stop-color="#8a2f1a"/>
+      </linearGradient>
+      <radialGradient id="lavaN" cx="50%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#ffdd66"/><stop offset="45%" stop-color="#ff7a1e"/><stop offset="100%" stop-color="#8a1d0a"/>
+      </radialGradient>`;
+    let body = `<rect width="700" height="500" fill="url(#skyN)"/>`;
+    // netherrack ground texture
+    let ground = `<rect x="0" y="360" width="700" height="140" fill="#4a1c14"/>`;
+    for(let i=0;i<60;i++){
+      const gx = (i*37)%700, gy = 360 + (i*53)%140;
+      ground += `<rect x="${gx}" y="${gy}" width="18" height="14" fill="${i%3===0?'#5c241a':'#3a140e'}" opacity=".7"/>`;
+    }
+    body += ground;
+    // lava pools
+    body += `<ellipse cx="150" cy="460" rx="90" ry="26" fill="url(#lavaN)"/>`;
+    body += `<ellipse cx="560" cy="440" rx="70" ry="22" fill="url(#lavaN)"/>`;
+    // fortress towers built of blocks
+    function brickTower(x,y,w,h){
+      let s = `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#2a1218" stroke="#150809" stroke-width="2"/>`;
+      for(let r=0;r<Math.floor(h/16);r++){
+        for(let c=0;c<Math.floor(w/20);c++){
+          s += `<rect x="${x+c*20+(r%2)*10}" y="${y+r*16}" width="18" height="14" fill="${(r+c)%2===0?'#3a1a22':'#2f141a'}" opacity=".9"/>`;
+        }
+      }
+      s += `<rect x="${x-6}" y="${y-14}" width="${w+12}" height="16" fill="#1f0d10"/>`;
+      return s;
+    }
+    body += brickTower(60,180,90,180);
+    body += brickTower(280,120,110,240);
+    body += brickTower(520,200,100,160);
+    // bridge
+    body += `<rect x="150" y="300" width="130" height="26" fill="#2a1218" stroke="#150809" stroke-width="2"/>`;
+    body += `<rect x="390" y="260" width="130" height="26" fill="#2a1218" stroke="#150809" stroke-width="2"/>`;
+    // fire pillars
+    function fire(x,y){
+      return `<rect x="${x-3}" y="${y}" width="6" height="20" fill="#ff8a1e"/><circle cx="${x}" cy="${y-6}" r="10" fill="#ffcf5c"/>`;
+    }
+    body += fire(90,178) + fire(320,118) + fire(560,198);
+    // ghast in the sky
+    body += `<ellipse cx="220" cy="70" rx="34" ry="30" fill="#e9e9e9" opacity=".92"/>
+      <rect x="196" y="96" width="6" height="26" fill="#e9e9e9" opacity=".9"/>
+      <rect x="214" y="96" width="6" height="30" fill="#e9e9e9" opacity=".9"/>
+      <rect x="232" y="96" width="6" height="24" fill="#e9e9e9" opacity=".9"/>
+      <rect x="250" y="96" width="6" height="28" fill="#e9e9e9" opacity=".9"/>
+      <rect x="205" y="62" width="8" height="10" fill="#3a1a1a"/><rect x="228" y="62" width="8" height="10" fill="#3a1a1a"/>`;
+    return svgWrap("nether",defs,body);
+  })()
+};
+
+// -------- 3) مزرعة الحيوانات --------
+THEMES.farm = {
+  name: "مزرعة الحيوانات",
+  svg: (()=>{
+    const defs = `
+      <linearGradient id="skyF" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#9fd6f5"/><stop offset="100%" stop-color="#e6f6ea"/>
+      </linearGradient>`;
+    let body = `<rect width="700" height="500" fill="url(#skyF)"/>`;
+    body += `<circle cx="90" cy="70" r="38" fill="#ffe27a"/>`;
+    body += `<rect x="0" y="320" width="700" height="180" fill="#7fb356"/><rect x="0" y="320" width="700" height="12" fill="#528036"/>`;
+    // fence
+    for(let x=20;x<680;x+=60){
+      body += `<rect x="${x}" y="300" width="8" height="34" fill="#c9a06a" stroke="#7a5a34" stroke-width="1.5"/>`;
+    }
+    body += `<rect x="10" y="308" width="660" height="8" fill="#c9a06a" opacity=".9"/><rect x="10" y="320" width="660" height="8" fill="#c9a06a" opacity=".9"/>`;
+    // barn
+    body += `<rect x="500" y="200" width="150" height="120" fill="#a63b2e" stroke="#5c1f16" stroke-width="3"/>
+      <polygon points="490,200 660,200 575,130" fill="#7a2a1f" stroke="#5c1f16" stroke-width="3"/>
+      <rect x="555" y="260" width="40" height="60" fill="#5c1f16"/>
+      <rect x="620" y="220" width="18" height="18" fill="#e8d9b8" stroke="#5c1f16" stroke-width="2"/>`;
+    // cow (blocky)
+    function cow(x,y){
+      return `<rect x="${x}" y="${y}" width="70" height="42" fill="#f5f2ea" stroke="#2a2420" stroke-width="2"/>
+        <rect x="${x+10}" y="${y+6}" width="16" height="16" fill="#2a2420"/>
+        <rect x="${x+40}" y="${y+18}" width="18" height="16" fill="#2a2420"/>
+        <rect x="${x+58}" y="${y-16}" width="26" height="24" fill="#f5f2ea" stroke="#2a2420" stroke-width="2"/>
+        <rect x="${x+58}" y="${y-16}" width="10" height="10" fill="#f0b6c4"/>
+        <rect x="${x+5}" y="${y+42}" width="8" height="16" fill="#f5f2ea" stroke="#2a2420" stroke-width="1.5"/>
+        <rect x="${x+55}" y="${y+42}" width="8" height="16" fill="#f5f2ea" stroke="#2a2420" stroke-width="1.5"/>`;
+    }
+    body += cow(70,360);
+    // pig
+    function pig(x,y){
+      return `<rect x="${x}" y="${y}" width="54" height="34" fill="#f0b6c4" stroke="#8a4a55" stroke-width="2"/>
+        <rect x="${x+46}" y="${y-12}" width="20" height="18" fill="#f0b6c4" stroke="#8a4a55" stroke-width="2"/>
+        <rect x="${x+52}" y="${y-4}" width="10" height="8" fill="#c98a97"/>
+        <rect x="${x+4}" y="${y+34}" width="7" height="12" fill="#f0b6c4"/><rect x="${x+42}" y="${y+34}" width="7" height="12" fill="#f0b6c4"/>`;
+    }
+    body += pig(220,395);
+    // sheep
+    function sheep(x,y){
+      return `<rect x="${x}" y="${y}" width="60" height="36" rx="8" fill="#fbfbf3" stroke="#8a8a80" stroke-width="2"/>
+        <rect x="${x+50}" y="${y+6}" width="20" height="20" fill="#3a3530"/>
+        <rect x="${x+6}" y="${y+36}" width="7" height="12" fill="#3a3530"/><rect x="${x+44}" y="${y+36}" width="7" height="12" fill="#3a3530"/>`;
+    }
+    body += sheep(360,400);
+    return svgWrap("farm",defs,body);
+  })()
+};
+
+// -------- 4) تعدين الجبل --------
+THEMES.mine = {
+  name: "تعدين الجبل",
+  svg: (()=>{
+    const defs = `
+      <linearGradient id="skyM" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#3a4a63"/><stop offset="100%" stop-color="#7d8fa8"/>
+      </linearGradient>
+      <linearGradient id="stoneM" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#8a8a8a"/><stop offset="100%" stop-color="#5a5a5a"/>
+      </linearGradient>`;
+    let body = `<rect width="700" height="500" fill="url(#skyM)"/>`;
+    body += `<polygon points="0,500 0,220 180,90 380,240 500,140 700,260 700,500" fill="url(#stoneM)"/>`;
+    // stone block texture
+    for(let i=0;i<90;i++){
+      const gx=(i*41)%700, gy=240+(i*67)%260;
+      body += `<rect x="${gx}" y="${gy}" width="22" height="16" fill="#000" opacity="${(i%5===0)?0.12:0.05}"/>`;
+    }
+    // cave opening
+    body += `<ellipse cx="330" cy="420" rx="110" ry="80" fill="#0d0d10"/>`;
+    // ore veins
+    function ore(x,y,c){ return `<rect x="${x}" y="${y}" width="14" height="14" fill="${c}"/>`; }
+    body += ore(150,300,"#78d9e0")+ore(168,312,"#78d9e0")+ore(400,260,"#78d9e0");
+    body += ore(230,350,"#f4d35e")+ore(246,344,"#f4d35e")+ore(560,320,"#f4d35e");
+    body += ore(480,280,"#c96b4a")+ore(496,292,"#c96b4a");
+    // torches
+    function torch(x,y){ return `<rect x="${x-3}" y="${y}" width="6" height="26" fill="#6b4a2a"/><circle cx="${x}" cy="${y-6}" r="9" fill="#ffb347"/><circle cx="${x}" cy="${y-6}" r="15" fill="#ffb347" opacity=".25"/>`; }
+    body += torch(210,380)+torch(450,370);
+    // minecart on rail
+    body += `<rect x="230" y="430" width="120" height="6" fill="#3a3a3a"/>`;
+    body += `<rect x="260" y="400" width="60" height="34" rx="4" fill="#5a4a3a" stroke="#2a2015" stroke-width="3"/>
+      <circle cx="272" cy="436" r="9" fill="#2a2015"/><circle cx="308" cy="436" r="9" fill="#2a2015"/>`;
+    // ladder
+    for(let y=250;y<420;y+=20){ body += `<rect x="120" y="${y}" width="30" height="6" fill="#6b4a2a"/>`; }
+    body += `<rect x="120" y="240" width="6" height="190" fill="#6b4a2a"/><rect x="144" y="240" width="6" height="190" fill="#6b4a2a"/>`;
+    return svgWrap("mine",defs,body);
+  })()
+};
+
+// -------- 5) المحيط والشعاب --------
+THEMES.ocean = {
+  name: "المحيط والشعاب",
+  svg: (()=>{
+    const defs = `
+      <linearGradient id="waterO" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#8fe0e8"/><stop offset="55%" stop-color="#2f8fc9"/><stop offset="100%" stop-color="#0f3d66"/>
+      </linearGradient>`;
+    let body = `<rect width="700" height="500" fill="url(#waterO)"/>`;
+    // light rays
+    for(let i=0;i<4;i++){
+      body += `<polygon points="${120+i*140},0 ${160+i*140},0 ${260+i*140},280 ${180+i*140},280" fill="#ffffff" opacity=".08"/>`;
+    }
+    // sand floor
+    body += `<rect x="0" y="430" width="700" height="70" fill="#e6c98a"/><rect x="0" y="430" width="700" height="10" fill="#d1b06e"/>`;
+    // coral
+    function coral(x,y,c){
+      return `<rect x="${x}" y="${y}" width="14" height="30" fill="${c}"/><rect x="${x-16}" y="${y+10}" width="14" height="20" fill="${c}"/><rect x="${x+16}" y="${y+14}" width="14" height="16" fill="${c}"/>`;
+    }
+    body += coral(120,400,"#ff8a6b")+coral(500,405,"#ff5e8a")+coral(320,415,"#ffb44b");
+    // seaweed
+    function weed(x,y,h){
+      return `<path d="M${x} ${y} Q ${x-14} ${y-h*0.3} ${x} ${y-h*0.6} Q ${x+14} ${y-h*0.8} ${x} ${y-h}" stroke="#2e8f5a" stroke-width="8" fill="none" stroke-linecap="round"/>`;
+    }
+    body += weed(200,430,110)+weed(220,430,90)+weed(560,430,120);
+    // fish
+    function fish(x,y,c){
+      return `<polygon points="${x},${y} ${x+34},${y-14} ${x+34},${y+14}" fill="${c}"/><polygon points="${x},${y} ${x-14},${y-10} ${x-14},${y+10}" fill="${c}"/><circle cx="${x+26}" cy="${y}" r="2.5" fill="#111"/>`;
+    }
+    body += fish(300,180,"#ff9a3c")+fish(420,240,"#ffd23c")+fish(150,260,"#4fc3e0");
+    // bubbles
+    for(let i=0;i<12;i++){
+      body += `<circle cx="${40+i*53}" cy="${60+(i*77)%320}" r="${3+(i%3)*2}" fill="#fff" opacity=".35"/>`;
+    }
+    return svgWrap("ocean",defs,body);
+  })()
+};
+
+// -------- 6) الغابة المسحورة --------
+THEMES.forest = {
+  name: "الغابة المسحورة",
+  svg: (()=>{
+    const defs = `
+      <linearGradient id="skyE" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1a1035"/><stop offset="60%" stop-color="#3a2158"/><stop offset="100%" stop-color="#5c3a78"/>
+      </linearGradient>`;
+    let body = `<rect width="700" height="500" fill="url(#skyE)"/>`;
+    body += `<circle cx="580" cy="80" r="36" fill="#dce9ff" opacity=".9"/>`;
+    body += `<rect x="0" y="380" width="700" height="120" fill="#1e1430"/>`;
+    // fog patches
+    body += `<ellipse cx="150" cy="400" rx="140" ry="28" fill="#7a5cc9" opacity=".18"/>`;
+    body += `<ellipse cx="520" cy="420" rx="160" ry="30" fill="#7a5cc9" opacity=".18"/>`;
+    // trees
+    function darkTree(x,y,s){
+      return `<rect x="${x-6*s}" y="${y}" width="${12*s}" height="${60*s}" fill="#2a1d38"/>
+        <ellipse cx="${x}" cy="${y-30*s}" rx="${44*s}" ry="${34*s}" fill="#3a2158"/>
+        <ellipse cx="${x-24*s}" cy="${y-14*s}" rx="${26*s}" ry="${22*s}" fill="#432a66"/>
+        <ellipse cx="${x+24*s}" cy="${y-14*s}" rx="${26*s}" ry="${22*s}" fill="#392058"/>`;
+    }
+    body += darkTree(90,340,1.1) + darkTree(600,330,1.3) + darkTree(340,300,1.5);
+    // glowing mushrooms
+    function mush(x,y,s){
+      return `<circle cx="${x}" cy="${y-10*s}" r="${16*s}" fill="#e0453f"/>
+        <circle cx="${x-6*s}" cy="${y-14*s}" r="${3*s}" fill="#fff"/><circle cx="${x+7*s}" cy="${y-9*s}" r="${2.6*s}" fill="#fff"/>
+        <rect x="${x-4*s}" y="${y-2*s}" width="${8*s}" height="${14*s}" fill="#f2e6d8"/>
+        <circle cx="${x}" cy="${y-10*s}" r="${22*s}" fill="#ff6b60" opacity=".22"/>`;
+    }
+    body += mush(180,440,1.2)+mush(470,455,1.5)+mush(250,470,1);
+    // fireflies
+    for(let i=0;i<14;i++){
+      body += `<circle cx="${60+i*47}" cy="${150+(i*63)%220}" r="3" fill="#ffe98a" opacity=".85"/>`;
+    }
+    // enchanted glow block center
+    body += `<rect x="326" y="420" width="48" height="48" fill="#5a2a8a" stroke="#c79bff" stroke-width="3"/>
+      <rect x="336" y="430" width="28" height="28" fill="#8a5cff" opacity=".8"/>
+      <circle cx="350" cy="444" r="34" fill="#a06bff" opacity=".2"/>`;
+    return svgWrap("forest",defs,body);
+  })()
+};
+
+/* ============================================================
+   بناء اللوبي: اختيار الصورة والصعوبة
+   ============================================================ */
+const DIFF = {
+  easy:   { cols:6,  rows:4,  label:"سهلة" },     // 24
+  medium: { cols:8,  rows:6,  label:"متوسطة" },   // 48
+  hard:   { cols:12, rows:8,  label:"صعبة" },      // 96
+  expert: { cols:18, rows:12, label:"خبير" },      // 216
+  master: { cols:24, rows:16, label:"محترف" },     // 384
+  legend: { cols:30, rows:20, label:"أسطورية" }    // 600
+};
+const CELL = 70;
+
+let selectedTheme = null, selectedDiff = null;
+let customImageDataUrl = null;
+
+function readAndCompressImage(file){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = ()=>reject(new Error("read-failed"));
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onerror = ()=>reject(new Error("decode-failed"));
+      img.onload = ()=>{
+        const maxDim = 1400;
+        let w = img.width, h = img.height;
+        if(w>=h && w>maxDim){ h = Math.round(h*maxDim/w); w = maxDim; }
+        else if(h>w && h>maxDim){ w = Math.round(w*maxDim/h); h = maxDim; }
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function buildLobby(){
+  const grid = document.getElementById("themeGrid");
+
+  // بطاقة رفع صورة من الجهاز
+  const uploadCard = document.createElement("div");
+  uploadCard.className = "theme-card upload-card";
+  uploadCard.id = "uploadThemeCard";
+  uploadCard.innerHTML = `
+    <div class="upload-inner">
+      <span class="upload-icon">📷</span>
+      <span>ارفع صورة من جهازك</span>
+    </div>
+    <span>صورتك الخاصة</span>`;
+  uploadCard.addEventListener("click", ()=>{
+    document.getElementById("customImageInput").click();
+  });
+  grid.appendChild(uploadCard);
+
+  document.getElementById("customImageInput").addEventListener("change", async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    if(!file.type.startsWith("image/")){
+      alert("لازم تختار ملف صورة");
+      e.target.value = "";
+      return;
+    }
+    const oldTxt = uploadCard.querySelector(".upload-inner span:last-child").textContent;
+    uploadCard.querySelector(".upload-inner span:last-child").textContent = "جاري الرفع...";
+    try{
+      const dataUrl = await readAndCompressImage(file);
+      customImageDataUrl = dataUrl;
+      uploadCard.style.backgroundImage = `url(${dataUrl})`;
+      uploadCard.classList.add("has-image");
+      document.querySelectorAll(".theme-card").forEach(c=>c.classList.remove("selected"));
+      uploadCard.classList.add("selected");
+      selectedTheme = "custom";
+      checkReady();
+    }catch(err){
+      alert("صار خطأ برفع الصورة، جرب صورة ثانية");
+      uploadCard.querySelector(".upload-inner span:last-child").textContent = oldTxt;
+    }
+    e.target.value = "";
+  });
+
+  // ملاحظة: الصور الجاهزة (قرية، نذر، مزرعة...) اتشالت، رفع صورة من الجهاز صار الخيار الوحيد
+  document.querySelectorAll(".diff-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      document.querySelectorAll(".diff-btn").forEach(b=>b.classList.remove("selected"));
+      btn.classList.add("selected");
+      selectedDiff = btn.dataset.diff;
+      const customBox = document.getElementById("customDiffBox");
+      if(selectedDiff === "custom"){
+        customBox.style.display = "flex";
+        updateCustomTotal();
+      } else {
+        customBox.style.display = "none";
+      }
+      checkReady();
+    });
+  });
+  document.getElementById("customCols").addEventListener("input", updateCustomTotal);
+  document.getElementById("customRows").addEventListener("input", updateCustomTotal);
+  (function initCustomDiffSteppers(){
+    function wireStepper(inputId, upId, downId){
+      const inp = document.getElementById(inputId);
+      const min = parseInt(inp.min, 10) || 0;
+      const max = parseInt(inp.max, 10) || 9999;
+      function step(delta){
+        const cur = parseInt(inp.value || "0", 10) || 0;
+        const next = Math.min(max, Math.max(min, cur + delta));
+        inp.value = next;
+        inp.dispatchEvent(new Event("input", { bubbles:true }));
+      }
+      document.getElementById(upId).addEventListener("click", ()=>step(1));
+      document.getElementById(downId).addEventListener("click", ()=>step(-1));
+    }
+    wireStepper("customCols", "customColsUp", "customColsDown");
+    wireStepper("customRows", "customRowsUp", "customRowsDown");
+  })();
+  document.getElementById("nameInput").value = myName;
+  document.getElementById("nameInput").addEventListener("input", checkReady);
+  document.getElementById("startBtn").addEventListener("click", createRoom);
+
+  // تبويب إنشاء غرفة / دخول لغرفة
+  document.querySelectorAll(".mode-tab").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      document.querySelectorAll(".mode-tab").forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active");
+      const mode = tab.dataset.mode;
+      document.getElementById("createBox").style.display = mode === "create" ? "block" : "none";
+      document.getElementById("joinRoomBox").style.display = mode === "join" ? "block" : "none";
+    });
+  });
+  document.getElementById("joinRoomNameInput").value = myName;
+  document.getElementById("joinRoomGoBtn").addEventListener("click", ()=>{
+    const nm = document.getElementById("joinRoomNameInput").value.trim().slice(0,16);
+    const raw = document.getElementById("joinRoomCodeInput").value.trim();
+    const hintEl = document.getElementById("joinRoomHint");
+    if(!nm){ hintEl.textContent = "لازم تكتب اسمك الأول"; return; }
+    if(!raw){ hintEl.textContent = "لازم تكتب كود الغرفة أو رابط الدعوة"; return; }
+    let roomId = raw;
+    const m = raw.match(/room=([A-Za-z0-9]+)/);
+    if(m) roomId = m[1];
+    roomId = roomId.trim().toUpperCase();
+    myName = nm;
+    sessionStorage.setItem("s3as3_puzzle_name", myName);
+    hintEl.textContent = "";
+    location.hash = "room="+roomId;
+    document.getElementById("lobbyScreen").style.display = "none";
+    enterRoom(roomId);
+  });
+}
+function updateCustomTotal(){
+  const colsEl = document.getElementById("customCols"), rowsEl = document.getElementById("customRows");
+  let cols = Math.max(2, Math.min(50, parseInt(colsEl.value,10) || 2));
+  let rows = Math.max(2, Math.min(50, parseInt(rowsEl.value,10) || 2));
+  colsEl.value = cols; rowsEl.value = rows;
+  document.getElementById("customTotalTxt").textContent = "= " + (cols*rows) + " قطعة";
+}
+function checkReady(){
+  const nm = document.getElementById("nameInput").value.trim();
+  document.getElementById("startBtn").disabled = !(selectedTheme && selectedDiff && nm.length>0);
+}
+
+/* ============================================================
+   توليد شكل قطع الأحجية (Jigsaw tabs) بذرة ثابتة
+   ============================================================ */
+function buildEdges(seed, rows, cols){
+  const rng = mulberry32(seed);
+  const vEdge = []; // بين عمود c و c+1 بنفس الصف — طوله rows x (cols-1)
+  const hEdge = []; // بين صف r و r+1 بنفس العمود — طوله (rows-1) x cols
+  for(let r=0;r<rows;r++){
+    vEdge.push([]);
+    for(let c=0;c<cols-1;c++) vEdge[r].push(rng()<0.5?-1:1);
+  }
+  for(let r=0;r<rows-1;r++){
+    hEdge.push([]);
+    for(let c=0;c<cols;c++) hEdge[r].push(rng()<0.5?-1:1);
+  }
+  return {vEdge, hEdge};
+}
+function lerp(a,b,t){ return {x:a.x+(b.x-a.x)*t, y:a.y+(b.y-a.y)*t}; }
+function edgeSeg(start, end, bump, normal, depthFactor){
+  if(bump===0) return `L ${end.x} ${end.y}`;
+  const e1 = lerp(start,end,0.36), e2 = lerp(start,end,0.64);
+  const len = Math.hypot(end.x-start.x, end.y-start.y);
+  const depth = len*depthFactor*bump;
+  const c1 = {x:e1.x+normal.x*depth, y:e1.y+normal.y*depth};
+  const c2 = {x:e2.x+normal.x*depth, y:e2.y+normal.y*depth};
+  return `L ${e1.x} ${e1.y} C ${c1.x} ${c1.y} ${c2.x} ${c2.y} ${e2.x} ${e2.y} L ${end.x} ${end.y}`;
+}
+function piecePath(P, w, h, top, right, bottom, left){
+  const TL={x:P,y:P}, TR={x:P+w,y:P}, BR={x:P+w,y:P+h}, BL={x:P,y:P+h};
+  let d = `M ${TL.x} ${TL.y} `;
+  d += edgeSeg(TL,TR, top, {x:0,y:-1}, 0.30) + " ";
+  d += edgeSeg(TR,BR, right, {x:1,y:0}, 0.30) + " ";
+  d += edgeSeg(BR,BL, bottom, {x:0,y:1}, 0.30) + " ";
+  d += edgeSeg(BL,TL, left, {x:-1,y:0}, 0.30) + " Z";
+  return d;
+}
+
+/* ============================================================
+   بناء اللوحة والقطع من الصورة
+   ============================================================ */
+let state = {
+  roomId:null, theme:null, rows:0, cols:0, cellSize:CELL, boardW:0, boardH:0,
+  pieces:{}, placedCount:0, total:0, scale:1, dragId:null,
+  baseScale:1, zoom:1, panX:0, panY:0, minZoom:1, maxZoom:4,
+  hostId:null, isHost:false
+};
+
+function svgDataUri(svgStr){
+  return "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
+}
+
+/* ============================================================
+   حساب هامش اللوحة (M) بحيث تضمن مساحة كافية حوالين اللوحة
+   تستوعب كل القطع بدون أي تراكب بينها (لا وقت البعثرة الأولى ولا وقت الريسيت)
+   ============================================================ */
+function pieceGeom(cellSize){
+  const P = Math.round(cellSize*0.34);
+  const pieceSize = cellSize + 2*P;
+  const gap = Math.max(4, Math.round(pieceSize*0.12));
+  return { P, pieceSize, gap, step: pieceSize+gap };
+}
+function countScatterSlots(M, boardW, boardH, pieceSize, step){
+  const totalW = boardW + 2*M, totalH = boardH + 2*M;
+  const cols = Math.max(1, Math.floor(totalW/step));
+  const rows = Math.max(1, Math.floor(totalH/step));
+  let count = 0;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const x = c*step, y = r*step;
+      const overlapsBoard = (x < M+boardW) && (x+pieceSize > M) && (y < M+boardH) && (y+pieceSize > M);
+      if(!overlapsBoard) count++;
+    }
+  }
+  return count;
+}
+function computeMargin(rows, cols, cellSize){
+  const boardW = cols*cellSize, boardH = rows*cellSize;
+  const total = rows*cols;
+  const { pieceSize, step } = pieceGeom(cellSize);
+  let M = Math.max(200, Math.round(Math.sqrt(total) * 24));
+  let guard = 0;
+  // زوّد الهامش لغاية ما تصير الخانات المتاحة حوالين اللوحة أكثر من عدد القطع بهامش أمان
+  while(countScatterSlots(M, boardW, boardH, pieceSize, step) < total + Math.ceil(total*0.1) + 8 && guard < 80){
+    M += Math.round(step*0.6);
+    guard++;
+  }
+  return M;
+}
+function buildScatterSlots(M, boardW, boardH, cellSize){
+  const { pieceSize, step } = pieceGeom(cellSize);
+  const totalW = boardW + 2*M, totalH = boardH + 2*M;
+  const cols = Math.max(1, Math.floor(totalW/step));
+  const rows = Math.max(1, Math.floor(totalH/step));
+  const slots = [];
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const x = c*step, y = r*step;
+      const overlapsBoard = (x < M+boardW) && (x+pieceSize > M) && (y < M+boardH) && (y+pieceSize > M);
+      if(!overlapsBoard) slots.push({x, y});
+    }
+  }
+  return slots;
+}
+function shuffleArray(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+async function renderBoardFromMeta(meta){
+  state.roomId = meta.roomId;
+  state.theme = meta.theme;
+  state.rows = meta.rows; state.cols = meta.cols; state.cellSize = meta.cellSize;
+  state.boardW = meta.cols*meta.cellSize; state.boardH = meta.rows*meta.cellSize;
+  state.total = meta.rows*meta.cols;
+
+  const P = Math.round(meta.cellSize*0.34);
+  // مساحة فاضية حوالين اللوحة تنحط فيها القطع المبعثرة، تكبر مع عدد القطع بحيث تستوعبها كلها بدون تراكب
+  const M = computeMargin(meta.rows, meta.cols, meta.cellSize);
+  state.margin = M;
+  state.totalW = state.boardW + 2*M;
+  state.totalH = state.boardH + 2*M;
+
+  const stage = document.getElementById("boardArea");
+  stage.innerHTML = "";
+  stage.style.width = state.totalW+"px";
+  stage.style.height = state.totalH+"px";
+
+  const frame = document.createElement("div");
+  frame.className = "board-frame";
+  frame.style.left = M+"px";
+  frame.style.top = M+"px";
+  frame.style.width = state.boardW+"px";
+  frame.style.height = state.boardH+"px";
+  stage.appendChild(frame);
+
+  const scaleWrap = document.getElementById("scaleWrap");
+  scaleWrap.style.width = state.totalW+"px";
+  scaleWrap.style.height = state.totalH+"px";
+
+  // تحميل صورة المشهد كاملة على كانفس (صورة جاهزة أو صورة رفعها المستخدم)
+  const isCustom = meta.theme === "custom" && meta.customImage;
+  const img = new Image();
+  if(isCustom){
+    await new Promise((res, rej)=>{ img.onload = res; img.onerror = rej; img.src = meta.customImage; });
+  } else {
+    await new Promise((res)=>{ img.onload = res; img.src = svgDataUri(THEMES[meta.theme].svg); });
+  }
+  document.getElementById("refImage").src = img.src;
+  const srcCanvas = document.createElement("canvas");
+  srcCanvas.width = state.boardW; srcCanvas.height = state.boardH;
+  const sctx = srcCanvas.getContext("2d");
+  if(isCustom){
+    // نمط "cover" عشان صورة المستخدم تغطي اللوحة كاملة بدون تشويه
+    const scale = Math.max(state.boardW/img.width, state.boardH/img.height);
+    const dw = img.width*scale, dh = img.height*scale;
+    const dx = (state.boardW-dw)/2, dy = (state.boardH-dh)/2;
+    sctx.drawImage(img, dx, dy, dw, dh);
+  } else {
+    sctx.drawImage(img, 0, 0, state.boardW, state.boardH);
+  }
+
+  const {vEdge, hEdge} = buildEdges(seedFromString(meta.roomId), meta.rows, meta.cols);
+  const pieceEls = {};
+
+  for(let r=0;r<meta.rows;r++){
+    for(let c=0;c<meta.cols;c++){
+      const top    = r===0 ? 0 : -hEdge[r-1][c];
+      const bottom = r===meta.rows-1 ? 0 : hEdge[r][c];
+      const left   = c===0 ? 0 : -vEdge[r][c-1];
+      const right  = c===meta.cols-1 ? 0 : vEdge[r][c];
+
+      const w = meta.cellSize, h = meta.cellSize;
+      const d = piecePath(P, w, h, top, right, bottom, left);
+      const path2d = new Path2D(d);
+
+      const pc = document.createElement("canvas");
+      pc.width = w+2*P; pc.height = h+2*P;
+      const pctx = pc.getContext("2d");
+      const cellX = c*meta.cellSize, cellY = r*meta.cellSize;
+      pctx.save();
+      pctx.clip(path2d);
+      pctx.drawImage(srcCanvas, -(cellX-P), -(cellY-P));
+      pctx.restore();
+      pctx.lineWidth = 2.4;
+      pctx.strokeStyle = "rgba(0,0,0,.38)";
+      pctx.stroke(path2d);
+      pctx.lineWidth = 1;
+      pctx.strokeStyle = "rgba(255,255,255,.15)";
+      pctx.stroke(path2d);
+
+      const id = "r"+r+"c"+c;
+      const el = document.createElement("div");
+      el.className = "piece";
+      el.style.width = (w+2*P)+"px";
+      el.style.height = (h+2*P)+"px";
+      el.style.backgroundImage = `url(${pc.toDataURL()})`;
+      el.style.backgroundSize = "100% 100%";
+      el.dataset.id = id;
+      el.dataset.targetX = cellX - P + M;
+      el.dataset.targetY = cellY - P + M;
+      stage.appendChild(el);
+      pieceEls[id] = el;
+      attachDrag(el);
+    }
+  }
+  state.pieceEls = pieceEls;
+  state.padding = P;
+
+  applyResponsiveScale();
+  window.addEventListener("resize", applyResponsiveScale);
+}
+
+function applyResponsiveScale(){
+  const outer = document.querySelector(".board-outer");
+  const availW = outer.clientWidth - 16;
+  const availH = outer.clientHeight - 16;
+  const s = Math.min(1, availW / state.totalW, availH / state.totalH);
+  state.baseScale = s;
+  state.minZoom = 1;
+  state.maxZoom = 4;
+  clampPan();
+  applyTransform();
+}
+
+function applyTransform(){
+  state.scale = state.baseScale * state.zoom;
+  document.getElementById("scaleWrap").style.transform =
+    `translate(${state.panX}px, ${state.panY}px) scale(${state.scale})`;
+}
+
+function clampPan(){
+  const outer = document.querySelector(".board-outer");
+  if(!outer) return;
+  const availW = outer.clientWidth, availH = outer.clientHeight;
+  const contentW = state.totalW * state.baseScale * state.zoom;
+  const contentH = state.totalH * state.baseScale * state.zoom;
+  // اسمح بهامش حركة إضافي شوي حتى إذا المحتوى أصغر من الحيز المرئي
+  const slackX = Math.max(0, (contentW - availW) / 2) + 60;
+  const slackY = Math.max(0, (contentH - availH) / 2) + 60;
+  state.panX = Math.max(-slackX, Math.min(slackX, state.panX));
+  state.panY = Math.max(-slackY, Math.min(slackY, state.panY));
+}
+
+function setZoom(newZoom, anchorClientX, anchorClientY){
+  const outer = document.getElementById("boardOuter");
+  const rect = outer.getBoundingClientRect();
+  const ax = anchorClientX!=null ? anchorClientX - rect.left - rect.width/2 : 0;
+  const ay = anchorClientY!=null ? anchorClientY - rect.top - rect.height/2 : 0;
+  const oldZoom = state.zoom;
+  newZoom = Math.max(state.minZoom, Math.min(state.maxZoom, newZoom));
+  if(newZoom === oldZoom) return;
+  // خلي النقطة اللي تحت الإصبع/المؤشر ثابتة بصريًا وقت التكبير
+  const ratio = newZoom/oldZoom;
+  state.panX = ax - (ax - state.panX)*ratio;
+  state.panY = ay - (ay - state.panY)*ratio;
+  state.zoom = newZoom;
+  clampPan();
+  applyTransform();
+}
+
+/* ============================================================
+   الزوم والتحريك (تكبير/تصغير بعجلة الفأرة أو بأصابع الجوال)
+   ============================================================ */
+(function setupZoomPan(){
+  const outer = document.getElementById("boardOuter");
+  if(!outer) return;
+  const pointers = new Map();
+  let mode = null; // 'pan' | 'pinch'
+  let panStart = {x:0,y:0}, panOrigin = {x:0,y:0};
+  let pinchStartDist = 0, pinchStartZoom = 1, pinchMid = {x:0,y:0};
+
+  function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+  function mid(a,b){ return {x:(a.x+b.x)/2, y:(a.y+b.y)/2}; }
+
+  outer.addEventListener("pointerdown", (e)=>{
+    const pieceEl = e.target.closest && e.target.closest(".piece");
+    if(pieceEl && !pieceEl.classList.contains("placed")) return; // القطعة نفسها تتكفل بالسحب
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pointers.size === 1){
+      mode = "pan";
+      panStart = {x:e.clientX, y:e.clientY};
+      panOrigin = {x:state.panX, y:state.panY};
+      outer.classList.add("panning");
+    } else if(pointers.size === 2){
+      mode = "pinch";
+      outer.classList.remove("panning");
+      const pts = [...pointers.values()];
+      pinchStartDist = dist(pts[0], pts[1]) || 1;
+      pinchStartZoom = state.zoom;
+      pinchMid = mid(pts[0], pts[1]);
+    }
+  });
+
+  window.addEventListener("pointermove", (e)=>{
+    if(!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(mode === "pan" && pointers.size === 1){
+      state.panX = panOrigin.x + (e.clientX - panStart.x);
+      state.panY = panOrigin.y + (e.clientY - panStart.y);
+      clampPan();
+      applyTransform();
+    } else if(mode === "pinch" && pointers.size === 2){
+      const pts = [...pointers.values()];
+      const d = dist(pts[0], pts[1]) || 1;
+      const newMid = mid(pts[0], pts[1]);
+      const newZoom = pinchStartZoom * (d / pinchStartDist);
+      setZoom(newZoom, newMid.x, newMid.y);
+      pinchMid = newMid;
+    }
+  });
+
+  function release(e){
+    pointers.delete(e.pointerId);
+    outer.classList.remove("panning");
+    if(pointers.size === 1){
+      mode = "pan";
+      const [pt] = [...pointers.values()];
+      panStart = {x:pt.x, y:pt.y};
+      panOrigin = {x:state.panX, y:state.panY};
+      outer.classList.add("panning");
+    } else if(pointers.size === 0){
+      mode = null;
+    }
+  }
+  window.addEventListener("pointerup", release);
+  window.addEventListener("pointercancel", release);
+
+  // زوم بعجلة الفأرة (ديسكتوب)
+  outer.addEventListener("wheel", (e)=>{
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.12 : 1/1.12;
+    setZoom(state.zoom * factor, e.clientX, e.clientY);
+  }, {passive:false});
+
+  document.getElementById("zoomInBtn").addEventListener("click", ()=> setZoom(state.zoom*1.3));
+  document.getElementById("zoomOutBtn").addEventListener("click", ()=> setZoom(state.zoom/1.3));
+  document.getElementById("zoomResetBtn").addEventListener("click", ()=>{
+    state.zoom = 1; state.panX = 0; state.panY = 0; applyTransform();
+  });
+})();
+
+/* ============================================================
+   السحب والإفلات + المزامنة
+   ============================================================ */
+function attachDrag(el){
+  let startX=0, startY=0, origX=0, origY=0, dragging=false;
+  el.addEventListener("pointerdown", (e)=>{
+    if(el.classList.contains("placed")) return;
+    e.preventDefault();
+    e.stopPropagation(); // منع تحريك/بعثرة اللوحة (pan) وقت سحب قطعة
+    dragging = true;
+    state.dragId = el.dataset.id;
+    el.classList.add("dragging");
+    el.setPointerCapture(e.pointerId);
+    startX = e.clientX; startY = e.clientY;
+    const tf = el.style.transform.match(/-?\d+(\.\d+)?/g);
+    origX = tf ? parseFloat(tf[0]) : 0;
+    origY = tf ? parseFloat(tf[1]) : 0;
+    setPieceTag(el, myId); // اسم اللي ماسك القطعة يظهر قدامها فورًا عندي
+    db.ref(`puzzles/${state.roomId}/pieces/${el.dataset.id}/draggedBy`).set(myId).catch(()=>{});
+  });
+  el.addEventListener("pointermove", (e)=>{
+    if(!dragging) return;
+    e.stopPropagation();
+    const dx = (e.clientX-startX)/state.scale;
+    const dy = (e.clientY-startY)/state.scale;
+    // حصر القطعة داخل مساحة اللوحة نفسها عشان ما تضيع أو تختفي ورا حواف الإطار
+    const P = state.padding, pieceSize = state.cellSize + 2*P;
+    const minX = -P, maxX = state.totalW - pieceSize + P;
+    const minY = -P, maxY = state.totalH - pieceSize + P;
+    const nx = Math.max(minX, Math.min(maxX, origX+dx));
+    const ny = Math.max(minY, Math.min(maxY, origY+dy));
+    el.style.transform = `translate(${nx}px, ${ny}px)`;
+    throttledPush(el.dataset.id, nx, ny, false);
+  });
+  function endDrag(e){
+    if(!dragging) return;
+    e.stopPropagation();
+    dragging = false;
+    el.classList.remove("dragging");
+    state.dragId = null;
+    const tf = el.style.transform.match(/-?\d+(\.\d+)?/g);
+    let nx = tf ? parseFloat(tf[0]) : 0;
+    let ny = tf ? parseFloat(tf[1]) : 0;
+    const tx = parseFloat(el.dataset.targetX), ty = parseFloat(el.dataset.targetY);
+    let placed = false;
+    if(Math.hypot(nx-tx, ny-ty) < 16){
+      nx = tx; ny = ty; placed = true;
+      el.style.transform = `translate(${nx}px, ${ny}px)`;
+      el.classList.add("placed");
+      el.style.zIndex = 2;
+    } else {
+      el.style.zIndex = 50;
+    }
+    setPieceTag(el, null);
+    pushPiece(el.dataset.id, nx, ny, placed);
+  }
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
+}
+
+let pushTimer = {};
+function throttledPush(id, x, y, placed){
+  if(pushTimer[id]) return;
+  pushTimer[id] = setTimeout(()=>{ pushTimer[id]=null; }, 70);
+  db.ref(`puzzles/${state.roomId}/pieces/${id}`).update({x,y,placed}).catch(()=>{});
+}
+function pushPiece(id, x, y, placed){
+  db.ref(`puzzles/${state.roomId}/pieces/${id}`).set({x,y,placed, placedBy: placed?myId:null}).catch(()=>{});
+}
+
+let latestPlayers = {};
+let latestPieceCounts = {};
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+/* بطاقة صغيرة بإسم اللاعب تظهر قدام القطعة وقت ما يكون فيه حدا ماسكها */
+function setPieceTag(el, pid){
+  let tag = el.querySelector(".piece-tag");
+  if(!pid){
+    if(tag) tag.remove();
+    el.classList.remove("remote-drag");
+    return;
+  }
+  const p = latestPlayers[pid];
+  const name = (p && p.name) ? p.name : "لاعب";
+  const color = (p && p.color) ? p.color : "#6F4E37";
+  if(!tag){
+    tag = document.createElement("div");
+    tag.className = "piece-tag";
+    el.appendChild(tag);
+  }
+  tag.textContent = name;
+  tag.style.background = color;
+  el.classList.add("remote-drag");
+}
+
+function renderPlayersList(){
+  const box = document.getElementById("playersList");
+  if(!box) return;
+  box.innerHTML = "";
+  Object.keys(latestPlayers).forEach(pid=>{
+    const p = latestPlayers[pid];
+    const count = latestPieceCounts[pid] || 0;
+    const row = document.createElement("div");
+    row.className = "player-row";
+    row.innerHTML = `<span class="p-dot" style="background:${p.color||'#6F4E37'}">${escapeHtml((p.name||"?").trim().slice(0,1).toUpperCase())}</span>`
+      + `<span class="player-name">${escapeHtml(p.name||"")}</span>`
+      + `<span class="player-count">${count} قطعة</span>`
+      + (state.isHost && pid !== myId ? `<button type="button" class="kick-btn" data-pid="${escapeHtml(pid)}" title="طرد">✕</button>` : "");
+    box.appendChild(row);
+  });
+}
+
+function listenPieces(){
+  db.ref(`puzzles/${state.roomId}/pieces`).on("value", (snap)=>{
+    const val = snap.val() || {};
+    let placedCount = 0;
+    const counts = {};
+    Object.keys(val).forEach(id=>{
+      const p = val[id];
+      if(p.placed && p.placedBy){ counts[p.placedBy] = (counts[p.placedBy]||0) + 1; }
+      const tagEl = state.pieceEls[id];
+      if(tagEl) setPieceTag(tagEl, id===state.dragId ? null : (p.draggedBy || null));
+      if(id===state.dragId) { if(p.placed) placedCount++; return; }
+      const el = state.pieceEls[id];
+      if(!el) return;
+      el.style.transform = `translate(${p.x}px, ${p.y}px)`;
+      if(p.placed){ el.classList.add("placed"); el.style.zIndex=2; placedCount++; }
+      else { el.classList.remove("placed"); el.style.zIndex=5; }
+    });
+    state.placedCount = placedCount;
+    latestPieceCounts = counts;
+    document.getElementById("progressTxt").textContent = `${placedCount} / ${state.total} قطعة`;
+    renderPlayersList();
+    if(placedCount>0 && placedCount===state.total){ showWin(); }
+  });
+}
+
+function listenPlayers(){
+  const ref = db.ref(`puzzles/${state.roomId}/players`);
+  ref.on("value", (snap)=>{
+    latestPlayers = snap.val() || {};
+    renderPlayersList();
+  });
+}
+function joinPresence(){
+  const ref = db.ref(`puzzles/${state.roomId}/players/${myId}`);
+  ref.set({name: myName, color: myColor, joinedAt: firebase.database.ServerValue.TIMESTAMP});
+  ref.onDisconnect().remove();
+}
+
+/* ============================================================
+   ريسيت: يرتب القطع الي مو مركبة بشكل منظم صف جنب صف (بدون تراكب أو تخبيص)،
+   القطع المركبة تضل مكانها
+   ============================================================ */
+function resetPieces(){
+  if(!state.isHost){ return; }
+  if(!state.roomId || !state.pieceEls) return;
+  const slots = shuffleArray(buildScatterSlots(state.margin, state.boardW, state.boardH, state.cellSize));
+
+  const updates = {};
+  let slotIdx = 0;
+  Object.keys(state.pieceEls).forEach(id=>{
+    const el = state.pieceEls[id];
+    if(el.classList.contains("placed")) return;
+    const slot = slots[slotIdx] || slots[slotIdx % Math.max(1, slots.length)] || {x:0, y:0};
+    updates[id] = { x: slot.x, y: slot.y, placed:false, placedBy:null };
+    slotIdx++;
+  });
+  if(Object.keys(updates).length === 0) return;
+  db.ref(`puzzles/${state.roomId}/pieces`).update(updates).catch(()=>{});
+}
+document.getElementById("resetBtn").addEventListener("click", resetPieces);
+document.getElementById("playersList").addEventListener("click", (e)=>{
+  const btn = e.target.closest(".kick-btn");
+  if(!btn) return;
+  if(confirm("متأكد إنك تبي تطرد هالشخص من الغرفة؟")) kickPlayer(btn.dataset.pid);
+});
+
+let winShown = false;
+function showWin(){
+  if(winShown) return;
+  winShown = true;
+  document.getElementById("winOverlay").style.display = "flex";
+}
+
+/* ============================================================
+   إنشاء غرفة جديدة (المضيف)
+   ============================================================ */
+async function createRoom(){
+  myName = document.getElementById("nameInput").value.trim().slice(0,16);
+  sessionStorage.setItem("s3as3_puzzle_name", myName);
+  const roomId = randCode(6);
+  let rows, cols;
+  if(selectedDiff === "custom"){
+    cols = Math.max(2, Math.min(50, parseInt(document.getElementById("customCols").value,10) || 2));
+    rows = Math.max(2, Math.min(50, parseInt(document.getElementById("customRows").value,10) || 2));
+  } else {
+    const diff = DIFF[selectedDiff];
+    rows = diff.rows; cols = diff.cols;
+  }
+
+  const meta = { roomId, theme: selectedTheme, rows, cols, cellSize: CELL, createdAt: Date.now(), hostId: myId };
+  if(selectedTheme === "custom" && customImageDataUrl){
+    meta.customImage = customImageDataUrl;
+  }
+
+  // مواقع بعثرة أولية للقطع، كل قطعة بخانة لحالها بدون أي تراكب فوق بعض
+  // (نفس المضيف يولّدها ويكتبها بقاعدة البيانات عشان الكل يشوف نفس الشيء)
+  const boardW = cols*CELL, boardH = rows*CELL;
+  const total = rows*cols;
+  const M = computeMargin(rows, cols, CELL);
+  const slots = shuffleArray(buildScatterSlots(M, boardW, boardH, CELL));
+
+  const pieces = {};
+  let idx = 0;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const id = "r"+r+"c"+c;
+      const slot = slots[idx] || slots[idx % Math.max(1, slots.length)] || {x:0, y:0};
+      pieces[id] = { x: slot.x, y: slot.y, placed:false, placedBy:null };
+      idx++;
+    }
+  }
+
+  await db.ref(`puzzles/${roomId}`).set({ meta, pieces });
+  location.hash = "room="+roomId;
+  await enterRoom(roomId);
+}
+
+/* ============================================================
+   الدخول لغرفة موجودة
+   ============================================================ */
+async function enterRoom(roomId){
+  document.getElementById("lobbyScreen").style.display = "none";
+  document.getElementById("errorScreen").style.display = "none";
+  document.getElementById("roomScreen").style.display = "block";
+  document.getElementById("roomCodeTxt").textContent = roomId;
+
+  const snap = await db.ref(`puzzles/${roomId}/meta`).once("value");
+  const meta = snap.val();
+  if(!meta){
+    document.getElementById("roomScreen").style.display = "none";
+    document.getElementById("errorScreen").style.display = "block";
+    return;
+  }
+  meta.roomId = roomId;
+  state.hostId = meta.hostId || null;
+  state.isHost = !!(state.hostId && state.hostId === myId);
+  document.getElementById("resetBtn").style.display = state.isHost ? "" : "none";
+  await renderBoardFromMeta(meta);
+  listenPieces();
+  listenPlayers();
+  joinPresence();
+  listenKicked();
+}
+
+/* ============================================================
+   طرد اللاعبين — بس صاحب الغرفة (الي فتحها) يقدر يطرد
+   ============================================================ */
+function listenKicked(){
+  db.ref(`puzzles/${state.roomId}/kicked/${myId}`).on("value", (snap)=>{
+    if(snap.val()){
+      alert("تم طردك من الغرفة من قبل صاحب الغرفة");
+      location.href = "puzzle.html";
+    }
+  });
+}
+function kickPlayer(pid){
+  if(!state.isHost || !pid || pid === myId) return;
+  db.ref(`puzzles/${state.roomId}/kicked/${pid}`).set(true).catch(()=>{});
+  db.ref(`puzzles/${state.roomId}/players/${pid}`).remove().catch(()=>{});
+}
+
+document.getElementById("copyLinkBtn").addEventListener("click", ()=>{
+  const url = location.href;
+  navigator.clipboard.writeText(url).then(()=>{
+    const btn = document.getElementById("copyLinkBtn");
+    const old = btn.textContent;
+    btn.textContent = "✅ انتسخ الرابط";
+    setTimeout(()=>{ btn.textContent = old; }, 1800);
+  }).catch(()=>{ prompt("انسخ الرابط:", url); });
+});
+document.getElementById("leaveBtn").addEventListener("click", ()=>{ location.href = "puzzle.html"; });
+
+/* ============================================================
+   إظهار/إخفاء لوحة التحكم العائمة (خارج اللوحة، بدون بوردر تقسيم)
+   ============================================================ */
+document.getElementById("panelCloseBtn").addEventListener("click", ()=>{
+  document.getElementById("infoPanel").classList.add("hidden");
+  document.getElementById("panelToggleBtn").classList.add("show");
+});
+document.getElementById("panelToggleBtn").addEventListener("click", ()=>{
+  document.getElementById("infoPanel").classList.remove("hidden");
+  document.getElementById("panelToggleBtn").classList.remove("show");
+});
+
+/* ============================================================
+   تكبير الصورة الأصلية بالضغط عليها
+   ============================================================ */
+document.getElementById("refImage").addEventListener("click", ()=>{
+  const src = document.getElementById("refImage").src;
+  if(!src) return;
+  document.getElementById("lightboxImg").src = src;
+  document.getElementById("imgLightbox").style.display = "flex";
+});
+document.getElementById("imgLightbox").addEventListener("click", ()=>{
+  document.getElementById("imgLightbox").style.display = "none";
+});
+document.getElementById("joinBtn").addEventListener("click", ()=>{
+  const nm = document.getElementById("joinNameInput").value.trim().slice(0,16);
+  if(!nm) return;
+  myName = nm;
+  sessionStorage.setItem("s3as3_puzzle_name", myName);
+  document.getElementById("nameModal").style.display = "none";
+  const roomId = location.hash.replace("#room=","");
+  enterRoom(roomId);
+});
+
+/* ============================================================
+   بداية التشغيل
+   ============================================================ */
+(function init(){
+  buildLobby();
+  const hash = location.hash;
+  if(hash.startsWith("#room=")){
+    const roomId = hash.replace("#room=","");
+    if(myName){
+      document.getElementById("lobbyScreen").style.display = "none";
+      enterRoom(roomId);
+    } else {
+      document.getElementById("lobbyScreen").style.display = "none";
+      document.getElementById("nameModal").style.display = "flex";
+    }
+  }
+})();
+</script>
+</body>
+</html>

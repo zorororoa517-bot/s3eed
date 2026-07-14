@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ميموري كرافت — S3aS3 Games</title>
+<link rel="icon" href="assets/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  /* نفس متغيرات ألوان الموقع الرئيسي بالضبط */
+  :root{
+    --tan:#e4d0b4; --tan-deep:#cbb08a; --walnut:#403022; --charcoal:#2e2216; --cream:#FBF6EE;
+    --paper:#37291d; --ink:#292118; --ink-soft:#6e5d4d; --clay:#6F4E37;
+    --line: rgba(228,208,180,.16); --shadow: 0 10px 28px rgba(0,0,0,.45);
+    --bg:#403022; --surface:#37291d; --text:#e4d0b4; --text-soft:#cbb08a; --header-bg: var(--walnut);
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:'Tajawal', sans-serif;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  .topbar{
+    position:relative;
+    background: var(--header-bg); border-bottom: 1px solid var(--line);
+    padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .brand .mark{
+    width:34px; height:34px; border-radius:3px; background: var(--charcoal); color:var(--tan);
+    display:flex; align-items:center; justify-content:center; font-family:'Cairo', sans-serif; font-weight:700;
+    font-size:18px; transform: rotate(-3deg); overflow:hidden; position:relative;
+  }
+  .brand .mark{ animation: mcTorchGlow 2.4s ease-in-out infinite; }
+  .brand .mark::before{
+    content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); z-index:2;
+  }
+  .brand .mark::after{
+    content:""; position:absolute; inset:-60% -160%; pointer-events:none; z-index:1;
+    background: linear-gradient(75deg, transparent 42%, rgba(255,255,255,.65) 50%, transparent 58%);
+    transform: translateX(-130%);
+    animation: mcEnchantSweep 4.5s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  .brand .mark img{ position:relative; z-index:0; }
+  @keyframes mcTorchGlow{
+    0%,100%{ box-shadow: 0 0 5px 1px rgba(255,170,60,.35); }
+    50%{ box-shadow: 0 0 14px 4px rgba(255,170,60,.6); }
+  }
+  @keyframes mcEnchantSweep{
+    0%, 62%{ transform: translateX(-130%); }
+    82%{ transform: translateX(130%); }
+    100%{ transform: translateX(130%); }
+  }
+  .brand .mark img{ width:100%; height:100%; object-fit:cover; }
+  .brand-name{ font-weight:800; font-size:19px; color:var(--charcoal); font-family:'Cairo', sans-serif; }
+  html[data-theme="dark"] .brand-name{ color:var(--tan); }
+
+  nav.main-nav{ display:flex; align-items:center; gap:60px; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .nav-link{ padding:9px 14px; border-radius:18px; font-size:13.5px; font-weight:700; color:var(--charcoal); opacity:.75; }
+  .nav-link:hover{ opacity:1; background:rgba(43,36,32,.08); }
+  .nav-link.active{ background:var(--charcoal); color:var(--tan); opacity:1; }
+
+  .nav-item{ position:relative; display:flex; align-items:center; }
+  .nav-dropdown{
+    position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+  }
+  .nav-item.open .nav-dropdown{ display:flex; }
+  .nav-dropdown a{
+    display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px;
+    font-size:13px; font-weight:700; color:var(--tan); opacity:.9; white-space:nowrap;
+  }
+  .nav-dropdown a:hover{ opacity:1; background:rgba(241,233,220,.08); }
+  html[data-theme="dark"] .nav-link{ color:var(--tan); }
+  @media(max-width:900px){ nav.main-nav{ display:none; } }
+
+  .controls{ margin-inline-start:auto; display:flex; align-items:center; gap:10px; flex-shrink:0;}
+
+  .wrap{ flex:1; max-width:1080px; width:100%; margin:0 auto; padding:22px 16px 40px; }
+  .head{ text-align:center; margin-bottom:18px; position:relative; }
+  .eyebrow{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); font-weight:700; display:block; margin-bottom:6px;}
+  .head h1{ font-family:'Cairo', sans-serif; font-size:26px; margin:0; color:var(--tan); }
+  .back-btn{
+    position:fixed; top:14px; left:14px; z-index:50; background:var(--surface); border:1px solid var(--line);
+    color:var(--tan); padding:8px 16px; border-radius:20px; font-size:12.5px; font-weight:700;
+    box-shadow:0 6px 16px rgba(0,0,0,.3);
+  }
+
+  .card-shell{
+    background:transparent; border:none; box-shadow:none;
+    padding:22px 0; position:relative; overflow:visible;
+  }
+
+  .status-pill{
+    position:absolute; top:14px; inset-inline-start:14px; font-size:11px; font-weight:700; padding:4px 10px;
+    border-radius:20px; display:none; align-items:center; gap:6px; background:rgba(0,0,0,.25); z-index:10;
+  }
+  .status-dot{ width:8px; height:8px; border-radius:50%; background:#7a7a7a; }
+  .status-dot.on{ background:#6FAE5A; box-shadow:0 0 6px #6FAE5A; }
+  .status-dot.off{ background:#6F4E37; }
+  .status-pill button{ background:transparent; border:none; color:var(--text-soft); cursor:pointer; font-size:12px; padding:0 0 0 4px; }
+  .channel-switch-box{
+    position:absolute; top:44px; inset-inline-start:14px; background:var(--paper); border:1px solid var(--line);
+    border-radius:12px; padding:10px; display:flex; gap:6px; z-index:11; box-shadow:var(--shadow);
+  }
+  .channel-switch-box input{
+    font-size:12.5px; padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--surface);
+    color:var(--text); width:140px;
+  }
+  .channel-switch-box button{ background:var(--clay); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:700; font-size:12px; cursor:pointer; }
+
+  /* ==== لوبي الانضمام ==== */
+  .lobby-instructions{ text-align:center; margin-bottom:18px; }
+  .lobby-instructions .cmd{
+    display:inline-block; background:var(--charcoal); color:var(--tan); font-weight:900; font-size:20px;
+    padding:8px 22px; border-radius:12px; margin-top:8px; letter-spacing:1px; border:2px solid var(--clay);
+  }
+  .players-grid{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:center; min-height:70px; margin:16px 0;
+    padding:14px; background:rgba(0,0,0,.18); border-radius:14px; border:1px solid var(--line);
+  }
+  .player-chip{
+    display:flex; align-items:center; gap:6px; background:var(--paper); border:1px solid var(--line);
+    border-radius:20px; padding:5px 12px 5px 5px; font-size:12.5px; font-weight:700;
+  }
+  .player-chip img{ width:24px; height:24px; border-radius:50%; object-fit:cover; background:var(--walnut); }
+  .empty-note{ color:var(--text-soft); font-size:13px; margin:auto; }
+
+  .btn-main{
+    display:block; width:100%; text-align:center; background:var(--clay); color:#fff; font-weight:800;
+    font-size:16px; padding:13px; border-radius:14px; border:none; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,.3);
+    font-family:'Tajawal', sans-serif;
+  }
+  .btn-main:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn-secondary{
+    display:inline-block; background:transparent; color:var(--tan); font-weight:700; font-size:13px;
+    padding:8px 16px; border-radius:12px; border:1px solid var(--line); cursor:pointer; font-family:'Tajawal', sans-serif;
+  }
+
+  /* ==== منطقة اللعب ==== */
+  .arena-layout{
+    display:grid; grid-template-columns: 1fr 1.7fr; gap:16px; align-items:start;
+    background:var(--paper); border:1px solid var(--line); border-radius:16px; padding:16px;
+  }
+  @media(max-width:820px){ .arena-layout{ grid-template-columns:1fr; } }
+
+  .queue-panel{
+    background:transparent; border:none; border-inline-end:1px solid var(--line); padding:0 12px 0 0;
+    display:flex; flex-direction:column; gap:8px; max-height:560px; overflow-y:auto;
+  }
+  @media(max-width:820px){
+    .queue-panel{ border-inline-end:none; border-bottom:1px solid var(--line); padding:0 0 12px 0; margin-bottom:4px; }
+  }
+  .queue-title{ font-size:12px; font-weight:800; color:var(--text-soft); text-align:center; margin-bottom:2px; }
+  .queue-tile{
+    display:flex; align-items:center; gap:5px; background:var(--surface); border:2px solid var(--line);
+    border-radius:10px; padding:5px 5px 5px 4px; transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .queue-tile.active{ border-color:#8CE06A; box-shadow:0 0 10px rgba(140,224,106,.45); }
+  .queue-tile .sq{
+    width:24px; height:24px; border-radius:5px; overflow:hidden; background:var(--walnut); flex-shrink:0;
+    border:1px solid var(--line);
+  }
+  .queue-tile .sq img{ width:100%; height:100%; object-fit:cover; }
+  .queue-tile .qname{ font-size:13px; font-weight:700; flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.2; }
+  .queue-tile .qscore{ font-size:11px; font-weight:900; color:var(--tan); flex-shrink:0; }
+
+  /* منطقة البطاقات */
+  .board-panel{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+
+  .turn-box{
+    background:var(--paper); border:2px solid var(--clay); border-radius:16px; padding:12px 20px;
+    display:flex; align-items:center; gap:12px; max-width:100%; width:100%;
+  }
+  .turn-box img.avatar{ width:44px; height:44px; border-radius:8px; object-fit:cover; background:var(--walnut); border:2px solid var(--tan-deep); }
+  .turn-info{ text-align:start; }
+  .turn-info .lbl{ font-size:11px; color:var(--text-soft); font-weight:700; }
+  .turn-info .name{ font-size:17px; font-weight:900; color:var(--tan); }
+  .turn-stats{ display:flex; gap:14px; margin-inline-start:auto; text-align:center; }
+  .turn-stats .box .num{ font-family:'Cairo', sans-serif; font-weight:800; font-size:19px; color:var(--tan); }
+  .turn-stats .box .lbl2{ font-size:10px; color:var(--text-soft); }
+
+  .board{
+    display:grid; grid-template-columns:repeat(auto-fill, 70px); gap:8px; justify-content:center;
+    padding:14px; background:rgba(0,0,0,.18); border-radius:14px; border:1px solid var(--line);
+    max-width:900px;
+  }
+  @media(max-width:560px){ .board{ grid-template-columns:repeat(auto-fill, 62px); gap:6px; } }
+
+  .card{ width:70px; height:70px; perspective:700px; }
+  @media(max-width:560px){ .card{ width:62px; height:62px; } }
+  .preview-wrap{ margin-bottom:16px; }
+  .preview-cap{ text-align:center; font-size:11.5px; color:var(--text-soft); font-weight:700; margin-bottom:8px; }
+  .preview-wrap .board{ opacity:.9; }
+  .mc-icon{ width:68%; height:68%; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 2px 3px rgba(0,0,0,.4)); }
+  .card-inner{
+    position:relative; width:100%; height:100%; transform-style:preserve-3d;
+    transition: transform .45s cubic-bezier(.4,.2,.2,1);
+  }
+  .card.flipped .card-inner{ transform: rotateY(180deg); }
+  .card.peek .card-inner{ transform: rotateY(180deg); }
+  .card-face{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:9px;
+    display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,.35);
+  }
+  .card-back{
+    background: repeating-linear-gradient(45deg, #5b3d24, #5b3d24 6px, #4a3119 6px, #4a3119 12px);
+    border:1px solid rgba(0,0,0,.3); flex-direction:column; gap:2px;
+  }
+  .card-back .num{
+    font-family:'Cairo', sans-serif; font-weight:900; font-size:15px; color:var(--tan);
+    background:rgba(0,0,0,.35); border-radius:6px; padding:1px 8px;
+  }
+  .card-front{
+    transform: rotateY(180deg); background:var(--surface); border:2px solid var(--tan-deep);
+  }
+  .card.matched .card-inner{ transition: transform .45s cubic-bezier(.4,.2,.2,1), opacity .3s ease .1s; }
+  .card.matched .card-front{ border-color:#8CE06A; box-shadow:0 0 10px rgba(140,224,106,.5); }
+  .card.wrong .card-front{ border-color:#ff5b2e; animation: cardShake .35s ease; }
+  @keyframes cardShake{
+    0%,100%{ transform: rotateY(180deg) translateX(0); }
+    25%{ transform: rotateY(180deg) translateX(-4px); }
+    75%{ transform: rotateY(180deg) translateX(4px); }
+  }
+  .card.pop .card-front{ animation: cardPop .4s ease; }
+  @keyframes cardPop{
+    0%{ transform: rotateY(180deg) scale(1); }
+    45%{ transform: rotateY(180deg) scale(1.14); filter:brightness(1.3); }
+    100%{ transform: rotateY(180deg) scale(1); }
+  }
+
+  .commands-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+  .cmd-badge{
+    display:inline-flex; align-items:center; gap:6px; background:var(--charcoal); font-weight:900; font-size:14px;
+    padding:6px 16px; border-radius:10px; border:2px solid var(--clay);
+  }
+  .cmd-badge.pick{ color:#8CE06A; border-color:#8CE06A; }
+
+  .log-box{
+    margin-top:6px; max-height:130px; overflow-y:auto; text-align:start; font-size:12px; background:rgba(0,0,0,.18);
+    border-radius:10px; padding:8px; border:1px solid var(--line); width:100%;
+  }
+  .log-box div{ padding:3px 6px; border-bottom:1px dashed var(--line); }
+  .log-box div:last-child{ border-bottom:none; }
+
+  /* ==== شاشة النتيجة ==== */
+  .overlay-result{
+    position:fixed; inset:0; background:rgba(10,7,5,.85); display:flex; align-items:center; justify-content:center;
+    z-index:60; padding:16px;
+  }
+  .result-card{
+    background:var(--surface); border:2px solid var(--clay); border-radius:20px; padding:28px; max-width:420px; width:100%;
+    text-align:center; box-shadow:var(--shadow);
+  }
+  .result-card h2{ margin:0 0 6px; font-family:'Cairo', sans-serif; font-size:24px; color:var(--tan); }
+  .result-card .sub{ color:var(--text-soft); font-size:13.5px; margin-bottom:16px; }
+  .podium-row{
+    display:flex; align-items:center; gap:10px; background:var(--paper); border:1px solid var(--line);
+    border-radius:12px; padding:8px 12px; margin-bottom:8px; text-align:start;
+  }
+  .podium-row img{ width:32px; height:32px; border-radius:50%; object-fit:cover; background:var(--walnut); }
+  .podium-rank{ font-weight:900; width:22px; text-align:center; }
+  .podium-name{ flex:1; font-weight:700; font-size:13.5px; }
+  .podium-score{ font-weight:900; font-size:13.5px; color:var(--tan); }
+
+  /* ==== منصة المراكز الثلاثة الأولى ==== */
+  .podium3{ display:flex; align-items:flex-end; justify-content:center; gap:10px; margin:6px 0 18px; }
+  .p-col{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .p-col img{ width:42px; height:42px; border-radius:50%; object-fit:cover; background:var(--walnut); border:3px solid var(--tan-deep); }
+  .p-col .medal{ font-size:22px; line-height:1; }
+  .p-col .pname{ font-size:11px; font-weight:800; max-width:74px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .p-col .pscore{ font-size:11px; font-weight:900; color:var(--tan); }
+  .p-col .bar{
+    width:66px; border-radius:8px 8px 0 0; display:flex; align-items:flex-start; justify-content:center;
+    padding-top:6px; font-weight:900; color:var(--charcoal); font-family:'Cairo', sans-serif; font-size:13px;
+  }
+  .p-col.rank1 .bar{ height:64px; background:linear-gradient(180deg,#f3d47e,#c79a3a); order:2; }
+  .p-col.rank2 .bar{ height:46px; background:linear-gradient(180deg,#dfe6e9,#a7b3ba); }
+  .p-col.rank3 .bar{ height:34px; background:linear-gradient(180deg,#e0a978,#a9713f); }
+  .p-col.rank1{ order:2; } .p-col.rank2{ order:1; } .p-col.rank3{ order:3; }
+
+  .auto-continue{
+    margin-top:10px; font-size:12px; color:var(--text-soft); text-align:center;
+  }
+  .auto-continue b{ color:var(--tan); font-family:'Cairo', sans-serif; }
+
+  .manual-box{ margin-top:16px; font-size:12px; }
+  .manual-box summary{ cursor:pointer; font-weight:700; color:var(--text-soft); }
+  .manual-row{ display:flex; gap:6px; margin-top:8px; }
+  .manual-row input{ font-size:12px; padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--paper); color:var(--text); font-family:inherit; }
+  .manual-row input:first-child{ width:100px; flex-shrink:0; }
+  .manual-row input:nth-child(2){ flex:1; }
+  .manual-row button{ background:var(--clay); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:700; font-size:12px; cursor:pointer; font-family:inherit; }
+
+  .nav-link, button, [class*="btn"], .watch{ transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+  .nav-link:hover, button:hover, [class*="btn"]:hover, .watch:hover{ transform: scale(1.06); box-shadow: 0 0 16px 3px rgba(203,176,138,.55); filter: brightness(1.08); }
+  .brand .mark{ transition: transform .18s ease, box-shadow .18s ease; }
+  .brand:hover .mark{ animation: none; transform: rotate(-3deg) scale(1.1); box-shadow: 0 0 18px 4px rgba(203,176,138,.6), 0 0 26px 8px rgba(255,170,60,.35); }
+  .brand:hover .mark::after{ animation-play-state: paused; }
+
+  html{ scrollbar-width: thin; scrollbar-color: var(--tan) var(--bg); }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background: var(--bg); }
+  ::-webkit-scrollbar-thumb{ background: var(--tan); border-radius:8px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--tan-deep); }
+
+  footer{ text-align:center; padding:16px; color:var(--text-soft); font-size:12px; flex-shrink:0; }
+</style>
+<style>
+  html, body, button, a{
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><defs><radialGradient id="g" cx="50%25" cy="50%25" r="50%25"><stop offset="0%25" stop-color="white" stop-opacity="1"/><stop offset="55%25" stop-color="white" stop-opacity="0.9"/><stop offset="100%25" stop-color="white" stop-opacity="0"/></radialGradient></defs><circle cx="8" cy="8" r="7" fill="url(%23g)"/><circle cx="8" cy="8" r="2.3" fill="white"/></svg>') 8 8, auto;
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"><img src="assets/avatar.png" alt="S3eeD"></div>
+  </div>
+  <nav class="main-nav">
+    <div class="nav-item">
+      <a class="nav-link active" href="games.html">S3aS3 Games</a>
+      <div class="nav-dropdown">
+        <a href="creeper.html">كريبر شات</a>
+        <a href="miners.html">ماينر شات</a>
+        <a href="minshow.html">ماين شو</a>
+        <a href="quiz.html">أسئلة ماين كرافت</a>
+        <a href="toolminer.html">كوكيز كليكر</a>
+        <a href="minecraftle.html">ماينكرافتل</a>
+        <a href="runner.html">ستيف رنر</a>
+        <a href="puzzle.html">بازل</a>
+        <a href="memorycraft.html">ميموري كرافت</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="index.html">S3eeD</a>
+      <div class="nav-dropdown">
+        <a href="index.html#video">آخر فيديو</a>
+        <a href="index.html#twitch">آخر بث</a>
+        <a href="index.html#gamesRating">تقييم الألعاب</a>
+        <a href="index.html#archive">الأرشيف</a>
+        <a href="index.html#suggest" class="js-suggest-link">الاقتراحات</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="fanart.html">FAN ART</a>
+      <div class="nav-dropdown">
+        <a href="fanart.html#home">آخر الرسمات</a>
+        <a href="fanart.html#topart">الأعلى تفاعلاً</a>
+        <a href="fanart.html#badges">البادجات</a>
+        <a href="fanart.html#create">نشر رسمة</a>
+      </div>
+    </div>
+  </nav>
+  <div class="controls"></div>
+</header>
+
+<div class="wrap">
+  <a href="games.html" class="back-btn">رجوع</a>
+  <div class="head">
+    <span class="eyebrow">لعبة الشات</span>
+    <h1>🎴 ميموري كرافت</h1>
+  </div>
+
+  <div class="card-shell">
+    <div class="status-pill" id="statusPill">
+      <span class="status-dot off" id="statusDot"></span>
+      <button id="switchChannelBtn" title="بدّل القناة">⚙</button>
+    </div>
+    <div class="channel-switch-box" id="channelSwitchBox" style="display:none;">
+      <input id="channelSwitchInput" placeholder="اسم قناة تويتش">
+      <button id="channelSwitchSaveBtn">ربط</button>
+    </div>
+
+    <!-- منطقة اللعب -->
+    <div id="arenaView">
+      <div class="lobby-instructions">
+        <div style="font-weight:800;font-size:16px;">اكتبوا بالشات رقمين مفصولين بمسافة عشان تقلبوا بطاقتين</div>
+        <div class="cmd">مثال: 48 45</div>
+        <div style="margin-top:10px;font-size:12.5px;color:var(--text-soft);">
+          البطاقات مقلوبة ومرقّمة، وتحتها أغراض ماين كرافت حقيقية متطابقة على شكل أزواج (دايموند، فأس، توتم خلود...).
+          أي حد بالشات يقدر يجاوب في أي وقت، مافيه دور محدد. إذا طلعوا نفس الشيء تكسب نقطة، وإذا لأ يكمل أي واحد يجرب.
+          اللي يجمع أكثر أزواج لين تخلص البطاقات كلها يفوز 🏆
+        </div>
+      </div>
+
+      <div class="arena-layout">
+        <div class="queue-panel" id="queuePanel">
+          <div class="queue-title">قائمة اللاعبين</div>
+        </div>
+
+        <div class="board-panel">
+          <div class="turn-box" style="justify-content:center;">
+            <div class="turn-stats" style="margin:0 auto;">
+              <div class="box"><div class="num" id="levelNum">1 / 32</div><div class="lbl2">المستوى</div></div>
+              <div class="box"><div class="num" id="pairsLeft">0</div><div class="lbl2">أزواج متبقية</div></div>
+            </div>
+          </div>
+
+          <div class="board" id="board"></div>
+
+          <div class="commands-row">
+            <div class="cmd-badge pick">اكتب رقمين: مثل 3 27</div>
+          </div>
+
+          <div class="log-box" id="logBox"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <details class="manual-box">
+    <summary>محاكاة رسالة شات (للتجربة بدون بث فعلي)</summary>
+    <div class="manual-row">
+      <input id="simUser" value="TestUser" placeholder="اسم المستخدم">
+      <input id="simMsg" value="3 27" placeholder="الرسالة... (رقمين مثل 3 27)">
+      <button id="simSendBtn">إرسال</button>
+    </div>
+  </details>
+</div>
+
+<footer>S3eeD — S3aS3 Games © 2026</footer>
+
+<div class="overlay-result" id="resultOverlay" style="display:none;">
+  <div class="result-card">
+    <h2 id="resultTitle">🏆 فاز باللعبة!</h2>
+    <div class="sub" id="resultSub"></div>
+    <div class="podium3" id="podiumTop3"></div>
+    <div id="podiumRest"></div>
+    <button class="btn-main" id="continueBtn" style="margin-top:6px;">▶ استمر الحين</button>
+    <div class="auto-continue">جولة جديدة تلقائيًا خلال <b id="autoCountdown">15</b> ثانية إذا ماكنت هون</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ===================== إعدادات اللعبة ===================== */
+  const CHANNEL_KEY = "s3as3_twitch_channel";
+  let TWITCH_CHANNEL = localStorage.getItem(CHANNEL_KEY) || "s3eedxx";
+
+  // مخزون ضخم من كل بلوكات وأغراض ماين كرافت (تقريبًا كل التكسشرز الرسمية) — كل جولة تختار عشوائيًا منه
+  const ICON_POOL = [{"img":"block/acacia_log.png","label":"Acacia Log"},{"img":"block/acacia_log_top.png","label":"Acacia Log Top"},{"img":"block/acacia_planks.png","label":"Acacia Planks"},{"img":"block/acacia_sapling.png","label":"Acacia Sapling"},{"img":"block/activator_rail_on.png","label":"Activator Rail On"},{"img":"block/allium.png","label":"Allium"},{"img":"block/amethyst_block.png","label":"Amethyst Block"},{"img":"block/amethyst_cluster.png","label":"Amethyst Cluster"},{"img":"block/ancient_debris_side.png","label":"Ancient Debris Side"},{"img":"block/andesite.png","label":"Andesite"},{"img":"block/anvil.png","label":"Anvil"},{"img":"block/attached_melon_stem.png","label":"Attached Melon Stem"},{"img":"block/azalea_leaves.png","label":"Azalea Leaves"},{"img":"block/azalea_top.png","label":"Azalea Top"},{"img":"block/azure_bluet.png","label":"Azure Bluet"},{"img":"block/bamboo_block.png","label":"Bamboo Block"},{"img":"block/bamboo_large_leaves.png","label":"Bamboo Large Leaves"},{"img":"block/basalt_top.png","label":"Basalt Top"},{"img":"block/bed_down.png","label":"Bed Down"},{"img":"block/bedrock.png","label":"Bedrock"},{"img":"block/bee_nest_front.png","label":"Bee Nest Front"},{"img":"block/beehive_front_honey.png","label":"Beehive Front Honey"},{"img":"block/beetroots_stage3.png","label":"Beetroots Stage3"},{"img":"block/big_dripleaf_top.png","label":"Big Dripleaf Top"},{"img":"block/birch_leaves.png","label":"Birch Leaves"},{"img":"block/birch_log.png","label":"Birch Log"},{"img":"block/birch_planks.png","label":"Birch Planks"},{"img":"block/birch_sapling.png","label":"Birch Sapling"},{"img":"block/black_candle_lit.png","label":"Black Candle Lit"},{"img":"block/black_concrete.png","label":"Black Concrete"},{"img":"block/black_concrete_powder.png","label":"Black Concrete Powder"},{"img":"block/black_glazed_terracotta.png","label":"Black Glazed Terracotta"},{"img":"block/black_shulker_box.png","label":"Black Shulker Box"},{"img":"block/black_terracotta.png","label":"Black Terracotta"},{"img":"block/black_wool.png","label":"Black Wool"},{"img":"block/blackstone_top.png","label":"Blackstone Top"},{"img":"block/blast_furnace_front.png","label":"Blast Furnace Front"},{"img":"block/bone_block_side.png","label":"Bone Block Side"},{"img":"block/bone_block_top.png","label":"Bone Block Top"},{"img":"block/bookshelf.png","label":"Bookshelf"},{"img":"block/brain_coral.png","label":"Brain Coral"},{"img":"block/brain_coral_block.png","label":"Brain Coral Block"},{"img":"block/brain_coral_fan.png","label":"Brain Coral Fan"},{"img":"block/brewing_stand.png","label":"Brewing Stand"},{"img":"block/brewing_stand_base.png","label":"Brewing Stand Base"},{"img":"block/bricks.png","label":"Bricks"},{"img":"block/brown_bed_foot_west.png","label":"Brown Bed Foot West"},{"img":"block/brown_bed_head_west.png","label":"Brown Bed Head West"},{"img":"block/brown_candle.png","label":"Brown Candle"},{"img":"block/brown_candle_lit.png","label":"Brown Candle Lit"},{"img":"block/brown_glazed_terracotta.png","label":"Brown Glazed Terracotta"},{"img":"block/brown_mushroom.png","label":"Brown Mushroom"},{"img":"block/brown_stained_glass.png","label":"Brown Stained Glass"},{"img":"block/brown_wool.png","label":"Brown Wool"},{"img":"block/bubble_coral.png","label":"Bubble Coral"},{"img":"block/bubble_coral_block.png","label":"Bubble Coral Block"},{"img":"block/bubble_coral_fan.png","label":"Bubble Coral Fan"},{"img":"block/budding_amethyst.png","label":"Budding Amethyst"},{"img":"block/bush.png","label":"Bush"},{"img":"block/cactus_bottom.png","label":"Cactus Bottom"},{"img":"block/cactus_flower.png","label":"Cactus Flower"},{"img":"block/cactus_side.png","label":"Cactus Side"},{"img":"block/cactus_top.png","label":"Cactus Top"},{"img":"block/cake_bottom.png","label":"Cake Bottom"},{"img":"block/cake_inner.png","label":"Cake Inner"},{"img":"block/cake_side.png","label":"Cake Side"},{"img":"block/cake_top.png","label":"Cake Top"},{"img":"block/calcite.png","label":"Calcite"},{"img":"block/calibrated_sculk_sensor_amethyst.png","label":"Calibrated Sculk Sensor Amethyst"},{"img":"block/calibrated_sculk_sensor_input_side.png","label":"Calibrated Sculk Sensor Input Side"},{"img":"block/calibrated_sculk_sensor_top.png","label":"Calibrated Sculk Sensor Top"},{"img":"block/campfire_log.png","label":"Campfire Log"},{"img":"block/candle.png","label":"Candle"},{"img":"block/candle_lit.png","label":"Candle Lit"},{"img":"block/carrots_stage0.png","label":"Carrots Stage0"},{"img":"block/carrots_stage1.png","label":"Carrots Stage1"},{"img":"block/carrots_stage3.png","label":"Carrots Stage3"},{"img":"block/cartography_table_top.png","label":"Cartography Table Top"},{"img":"block/carved_pumpkin.png","label":"Carved Pumpkin"},{"img":"block/cauldron_bottom.png","label":"Cauldron Bottom"},{"img":"block/cave_vines_plant_lit.png","label":"Cave Vines Plant Lit"},{"img":"block/cherry_log.png","label":"Cherry Log"},{"img":"block/cherry_log_top.png","label":"Cherry Log Top"},{"img":"block/cherry_planks.png","label":"Cherry Planks"},{"img":"block/cherry_sapling.png","label":"Cherry Sapling"},{"img":"block/chipped_anvil_top.png","label":"Chipped Anvil Top"},{"img":"block/chiseled_bookshelf_empty.png","label":"Chiseled Bookshelf Empty"},{"img":"block/chiseled_bookshelf_occupied.png","label":"Chiseled Bookshelf Occupied"},{"img":"block/chiseled_bookshelf_side.png","label":"Chiseled Bookshelf Side"},{"img":"block/chiseled_bookshelf_top.png","label":"Chiseled Bookshelf Top"},{"img":"block/chiseled_cinnabar.png","label":"Chiseled Cinnabar"},{"img":"block/chiseled_copper.png","label":"Chiseled Copper"},{"img":"block/chiseled_deepslate.png","label":"Chiseled Deepslate"},{"img":"block/chiseled_nether_bricks.png","label":"Chiseled Nether Bricks"},{"img":"block/chiseled_polished_blackstone.png","label":"Chiseled Polished Blackstone"},{"img":"block/chiseled_quartz_block.png","label":"Chiseled Quartz Block"},{"img":"block/chiseled_red_sandstone.png","label":"Chiseled Red Sandstone"},{"img":"block/chiseled_resin_bricks.png","label":"Chiseled Resin Bricks"},{"img":"block/chiseled_sandstone.png","label":"Chiseled Sandstone"},{"img":"block/chiseled_stone_bricks.png","label":"Chiseled Stone Bricks"},{"img":"block/chiseled_sulfur.png","label":"Chiseled Sulfur"},{"img":"block/chiseled_tuff.png","label":"Chiseled Tuff"},{"img":"block/chorus_flower.png","label":"Chorus Flower"},{"img":"block/chorus_flower_dead.png","label":"Chorus Flower Dead"},{"img":"block/chorus_plant.png","label":"Chorus Plant"},{"img":"block/cinnabar.png","label":"Cinnabar"},{"img":"block/cinnabar_bricks.png","label":"Cinnabar Bricks"},{"img":"block/clay.png","label":"Clay"},{"img":"block/closed_eyeblossom.png","label":"Closed Eyeblossom"},{"img":"block/coal_block.png","label":"Coal Block"},{"img":"block/coal_ore.png","label":"Coal Ore"},{"img":"block/coarse_dirt.png","label":"Coarse Dirt"},{"img":"block/cobbled_deepslate.png","label":"Cobbled Deepslate"},{"img":"block/cobblestone.png","label":"Cobblestone"},{"img":"block/cobweb.png","label":"Cobweb"},{"img":"block/cocoa_stage0.png","label":"Cocoa Stage0"},{"img":"block/cocoa_stage1.png","label":"Cocoa Stage1"},{"img":"block/cocoa_stage2.png","label":"Cocoa Stage2"},{"img":"block/comparator_on.png","label":"Comparator On"},{"img":"block/composter_bottom.png","label":"Composter Bottom"},{"img":"block/copper_ore.png","label":"Copper Ore"},{"img":"block/copper_torch.png","label":"Copper Torch"},{"img":"block/copper_trapdoor.png","label":"Copper Trapdoor"},{"img":"block/cornflower.png","label":"Cornflower"},{"img":"block/cracked_deepslate_bricks.png","label":"Cracked Deepslate Bricks"},{"img":"block/cracked_deepslate_tiles.png","label":"Cracked Deepslate Tiles"},{"img":"block/cracked_nether_bricks.png","label":"Cracked Nether Bricks"},{"img":"block/cracked_polished_blackstone_bricks.png","label":"Cracked Polished Blackstone Bricks"},{"img":"block/cracked_stone_bricks.png","label":"Cracked Stone Bricks"},{"img":"block/crafter_bottom.png","label":"Crafter Bottom"},{"img":"block/crafter_east.png","label":"Crafter East"},{"img":"block/crafter_top.png","label":"Crafter Top"},{"img":"block/crafting_table_front.png","label":"Crafting Table Front"},{"img":"block/creaking_heart.png","label":"Creaking Heart"},{"img":"block/creaking_heart_awake.png","label":"Creaking Heart Awake"},{"img":"block/creaking_heart_dormant.png","label":"Creaking Heart Dormant"},{"img":"block/creaking_heart_top.png","label":"Creaking Heart Top"},{"img":"block/creaking_heart_top_awake.png","label":"Creaking Heart Top Awake"},{"img":"block/creaking_heart_top_dormant.png","label":"Creaking Heart Top Dormant"},{"img":"block/crimson_fungus.png","label":"Crimson Fungus"},{"img":"block/crimson_hanging_sign.png","label":"Crimson Hanging Sign"},{"img":"block/crimson_nylium.png","label":"Crimson Nylium"},{"img":"block/crimson_nylium_side.png","label":"Crimson Nylium Side"},{"img":"block/crimson_planks.png","label":"Crimson Planks"},{"img":"block/crimson_roots.png","label":"Crimson Roots"},{"img":"block/crimson_roots_pot.png","label":"Crimson Roots Pot"},{"img":"block/crimson_shelf.png","label":"Crimson Shelf"},{"img":"block/crimson_sign.png","label":"Crimson Sign"},{"img":"block/crimson_stem_top.png","label":"Crimson Stem Top"},{"img":"block/crimson_trapdoor.png","label":"Crimson Trapdoor"},{"img":"block/crying_obsidian.png","label":"Crying Obsidian"},{"img":"block/cut_copper.png","label":"Cut Copper"},{"img":"block/cut_red_sandstone.png","label":"Cut Red Sandstone"},{"img":"block/cut_sandstone.png","label":"Cut Sandstone"},{"img":"block/cyan_bed_foot_west.png","label":"Cyan Bed Foot West"},{"img":"block/cyan_bed_head_west.png","label":"Cyan Bed Head West"},{"img":"block/cyan_candle.png","label":"Cyan Candle"},{"img":"block/cyan_candle_lit.png","label":"Cyan Candle Lit"},{"img":"block/cyan_concrete.png","label":"Cyan Concrete"},{"img":"block/cyan_concrete_powder.png","label":"Cyan Concrete Powder"},{"img":"block/cyan_glazed_terracotta.png","label":"Cyan Glazed Terracotta"},{"img":"block/cyan_shulker_box.png","label":"Cyan Shulker Box"},{"img":"block/cyan_stained_glass.png","label":"Cyan Stained Glass"},{"img":"block/cyan_stained_glass_pane_top.png","label":"Cyan Stained Glass Pane Top"},{"img":"block/cyan_terracotta.png","label":"Cyan Terracotta"},{"img":"block/cyan_wool.png","label":"Cyan Wool"},{"img":"block/damaged_anvil_top.png","label":"Damaged Anvil Top"},{"img":"block/dandelion.png","label":"Dandelion"},{"img":"block/dark_oak_hanging_sign.png","label":"Dark Oak Hanging Sign"},{"img":"block/dark_oak_leaves.png","label":"Dark Oak Leaves"},{"img":"block/dark_oak_log.png","label":"Dark Oak Log"},{"img":"block/dark_oak_log_top.png","label":"Dark Oak Log Top"},{"img":"block/dark_oak_planks.png","label":"Dark Oak Planks"},{"img":"block/dark_oak_sapling.png","label":"Dark Oak Sapling"},{"img":"block/dark_oak_shelf.png","label":"Dark Oak Shelf"},{"img":"block/dark_oak_sign.png","label":"Dark Oak Sign"},{"img":"block/dark_oak_trapdoor.png","label":"Dark Oak Trapdoor"},{"img":"block/dark_prismarine.png","label":"Dark Prismarine"},{"img":"block/daylight_detector_inverted_top.png","label":"Daylight Detector Inverted Top"},{"img":"block/daylight_detector_side.png","label":"Daylight Detector Side"},{"img":"block/daylight_detector_top.png","label":"Daylight Detector Top"},{"img":"block/dead_bush.png","label":"Dead Bush"},{"img":"block/dead_fire_coral.png","label":"Dead Fire Coral"},{"img":"block/dead_tube_coral_block.png","label":"Dead Tube Coral Block"},{"img":"block/dead_tube_coral_fan.png","label":"Dead Tube Coral Fan"},{"img":"block/deepslate.png","label":"Deepslate"},{"img":"block/deepslate_bricks.png","label":"Deepslate Bricks"},{"img":"block/deepslate_coal_ore.png","label":"Deepslate Coal Ore"},{"img":"block/deepslate_copper_ore.png","label":"Deepslate Copper Ore"},{"img":"block/deepslate_diamond_ore.png","label":"Deepslate Diamond Ore"},{"img":"block/deepslate_emerald_ore.png","label":"Deepslate Emerald Ore"},{"img":"block/deepslate_gold_ore.png","label":"Deepslate Gold Ore"},{"img":"block/deepslate_iron_ore.png","label":"Deepslate Iron Ore"},{"img":"block/deepslate_lapis_ore.png","label":"Deepslate Lapis Ore"},{"img":"block/deepslate_redstone_ore.png","label":"Deepslate Redstone Ore"},{"img":"block/deepslate_tiles.png","label":"Deepslate Tiles"},{"img":"block/deepslate_top.png","label":"Deepslate Top"},{"img":"block/detector_rail.png","label":"Detector Rail"},{"img":"block/detector_rail_on.png","label":"Detector Rail On"},{"img":"block/diamond_block.png","label":"Diamond Block"},{"img":"block/diamond_ore.png","label":"Diamond Ore"},{"img":"block/diorite.png","label":"Diorite"},{"img":"block/dirt.png","label":"Dirt"},{"img":"block/dirt_path_side.png","label":"Dirt Path Side"},{"img":"block/dirt_path_top.png","label":"Dirt Path Top"},{"img":"block/dispenser_front.png","label":"Dispenser Front"},{"img":"block/dispenser_front_vertical.png","label":"Dispenser Front Vertical"},{"img":"block/dragon_egg.png","label":"Dragon Egg"},{"img":"block/dried_ghast_hydration_0_top.png","label":"Dried Ghast Hydration 0 Top"},{"img":"block/dried_ghast_hydration_1_top.png","label":"Dried Ghast Hydration 1 Top"},{"img":"block/dried_ghast_hydration_2_top.png","label":"Dried Ghast Hydration 2 Top"},{"img":"block/dried_ghast_hydration_3_top.png","label":"Dried Ghast Hydration 3 Top"},{"img":"block/dried_kelp_bottom.png","label":"Dried Kelp Bottom"},{"img":"block/dried_kelp_side.png","label":"Dried Kelp Side"},{"img":"block/dried_kelp_top.png","label":"Dried Kelp Top"},{"img":"block/dripstone_block.png","label":"Dripstone Block"},{"img":"block/dropper_front.png","label":"Dropper Front"},{"img":"block/dropper_front_vertical.png","label":"Dropper Front Vertical"},{"img":"block/emerald_block.png","label":"Emerald Block"},{"img":"block/emerald_ore.png","label":"Emerald Ore"},{"img":"block/enchanting_table_bottom.png","label":"Enchanting Table Bottom"},{"img":"block/enchanting_table_top.png","label":"Enchanting Table Top"},{"img":"block/end_portal_frame_side.png","label":"End Portal Frame Side"},{"img":"block/end_rod.png","label":"End Rod"},{"img":"block/end_stone.png","label":"End Stone"},{"img":"block/end_stone_bricks.png","label":"End Stone Bricks"},{"img":"block/exposed_chiseled_copper.png","label":"Exposed Chiseled Copper"},{"img":"block/exposed_copper.png","label":"Exposed Copper"},{"img":"block/exposed_copper_bars.png","label":"Exposed Copper Bars"},{"img":"block/exposed_copper_bulb.png","label":"Exposed Copper Bulb"},{"img":"block/exposed_copper_bulb_lit.png","label":"Exposed Copper Bulb Lit"},{"img":"block/exposed_copper_bulb_lit_powered.png","label":"Exposed Copper Bulb Lit Powered"},{"img":"block/exposed_copper_bulb_powered.png","label":"Exposed Copper Bulb Powered"},{"img":"block/exposed_copper_chain.png","label":"Exposed Copper Chain"},{"img":"block/exposed_copper_door_bottom.png","label":"Exposed Copper Door Bottom"},{"img":"block/exposed_copper_door_top.png","label":"Exposed Copper Door Top"},{"img":"block/exposed_copper_grate.png","label":"Exposed Copper Grate"},{"img":"block/exposed_copper_trapdoor.png","label":"Exposed Copper Trapdoor"},{"img":"block/exposed_cut_copper.png","label":"Exposed Cut Copper"},{"img":"block/exposed_lightning_rod.png","label":"Exposed Lightning Rod"},{"img":"block/farmland.png","label":"Farmland"},{"img":"block/farmland_moist.png","label":"Farmland Moist"},{"img":"block/fern.png","label":"Fern"},{"img":"block/fire_coral.png","label":"Fire Coral"},{"img":"block/fire_coral_block.png","label":"Fire Coral Block"},{"img":"block/fire_coral_fan.png","label":"Fire Coral Fan"},{"img":"block/firefly_bush.png","label":"Firefly Bush"},{"img":"block/fletching_table_front.png","label":"Fletching Table Front"},{"img":"block/fletching_table_side.png","label":"Fletching Table Side"},{"img":"block/fletching_table_top.png","label":"Fletching Table Top"},{"img":"block/flower_pot.png","label":"Flower Pot"},{"img":"block/flowering_azalea_leaves.png","label":"Flowering Azalea Leaves"},{"img":"block/flowering_azalea_side.png","label":"Flowering Azalea Side"},{"img":"block/flowering_azalea_top.png","label":"Flowering Azalea Top"},{"img":"block/frogspawn.png","label":"Frogspawn"},{"img":"block/frosted_ice_3.png","label":"Frosted Ice 3"},{"img":"block/furnace_front.png","label":"Furnace Front"},{"img":"block/furnace_front_on.png","label":"Furnace Front On"},{"img":"block/furnace_top.png","label":"Furnace Top"},{"img":"block/gilded_blackstone.png","label":"Gilded Blackstone"},{"img":"block/glass.png","label":"Glass"},{"img":"block/glass_pane_top.png","label":"Glass Pane Top"},{"img":"block/glow_item_frame.png","label":"Glow Item Frame"},{"img":"block/glow_lichen.png","label":"Glow Lichen"},{"img":"block/glowstone.png","label":"Glowstone"},{"img":"block/gold_block.png","label":"Gold Block"},{"img":"block/gold_ore.png","label":"Gold Ore"},{"img":"block/golden_dandelion.png","label":"Golden Dandelion"},{"img":"block/granite.png","label":"Granite"},{"img":"block/grass_block_side.png","label":"Grass Block Side"},{"img":"block/grass_block_side_overlay.png","label":"Grass Block Side Overlay"},{"img":"block/grass_block_snow.png","label":"Grass Block Snow"},{"img":"block/grass_block_top.png","label":"Grass Block Top"},{"img":"block/gravel.png","label":"Gravel"},{"img":"block/gray_bed_foot_west.png","label":"Gray Bed Foot West"},{"img":"block/gray_bed_head_west.png","label":"Gray Bed Head West"},{"img":"block/gray_candle.png","label":"Gray Candle"},{"img":"block/gray_candle_lit.png","label":"Gray Candle Lit"},{"img":"block/gray_concrete.png","label":"Gray Concrete"},{"img":"block/gray_concrete_powder.png","label":"Gray Concrete Powder"},{"img":"block/gray_glazed_terracotta.png","label":"Gray Glazed Terracotta"},{"img":"block/gray_shulker_box.png","label":"Gray Shulker Box"},{"img":"block/gray_stained_glass.png","label":"Gray Stained Glass"},{"img":"block/gray_stained_glass_pane_top.png","label":"Gray Stained Glass Pane Top"},{"img":"block/gray_terracotta.png","label":"Gray Terracotta"},{"img":"block/gray_wool.png","label":"Gray Wool"},{"img":"block/green_bed_foot_west.png","label":"Green Bed Foot West"},{"img":"block/green_bed_head_west.png","label":"Green Bed Head West"},{"img":"block/green_candle.png","label":"Green Candle"},{"img":"block/green_candle_lit.png","label":"Green Candle Lit"},{"img":"block/green_concrete.png","label":"Green Concrete"},{"img":"block/green_concrete_powder.png","label":"Green Concrete Powder"},{"img":"block/green_glazed_terracotta.png","label":"Green Glazed Terracotta"},{"img":"block/green_shulker_box.png","label":"Green Shulker Box"},{"img":"block/green_stained_glass.png","label":"Green Stained Glass"},{"img":"block/green_stained_glass_pane_top.png","label":"Green Stained Glass Pane Top"},{"img":"block/green_terracotta.png","label":"Green Terracotta"},{"img":"block/green_wool.png","label":"Green Wool"},{"img":"block/grindstone_pivot.png","label":"Grindstone Pivot"},{"img":"block/grindstone_round.png","label":"Grindstone Round"},{"img":"block/grindstone_side.png","label":"Grindstone Side"},{"img":"block/hanging_roots.png","label":"Hanging Roots"},{"img":"block/hay_block_side.png","label":"Hay Block Side"},{"img":"block/hay_block_top.png","label":"Hay Block Top"},{"img":"block/heavy_core.png","label":"Heavy Core"},{"img":"block/honey_block_bottom.png","label":"Honey Block Bottom"},{"img":"block/honey_block_side.png","label":"Honey Block Side"},{"img":"block/honey_block_top.png","label":"Honey Block Top"},{"img":"block/honeycomb_block.png","label":"Honeycomb Block"},{"img":"block/hopper_inside.png","label":"Hopper Inside"},{"img":"block/hopper_outside.png","label":"Hopper Outside"},{"img":"block/hopper_top.png","label":"Hopper Top"},{"img":"block/horn_coral.png","label":"Horn Coral"},{"img":"block/horn_coral_block.png","label":"Horn Coral Block"},{"img":"block/horn_coral_fan.png","label":"Horn Coral Fan"},{"img":"block/ice.png","label":"Ice"},{"img":"block/iron_bars.png","label":"Iron Bars"},{"img":"block/iron_block.png","label":"Iron Block"},{"img":"block/iron_chain.png","label":"Iron Chain"},{"img":"block/iron_ore.png","label":"Iron Ore"},{"img":"block/item_frame.png","label":"Item Frame"},{"img":"block/jack_o_lantern.png","label":"Jack O Lantern"},{"img":"block/jigsaw_bottom.png","label":"Jigsaw Bottom"},{"img":"block/jigsaw_lock.png","label":"Jigsaw Lock"},{"img":"block/jigsaw_side.png","label":"Jigsaw Side"},{"img":"block/jigsaw_top.png","label":"Jigsaw Top"},{"img":"block/jukebox_side.png","label":"Jukebox Side"},{"img":"block/jukebox_top.png","label":"Jukebox Top"},{"img":"block/jungle_door_bottom.png","label":"Jungle Door Bottom"},{"img":"block/jungle_hanging_sign.png","label":"Jungle Hanging Sign"},{"img":"block/jungle_leaves.png","label":"Jungle Leaves"},{"img":"block/jungle_log.png","label":"Jungle Log"},{"img":"block/jungle_log_top.png","label":"Jungle Log Top"},{"img":"block/jungle_planks.png","label":"Jungle Planks"},{"img":"block/jungle_sapling.png","label":"Jungle Sapling"},{"img":"block/jungle_shelf.png","label":"Jungle Shelf"},{"img":"block/jungle_sign.png","label":"Jungle Sign"},{"img":"block/jungle_trapdoor.png","label":"Jungle Trapdoor"},{"img":"block/ladder.png","label":"Ladder"},{"img":"block/lapis_block.png","label":"Lapis Block"},{"img":"block/lapis_ore.png","label":"Lapis Ore"},{"img":"block/large_amethyst_bud.png","label":"Large Amethyst Bud"},{"img":"block/large_fern_bottom.png","label":"Large Fern Bottom"},{"img":"block/large_fern_top.png","label":"Large Fern Top"},{"img":"block/leaf_litter.png","label":"Leaf Litter"},{"img":"block/lectern_base.png","label":"Lectern Base"},{"img":"block/lectern_front.png","label":"Lectern Front"},{"img":"block/lectern_sides.png","label":"Lectern Sides"},{"img":"block/lectern_top.png","label":"Lectern Top"},{"img":"block/lever.png","label":"Lever"},{"img":"block/light_blue_candle.png","label":"Light Blue Candle"},{"img":"block/light_blue_candle_lit.png","label":"Light Blue Candle Lit"},{"img":"block/light_blue_concrete.png","label":"Light Blue Concrete"},{"img":"block/light_blue_concrete_powder.png","label":"Light Blue Concrete Powder"},{"img":"block/light_blue_glazed_terracotta.png","label":"Light Blue Glazed Terracotta"},{"img":"block/light_blue_shulker_box.png","label":"Light Blue Shulker Box"},{"img":"block/light_blue_stained_glass.png","label":"Light Blue Stained Glass"},{"img":"block/light_blue_stained_glass_pane_top.png","label":"Light Blue Stained Glass Pane Top"},{"img":"block/light_blue_terracotta.png","label":"Light Blue Terracotta"},{"img":"block/light_blue_wool.png","label":"Light Blue Wool"},{"img":"block/light_gray_bed_foot_west.png","label":"Light Gray Bed Foot West"},{"img":"block/light_gray_bed_head_west.png","label":"Light Gray Bed Head West"},{"img":"block/light_gray_candle.png","label":"Light Gray Candle"},{"img":"block/light_gray_candle_lit.png","label":"Light Gray Candle Lit"},{"img":"block/light_gray_concrete.png","label":"Light Gray Concrete"},{"img":"block/light_gray_concrete_powder.png","label":"Light Gray Concrete Powder"},{"img":"block/light_gray_glazed_terracotta.png","label":"Light Gray Glazed Terracotta"},{"img":"block/light_gray_shulker_box.png","label":"Light Gray Shulker Box"},{"img":"block/light_gray_stained_glass.png","label":"Light Gray Stained Glass"},{"img":"block/light_gray_stained_glass_pane_top.png","label":"Light Gray Stained Glass Pane Top"},{"img":"block/light_gray_terracotta.png","label":"Light Gray Terracotta"},{"img":"block/light_gray_wool.png","label":"Light Gray Wool"},{"img":"block/lightning_rod.png","label":"Lightning Rod"},{"img":"block/lightning_rod_on.png","label":"Lightning Rod On"},{"img":"block/lilac_bottom.png","label":"Lilac Bottom"},{"img":"block/lilac_top.png","label":"Lilac Top"},{"img":"block/lily_of_the_valley.png","label":"Lily Of The Valley"},{"img":"block/lily_pad.png","label":"Lily Pad"},{"img":"block/lime_candle.png","label":"Lime Candle"},{"img":"block/lime_candle_lit.png","label":"Lime Candle Lit"},{"img":"block/lime_glazed_terracotta.png","label":"Lime Glazed Terracotta"},{"img":"block/lime_shulker_box.png","label":"Lime Shulker Box"},{"img":"block/lime_stained_glass.png","label":"Lime Stained Glass"},{"img":"block/lime_stained_glass_pane_top.png","label":"Lime Stained Glass Pane Top"},{"img":"block/lime_terracotta.png","label":"Lime Terracotta"},{"img":"block/lime_wool.png","label":"Lime Wool"},{"img":"block/lodestone_side.png","label":"Lodestone Side"},{"img":"block/lodestone_top.png","label":"Lodestone Top"},{"img":"block/loom_bottom.png","label":"Loom Bottom"},{"img":"block/loom_front.png","label":"Loom Front"},{"img":"block/loom_side.png","label":"Loom Side"},{"img":"block/loom_top.png","label":"Loom Top"},{"img":"block/magenta_candle.png","label":"Magenta Candle"},{"img":"block/magenta_candle_lit.png","label":"Magenta Candle Lit"},{"img":"block/magenta_concrete.png","label":"Magenta Concrete"},{"img":"block/magenta_concrete_powder.png","label":"Magenta Concrete Powder"},{"img":"block/magenta_glazed_terracotta.png","label":"Magenta Glazed Terracotta"},{"img":"block/magenta_shulker_box.png","label":"Magenta Shulker Box"},{"img":"block/magenta_stained_glass.png","label":"Magenta Stained Glass"},{"img":"block/magenta_stained_glass_pane_top.png","label":"Magenta Stained Glass Pane Top"},{"img":"block/magenta_terracotta.png","label":"Magenta Terracotta"},{"img":"block/magenta_wool.png","label":"Magenta Wool"},{"img":"block/mangrove_door_bottom.png","label":"Mangrove Door Bottom"},{"img":"block/mangrove_door_top.png","label":"Mangrove Door Top"},{"img":"block/mangrove_hanging_sign.png","label":"Mangrove Hanging Sign"},{"img":"block/mangrove_leaves.png","label":"Mangrove Leaves"},{"img":"block/mangrove_log.png","label":"Mangrove Log"},{"img":"block/mangrove_log_top.png","label":"Mangrove Log Top"},{"img":"block/mangrove_planks.png","label":"Mangrove Planks"},{"img":"block/mangrove_propagule.png","label":"Mangrove Propagule"},{"img":"block/mangrove_propagule_hanging.png","label":"Mangrove Propagule Hanging"},{"img":"block/mangrove_roots_side.png","label":"Mangrove Roots Side"},{"img":"block/mangrove_roots_top.png","label":"Mangrove Roots Top"},{"img":"block/mangrove_shelf.png","label":"Mangrove Shelf"},{"img":"block/mangrove_sign.png","label":"Mangrove Sign"},{"img":"block/mangrove_trapdoor.png","label":"Mangrove Trapdoor"},{"img":"block/medium_amethyst_bud.png","label":"Medium Amethyst Bud"},{"img":"block/melon_side.png","label":"Melon Side"},{"img":"block/melon_stem.png","label":"Melon Stem"},{"img":"block/moss_block.png","label":"Moss Block"},{"img":"block/mossy_cobblestone.png","label":"Mossy Cobblestone"},{"img":"block/mossy_stone_bricks.png","label":"Mossy Stone Bricks"},{"img":"block/mud.png","label":"Mud"},{"img":"block/mud_bricks.png","label":"Mud Bricks"},{"img":"block/muddy_mangrove_roots_side.png","label":"Muddy Mangrove Roots Side"},{"img":"block/muddy_mangrove_roots_top.png","label":"Muddy Mangrove Roots Top"},{"img":"block/mushroom_block_inside.png","label":"Mushroom Block Inside"},{"img":"block/mushroom_stem.png","label":"Mushroom Stem"},{"img":"block/mycelium_side.png","label":"Mycelium Side"},{"img":"block/mycelium_top.png","label":"Mycelium Top"},{"img":"block/nether_bricks.png","label":"Nether Bricks"},{"img":"block/nether_gold_ore.png","label":"Nether Gold Ore"},{"img":"block/nether_quartz_ore.png","label":"Nether Quartz Ore"},{"img":"block/nether_sprouts.png","label":"Nether Sprouts"},{"img":"block/nether_wart_block.png","label":"Nether Wart Block"},{"img":"block/nether_wart_stage0.png","label":"Nether Wart Stage0"},{"img":"block/nether_wart_stage1.png","label":"Nether Wart Stage1"},{"img":"block/nether_wart_stage2.png","label":"Nether Wart Stage2"},{"img":"block/netherite_block.png","label":"Netherite Block"},{"img":"block/netherrack.png","label":"Netherrack"},{"img":"block/note_block.png","label":"Note Block"},{"img":"block/oak_hanging_sign.png","label":"Oak Hanging Sign"},{"img":"block/oak_leaves.png","label":"Oak Leaves"},{"img":"block/oak_log.png","label":"Oak Log"},{"img":"block/oak_log_top.png","label":"Oak Log Top"},{"img":"block/oak_planks.png","label":"Oak Planks"},{"img":"block/oak_sapling.png","label":"Oak Sapling"},{"img":"block/oak_shelf.png","label":"Oak Shelf"},{"img":"block/oak_sign.png","label":"Oak Sign"},{"img":"block/oak_trapdoor.png","label":"Oak Trapdoor"},{"img":"block/observer_back.png","label":"Observer Back"},{"img":"block/observer_back_on.png","label":"Observer Back On"},{"img":"block/observer_front.png","label":"Observer Front"},{"img":"block/observer_side.png","label":"Observer Side"},{"img":"block/observer_top.png","label":"Observer Top"},{"img":"block/obsidian.png","label":"Obsidian"},{"img":"block/ochre_froglight_side.png","label":"Ochre Froglight Side"},{"img":"block/ochre_froglight_top.png","label":"Ochre Froglight Top"},{"img":"block/open_eyeblossom.png","label":"Open Eyeblossom"},{"img":"block/open_eyeblossom_emissive.png","label":"Open Eyeblossom Emissive"},{"img":"block/orange_bed_foot_west.png","label":"Orange Bed Foot West"},{"img":"block/orange_bed_head_west.png","label":"Orange Bed Head West"},{"img":"block/orange_candle.png","label":"Orange Candle"},{"img":"block/orange_candle_lit.png","label":"Orange Candle Lit"},{"img":"block/orange_concrete.png","label":"Orange Concrete"},{"img":"block/orange_concrete_powder.png","label":"Orange Concrete Powder"},{"img":"block/orange_glazed_terracotta.png","label":"Orange Glazed Terracotta"},{"img":"block/orange_shulker_box.png","label":"Orange Shulker Box"},{"img":"block/orange_stained_glass.png","label":"Orange Stained Glass"},{"img":"block/orange_stained_glass_pane_top.png","label":"Orange Stained Glass Pane Top"},{"img":"block/orange_terracotta.png","label":"Orange Terracotta"},{"img":"block/orange_tulip.png","label":"Orange Tulip"},{"img":"block/orange_wool.png","label":"Orange Wool"},{"img":"block/oxeye_daisy.png","label":"Oxeye Daisy"},{"img":"block/oxidized_copper_bulb_lit_powered.png","label":"Oxidized Copper Bulb Lit Powered"},{"img":"block/oxidized_copper_bulb_powered.png","label":"Oxidized Copper Bulb Powered"},{"img":"block/oxidized_copper_chain.png","label":"Oxidized Copper Chain"},{"img":"block/oxidized_lightning_rod.png","label":"Oxidized Lightning Rod"},{"img":"block/packed_ice.png","label":"Packed Ice"},{"img":"block/packed_mud.png","label":"Packed Mud"},{"img":"block/pale_oak_door_bottom.png","label":"Pale Oak Door Bottom"},{"img":"block/pale_oak_door_top.png","label":"Pale Oak Door Top"},{"img":"block/pale_oak_hanging_sign.png","label":"Pale Oak Hanging Sign"},{"img":"block/pale_oak_leaves.png","label":"Pale Oak Leaves"},{"img":"block/pale_oak_log.png","label":"Pale Oak Log"},{"img":"block/pale_oak_log_top.png","label":"Pale Oak Log Top"},{"img":"block/pale_oak_planks.png","label":"Pale Oak Planks"},{"img":"block/pale_oak_sapling.png","label":"Pale Oak Sapling"},{"img":"block/pale_oak_sign.png","label":"Pale Oak Sign"},{"img":"block/peony_bottom.png","label":"Peony Bottom"},{"img":"block/peony_top.png","label":"Peony Top"},{"img":"block/pink_bed_foot_west.png","label":"Pink Bed Foot West"},{"img":"block/pink_bed_head_west.png","label":"Pink Bed Head West"},{"img":"block/pink_candle.png","label":"Pink Candle"},{"img":"block/pink_candle_lit.png","label":"Pink Candle Lit"},{"img":"block/pink_petals.png","label":"Pink Petals"},{"img":"block/pink_petals_stem.png","label":"Pink Petals Stem"},{"img":"block/pink_shulker_box.png","label":"Pink Shulker Box"},{"img":"block/pink_stained_glass.png","label":"Pink Stained Glass"},{"img":"block/pink_stained_glass_pane_top.png","label":"Pink Stained Glass Pane Top"},{"img":"block/pink_terracotta.png","label":"Pink Terracotta"},{"img":"block/pink_tulip.png","label":"Pink Tulip"},{"img":"block/pink_wool.png","label":"Pink Wool"},{"img":"block/piston_bottom.png","label":"Piston Bottom"},{"img":"block/piston_inner.png","label":"Piston Inner"},{"img":"block/piston_side.png","label":"Piston Side"},{"img":"block/piston_top.png","label":"Piston Top"},{"img":"block/piston_top_sticky.png","label":"Piston Top Sticky"},{"img":"block/pitcher_crop_bottom.png","label":"Pitcher Crop Bottom"},{"img":"block/pitcher_crop_bottom_stage_1.png","label":"Pitcher Crop Bottom Stage 1"},{"img":"block/pitcher_crop_bottom_stage_2.png","label":"Pitcher Crop Bottom Stage 2"},{"img":"block/pitcher_crop_bottom_stage_3.png","label":"Pitcher Crop Bottom Stage 3"},{"img":"block/pitcher_crop_bottom_stage_4.png","label":"Pitcher Crop Bottom Stage 4"},{"img":"block/pitcher_crop_side.png","label":"Pitcher Crop Side"},{"img":"block/pitcher_crop_top.png","label":"Pitcher Crop Top"},{"img":"block/pitcher_crop_top_stage_3.png","label":"Pitcher Crop Top Stage 3"},{"img":"block/pitcher_crop_top_stage_4.png","label":"Pitcher Crop Top Stage 4"},{"img":"block/podzol_top.png","label":"Podzol Top"},{"img":"block/pointed_dripstone_down_base.png","label":"Pointed Dripstone Down Base"},{"img":"block/polished_andesite.png","label":"Polished Andesite"},{"img":"block/polished_basalt_side.png","label":"Polished Basalt Side"},{"img":"block/polished_basalt_top.png","label":"Polished Basalt Top"},{"img":"block/polished_blackstone.png","label":"Polished Blackstone"},{"img":"block/polished_blackstone_bricks.png","label":"Polished Blackstone Bricks"},{"img":"block/polished_cinnabar.png","label":"Polished Cinnabar"},{"img":"block/polished_deepslate.png","label":"Polished Deepslate"},{"img":"block/polished_diorite.png","label":"Polished Diorite"},{"img":"block/polished_granite.png","label":"Polished Granite"},{"img":"block/polished_sulfur.png","label":"Polished Sulfur"},{"img":"block/polished_tuff.png","label":"Polished Tuff"},{"img":"block/poppy.png","label":"Poppy"},{"img":"block/potatoes_stage0.png","label":"Potatoes Stage0"},{"img":"block/potatoes_stage1.png","label":"Potatoes Stage1"},{"img":"block/potatoes_stage2.png","label":"Potatoes Stage2"},{"img":"block/potatoes_stage3.png","label":"Potatoes Stage3"},{"img":"block/potent_sulfur.png","label":"Potent Sulfur"},{"img":"block/potted_azalea_bush_plant.png","label":"Potted Azalea Bush Plant"},{"img":"block/potted_azalea_bush_side.png","label":"Potted Azalea Bush Side"},{"img":"block/potted_azalea_bush_top.png","label":"Potted Azalea Bush Top"},{"img":"block/potted_flowering_azalea_bush_plant.png","label":"Potted Flowering Azalea Bush Plant"},{"img":"block/potted_flowering_azalea_bush_side.png","label":"Potted Flowering Azalea Bush Side"},{"img":"block/potted_flowering_azalea_bush_top.png","label":"Potted Flowering Azalea Bush Top"},{"img":"block/powder_snow.png","label":"Powder Snow"},{"img":"block/powered_rail_on.png","label":"Powered Rail On"},{"img":"block/prismarine_bricks.png","label":"Prismarine Bricks"},{"img":"block/pumpkin_side.png","label":"Pumpkin Side"},{"img":"block/pumpkin_stem.png","label":"Pumpkin Stem"},{"img":"block/pumpkin_top.png","label":"Pumpkin Top"},{"img":"block/purple_candle.png","label":"Purple Candle"},{"img":"block/purple_candle_lit.png","label":"Purple Candle Lit"},{"img":"block/purple_stained_glass.png","label":"Purple Stained Glass"},{"img":"block/purple_stained_glass_pane_top.png","label":"Purple Stained Glass Pane Top"},{"img":"block/purple_terracotta.png","label":"Purple Terracotta"},{"img":"block/purple_wool.png","label":"Purple Wool"},{"img":"block/purpur_pillar_top.png","label":"Purpur Pillar Top"},{"img":"block/quartz_block_bottom.png","label":"Quartz Block Bottom"},{"img":"block/rail.png","label":"Rail"},{"img":"block/raw_copper_block.png","label":"Raw Copper Block"},{"img":"block/raw_gold_block.png","label":"Raw Gold Block"},{"img":"block/raw_iron_block.png","label":"Raw Iron Block"},{"img":"block/red_candle.png","label":"Red Candle"},{"img":"block/red_candle_lit.png","label":"Red Candle Lit"},{"img":"block/red_concrete_powder.png","label":"Red Concrete Powder"},{"img":"block/red_glazed_terracotta.png","label":"Red Glazed Terracotta"},{"img":"block/red_mushroom.png","label":"Red Mushroom"},{"img":"block/red_mushroom_block.png","label":"Red Mushroom Block"},{"img":"block/red_nether_bricks.png","label":"Red Nether Bricks"},{"img":"block/red_shulker_box.png","label":"Red Shulker Box"},{"img":"block/red_stained_glass.png","label":"Red Stained Glass"},{"img":"block/red_stained_glass_pane_top.png","label":"Red Stained Glass Pane Top"},{"img":"block/red_terracotta.png","label":"Red Terracotta"},{"img":"block/red_tulip.png","label":"Red Tulip"},{"img":"block/red_wool.png","label":"Red Wool"},{"img":"block/redstone_block.png","label":"Redstone Block"},{"img":"block/redstone_dust_dot.png","label":"Redstone Dust Dot"},{"img":"block/redstone_dust_line0.png","label":"Redstone Dust Line0"},{"img":"block/redstone_dust_line1.png","label":"Redstone Dust Line1"},{"img":"block/redstone_dust_overlay.png","label":"Redstone Dust Overlay"},{"img":"block/redstone_lamp.png","label":"Redstone Lamp"},{"img":"block/redstone_lamp_on.png","label":"Redstone Lamp On"},{"img":"block/redstone_ore.png","label":"Redstone Ore"},{"img":"block/redstone_torch.png","label":"Redstone Torch"},{"img":"block/redstone_torch_off.png","label":"Redstone Torch Off"},{"img":"block/reinforced_deepslate_side.png","label":"Reinforced Deepslate Side"},{"img":"block/repeater_on.png","label":"Repeater On"},{"img":"block/resin_block.png","label":"Resin Block"},{"img":"block/resin_bricks.png","label":"Resin Bricks"},{"img":"block/resin_clump.png","label":"Resin Clump"},{"img":"block/respawn_anchor_bottom.png","label":"Respawn Anchor Bottom"},{"img":"block/respawn_anchor_side0.png","label":"Respawn Anchor Side0"},{"img":"block/respawn_anchor_top_off.png","label":"Respawn Anchor Top Off"},{"img":"block/rooted_dirt.png","label":"Rooted Dirt"},{"img":"block/rose_bush_bottom.png","label":"Rose Bush Bottom"},{"img":"block/rose_bush_top.png","label":"Rose Bush Top"},{"img":"block/sandstone_top.png","label":"Sandstone Top"},{"img":"block/scaffolding_top.png","label":"Scaffolding Top"},{"img":"block/sculk_catalyst_bottom.png","label":"Sculk Catalyst Bottom"},{"img":"block/sculk_catalyst_side.png","label":"Sculk Catalyst Side"},{"img":"block/sculk_catalyst_top.png","label":"Sculk Catalyst Top"},{"img":"block/sculk_sensor_side.png","label":"Sculk Sensor Side"},{"img":"block/sculk_sensor_top.png","label":"Sculk Sensor Top"},{"img":"block/sculk_shrieker_side.png","label":"Sculk Shrieker Side"},{"img":"block/sculk_shrieker_top.png","label":"Sculk Shrieker Top"},{"img":"block/sea_pickle.png","label":"Sea Pickle"},{"img":"block/short_dry_grass.png","label":"Short Dry Grass"},{"img":"block/short_grass.png","label":"Short Grass"},{"img":"block/shroomlight.png","label":"Shroomlight"},{"img":"block/shulker_box.png","label":"Shulker Box"},{"img":"block/slime_block.png","label":"Slime Block"},{"img":"block/small_amethyst_bud.png","label":"Small Amethyst Bud"},{"img":"block/small_dripleaf_side.png","label":"Small Dripleaf Side"},{"img":"block/small_dripleaf_stem_bottom.png","label":"Small Dripleaf Stem Bottom"},{"img":"block/small_dripleaf_stem_top.png","label":"Small Dripleaf Stem Top"},{"img":"block/small_dripleaf_top.png","label":"Small Dripleaf Top"},{"img":"block/smithing_table_bottom.png","label":"Smithing Table Bottom"},{"img":"block/smithing_table_top.png","label":"Smithing Table Top"},{"img":"block/smoker_front.png","label":"Smoker Front"},{"img":"block/smooth_basalt.png","label":"Smooth Basalt"},{"img":"block/smooth_stone.png","label":"Smooth Stone"},{"img":"block/sniffer_egg_not_cracked_top.png","label":"Sniffer Egg Not Cracked Top"},{"img":"block/snow.png","label":"Snow"},{"img":"block/soul_sand.png","label":"Soul Sand"},{"img":"block/soul_soil.png","label":"Soul Soil"},{"img":"block/soul_torch.png","label":"Soul Torch"},{"img":"block/spawner.png","label":"Spawner"},{"img":"block/sponge.png","label":"Sponge"},{"img":"block/spore_blossom.png","label":"Spore Blossom"},{"img":"block/spore_blossom_base.png","label":"Spore Blossom Base"},{"img":"block/spruce_leaves.png","label":"Spruce Leaves"},{"img":"block/spruce_log.png","label":"Spruce Log"},{"img":"block/spruce_log_top.png","label":"Spruce Log Top"},{"img":"block/spruce_planks.png","label":"Spruce Planks"},{"img":"block/spruce_sapling.png","label":"Spruce Sapling"},{"img":"block/stone_bricks.png","label":"Stone Bricks"},{"img":"block/stonecutter_top.png","label":"Stonecutter Top"},{"img":"block/stripped_acacia_log_top.png","label":"Stripped Acacia Log Top"},{"img":"block/stripped_bamboo_block_top.png","label":"Stripped Bamboo Block Top"},{"img":"block/stripped_birch_log_top.png","label":"Stripped Birch Log Top"},{"img":"block/stripped_cherry_log_top.png","label":"Stripped Cherry Log Top"},{"img":"block/stripped_crimson_stem_top.png","label":"Stripped Crimson Stem Top"},{"img":"block/stripped_dark_oak_log_top.png","label":"Stripped Dark Oak Log Top"},{"img":"block/stripped_jungle_log_top.png","label":"Stripped Jungle Log Top"},{"img":"block/stripped_mangrove_log_top.png","label":"Stripped Mangrove Log Top"},{"img":"block/stripped_oak_log.png","label":"Stripped Oak Log"},{"img":"block/stripped_oak_log_top.png","label":"Stripped Oak Log Top"},{"img":"block/stripped_pale_oak_log_top.png","label":"Stripped Pale Oak Log Top"},{"img":"block/stripped_spruce_log_top.png","label":"Stripped Spruce Log Top"},{"img":"block/stripped_warped_stem_top.png","label":"Stripped Warped Stem Top"},{"img":"block/structure_block_save.png","label":"Structure Block Save"},{"img":"block/sugar_cane.png","label":"Sugar Cane"},{"img":"block/target_top.png","label":"Target Top"},{"img":"block/terracotta.png","label":"Terracotta"},{"img":"block/tinted_glass.png","label":"Tinted Glass"},{"img":"block/tnt_side.png","label":"Tnt Side"},{"img":"block/torch.png","label":"Torch"},{"img":"block/torchflower_crop_stage1.png","label":"Torchflower Crop Stage1"},{"img":"block/trial_spawner_bottom.png","label":"Trial Spawner Bottom"},{"img":"block/tripwire.png","label":"Tripwire"},{"img":"block/tripwire_hook.png","label":"Tripwire Hook"},{"img":"block/tube_coral_block.png","label":"Tube Coral Block"},{"img":"block/tube_coral_fan.png","label":"Tube Coral Fan"},{"img":"block/tuff.png","label":"Tuff"},{"img":"block/tuff_bricks.png","label":"Tuff Bricks"},{"img":"block/turtle_egg_very_cracked.png","label":"Turtle Egg Very Cracked"},{"img":"block/twisting_vines.png","label":"Twisting Vines"},{"img":"block/vault_bottom.png","label":"Vault Bottom"},{"img":"block/vault_bottom_ominous.png","label":"Vault Bottom Ominous"},{"img":"block/vault_front_ejecting.png","label":"Vault Front Ejecting"},{"img":"block/vault_front_ejecting_ominous.png","label":"Vault Front Ejecting Ominous"},{"img":"block/warped_door_top.png","label":"Warped Door Top"},{"img":"block/warped_fungus.png","label":"Warped Fungus"},{"img":"block/warped_nylium.png","label":"Warped Nylium"},{"img":"block/warped_nylium_side.png","label":"Warped Nylium Side"},{"img":"block/warped_planks.png","label":"Warped Planks"},{"img":"block/water_overlay.png","label":"Water Overlay"},{"img":"block/weathered_copper.png","label":"Weathered Copper"},{"img":"block/weeping_vines_plant.png","label":"Weeping Vines Plant"},{"img":"block/wet_sponge.png","label":"Wet Sponge"},{"img":"block/wheat_stage7.png","label":"Wheat Stage7"},{"img":"block/white_glazed_terracotta.png","label":"White Glazed Terracotta"},{"img":"block/white_stained_glass.png","label":"White Stained Glass"},{"img":"block/white_terracotta.png","label":"White Terracotta"},{"img":"block/white_tulip.png","label":"White Tulip"},{"img":"block/white_wool.png","label":"White Wool"},{"img":"block/yellow_glazed_terracotta.png","label":"Yellow Glazed Terracotta"},{"img":"block/yellow_shulker_box.png","label":"Yellow Shulker Box"},{"img":"block/yellow_stained_glass.png","label":"Yellow Stained Glass"},{"img":"item/acacia_boat.png","label":"Acacia Boat"},{"img":"item/acacia_door.png","label":"Acacia Door"},{"img":"item/acacia_hanging_sign.png","label":"Acacia Hanging Sign"},{"img":"item/acacia_sign.png","label":"Acacia Sign"},{"img":"item/allay_spawn_egg.png","label":"Allay Spawn Egg"},{"img":"item/amethyst_shard.png","label":"Amethyst Shard"},{"img":"item/angler_pottery_sherd.png","label":"Angler Pottery Sherd"},{"img":"item/apple.png","label":"Apple"},{"img":"item/archer_pottery_sherd.png","label":"Archer Pottery Sherd"},{"img":"item/armadillo_scute.png","label":"Armadillo Scute"},{"img":"item/armadillo_spawn_egg.png","label":"Armadillo Spawn Egg"},{"img":"item/armor_stand.png","label":"Armor Stand"},{"img":"item/arms_up_pottery_sherd.png","label":"Arms Up Pottery Sherd"},{"img":"item/arrow.png","label":"Arrow"},{"img":"item/axolotl_bucket.png","label":"Axolotl Bucket"},{"img":"item/axolotl_spawn_egg.png","label":"Axolotl Spawn Egg"},{"img":"item/baked_potato.png","label":"Baked Potato"},{"img":"item/bamboo.png","label":"Bamboo"},{"img":"item/bamboo_chest_raft.png","label":"Bamboo Chest Raft"},{"img":"item/bamboo_door.png","label":"Bamboo Door"},{"img":"item/bamboo_hanging_sign.png","label":"Bamboo Hanging Sign"},{"img":"item/bamboo_raft.png","label":"Bamboo Raft"},{"img":"item/bamboo_sign.png","label":"Bamboo Sign"},{"img":"item/barrier.png","label":"Barrier"},{"img":"item/bat_spawn_egg.png","label":"Bat Spawn Egg"},{"img":"item/bee_spawn_egg.png","label":"Bee Spawn Egg"},{"img":"item/beef.png","label":"Beef"},{"img":"item/beetroot.png","label":"Beetroot"},{"img":"item/beetroot_seeds.png","label":"Beetroot Seeds"},{"img":"item/beetroot_soup.png","label":"Beetroot Soup"},{"img":"item/bell.png","label":"Bell"},{"img":"item/birch_boat.png","label":"Birch Boat"},{"img":"item/birch_door.png","label":"Birch Door"},{"img":"item/birch_hanging_sign.png","label":"Birch Hanging Sign"},{"img":"item/birch_sign.png","label":"Birch Sign"},{"img":"item/black_bundle.png","label":"Black Bundle"},{"img":"item/black_bundle_open_back.png","label":"Black Bundle Open Back"},{"img":"item/black_bundle_open_front.png","label":"Black Bundle Open Front"},{"img":"item/black_candle.png","label":"Black Candle"},{"img":"item/black_dye.png","label":"Black Dye"},{"img":"item/black_harness.png","label":"Black Harness"},{"img":"item/blade_pottery_sherd.png","label":"Blade Pottery Sherd"},{"img":"item/blaze_powder.png","label":"Blaze Powder"},{"img":"item/blaze_rod.png","label":"Blaze Rod"},{"img":"item/blaze_spawn_egg.png","label":"Blaze Spawn Egg"},{"img":"item/blue_bundle.png","label":"Blue Bundle"},{"img":"item/blue_bundle_open_back.png","label":"Blue Bundle Open Back"},{"img":"item/blue_bundle_open_front.png","label":"Blue Bundle Open Front"},{"img":"item/blue_candle.png","label":"Blue Candle"},{"img":"item/blue_dye.png","label":"Blue Dye"},{"img":"item/blue_egg.png","label":"Blue Egg"},{"img":"item/blue_harness.png","label":"Blue Harness"},{"img":"item/bogged_spawn_egg.png","label":"Bogged Spawn Egg"},{"img":"item/bone.png","label":"Bone"},{"img":"item/bone_meal.png","label":"Bone Meal"},{"img":"item/book.png","label":"Book"},{"img":"item/bordure_indented_banner_pattern.png","label":"Bordure Indented Banner Pattern"},{"img":"item/bow.png","label":"Bow"},{"img":"item/bowl.png","label":"Bowl"},{"img":"item/bread.png","label":"Bread"},{"img":"item/breeze_rod.png","label":"Breeze Rod"},{"img":"item/breeze_spawn_egg.png","label":"Breeze Spawn Egg"},{"img":"item/brewer_pottery_sherd.png","label":"Brewer Pottery Sherd"},{"img":"item/brewing_stand.png","label":"Brewing Stand"},{"img":"item/brick.png","label":"Brick"},{"img":"item/brown_bundle.png","label":"Brown Bundle"},{"img":"item/brown_bundle_open_back.png","label":"Brown Bundle Open Back"},{"img":"item/brown_bundle_open_front.png","label":"Brown Bundle Open Front"},{"img":"item/brown_candle.png","label":"Brown Candle"},{"img":"item/brown_dye.png","label":"Brown Dye"},{"img":"item/brown_egg.png","label":"Brown Egg"},{"img":"item/brown_harness.png","label":"Brown Harness"},{"img":"item/brush.png","label":"Brush"},{"img":"item/bucket.png","label":"Bucket"},{"img":"item/bundle.png","label":"Bundle"},{"img":"item/bundle_open_back.png","label":"Bundle Open Back"},{"img":"item/bundle_open_front.png","label":"Bundle Open Front"},{"img":"item/burn_pottery_sherd.png","label":"Burn Pottery Sherd"},{"img":"item/cake.png","label":"Cake"},{"img":"item/camel_husk_spawn_egg.png","label":"Camel Husk Spawn Egg"},{"img":"item/camel_spawn_egg.png","label":"Camel Spawn Egg"},{"img":"item/campfire.png","label":"Campfire"},{"img":"item/candle.png","label":"Candle"},{"img":"item/carrot.png","label":"Carrot"},{"img":"item/carrot_on_a_stick.png","label":"Carrot On A Stick"},{"img":"item/cat_spawn_egg.png","label":"Cat Spawn Egg"},{"img":"item/cauldron.png","label":"Cauldron"},{"img":"item/cave_spider_spawn_egg.png","label":"Cave Spider Spawn Egg"},{"img":"item/chainmail_boots.png","label":"Chainmail Boots"},{"img":"item/chainmail_chestplate.png","label":"Chainmail Chestplate"},{"img":"item/chainmail_helmet.png","label":"Chainmail Helmet"},{"img":"item/chainmail_leggings.png","label":"Chainmail Leggings"},{"img":"item/charcoal.png","label":"Charcoal"},{"img":"item/cherry_boat.png","label":"Cherry Boat"},{"img":"item/cherry_chest_boat.png","label":"Cherry Chest Boat"},{"img":"item/cherry_door.png","label":"Cherry Door"},{"img":"item/cherry_hanging_sign.png","label":"Cherry Hanging Sign"},{"img":"item/cherry_sign.png","label":"Cherry Sign"},{"img":"item/chest_minecart.png","label":"Chest Minecart"},{"img":"item/chicken.png","label":"Chicken"},{"img":"item/chicken_spawn_egg.png","label":"Chicken Spawn Egg"},{"img":"item/chorus_fruit.png","label":"Chorus Fruit"},{"img":"item/clay_ball.png","label":"Clay Ball"},{"img":"item/clock_00.png","label":"Clock 00"},{"img":"item/coal.png","label":"Coal"},{"img":"item/cocoa_beans.png","label":"Cocoa Beans"},{"img":"item/cod.png","label":"Cod"},{"img":"item/cod_bucket.png","label":"Cod Bucket"},{"img":"item/cod_spawn_egg.png","label":"Cod Spawn Egg"},{"img":"item/command_block_minecart.png","label":"Command Block Minecart"},{"img":"item/comparator.png","label":"Comparator"},{"img":"item/compass_00.png","label":"Compass 00"},{"img":"item/cooked_beef.png","label":"Cooked Beef"},{"img":"item/cooked_chicken.png","label":"Cooked Chicken"},{"img":"item/cooked_cod.png","label":"Cooked Cod"},{"img":"item/cooked_mutton.png","label":"Cooked Mutton"},{"img":"item/cooked_porkchop.png","label":"Cooked Porkchop"},{"img":"item/cooked_rabbit.png","label":"Cooked Rabbit"},{"img":"item/cooked_salmon.png","label":"Cooked Salmon"},{"img":"item/cookie.png","label":"Cookie"},{"img":"item/copper_axe.png","label":"Copper Axe"},{"img":"item/copper_boots.png","label":"Copper Boots"},{"img":"item/copper_chain.png","label":"Copper Chain"},{"img":"item/copper_chestplate.png","label":"Copper Chestplate"},{"img":"item/copper_door.png","label":"Copper Door"},{"img":"item/copper_golem_spawn_egg.png","label":"Copper Golem Spawn Egg"},{"img":"item/copper_helmet.png","label":"Copper Helmet"},{"img":"item/copper_hoe.png","label":"Copper Hoe"},{"img":"item/copper_horse_armor.png","label":"Copper Horse Armor"},{"img":"item/copper_ingot.png","label":"Copper Ingot"},{"img":"item/copper_lantern.png","label":"Copper Lantern"},{"img":"item/copper_leggings.png","label":"Copper Leggings"},{"img":"item/copper_nautilus_armor.png","label":"Copper Nautilus Armor"},{"img":"item/copper_nugget.png","label":"Copper Nugget"},{"img":"item/copper_pickaxe.png","label":"Copper Pickaxe"},{"img":"item/copper_shovel.png","label":"Copper Shovel"},{"img":"item/copper_spear.png","label":"Copper Spear"},{"img":"item/copper_sword.png","label":"Copper Sword"},{"img":"item/cow_spawn_egg.png","label":"Cow Spawn Egg"},{"img":"item/creaking_spawn_egg.png","label":"Creaking Spawn Egg"},{"img":"item/creeper_banner_pattern.png","label":"Creeper Banner Pattern"},{"img":"item/creeper_spawn_egg.png","label":"Creeper Spawn Egg"},{"img":"item/crimson_door.png","label":"Crimson Door"},{"img":"item/crimson_hanging_sign.png","label":"Crimson Hanging Sign"},{"img":"item/crimson_sign.png","label":"Crimson Sign"},{"img":"item/crossbow_firework.png","label":"Crossbow Firework"},{"img":"item/crossbow_pulling_0.png","label":"Crossbow Pulling 0"},{"img":"item/cyan_bundle.png","label":"Cyan Bundle"},{"img":"item/cyan_bundle_open_back.png","label":"Cyan Bundle Open Back"},{"img":"item/cyan_bundle_open_front.png","label":"Cyan Bundle Open Front"},{"img":"item/cyan_candle.png","label":"Cyan Candle"},{"img":"item/cyan_dye.png","label":"Cyan Dye"},{"img":"item/cyan_harness.png","label":"Cyan Harness"},{"img":"item/danger_pottery_sherd.png","label":"Danger Pottery Sherd"},{"img":"item/dark_oak_boat.png","label":"Dark Oak Boat"},{"img":"item/dark_oak_door.png","label":"Dark Oak Door"},{"img":"item/dark_oak_hanging_sign.png","label":"Dark Oak Hanging Sign"},{"img":"item/dark_oak_sign.png","label":"Dark Oak Sign"},{"img":"item/diamond.png","label":"Diamond"},{"img":"item/diamond_axe.png","label":"Diamond Axe"},{"img":"item/diamond_boots.png","label":"Diamond Boots"},{"img":"item/diamond_chestplate.png","label":"Diamond Chestplate"},{"img":"item/diamond_helmet.png","label":"Diamond Helmet"},{"img":"item/diamond_hoe.png","label":"Diamond Hoe"},{"img":"item/diamond_horse_armor.png","label":"Diamond Horse Armor"},{"img":"item/diamond_leggings.png","label":"Diamond Leggings"},{"img":"item/diamond_nautilus_armor.png","label":"Diamond Nautilus Armor"},{"img":"item/diamond_pickaxe.png","label":"Diamond Pickaxe"},{"img":"item/diamond_shovel.png","label":"Diamond Shovel"},{"img":"item/diamond_spear.png","label":"Diamond Spear"},{"img":"item/diamond_sword.png","label":"Diamond Sword"},{"img":"item/disc_fragment_5.png","label":"Disc Fragment 5"},{"img":"item/dolphin_spawn_egg.png","label":"Dolphin Spawn Egg"},{"img":"item/donkey_spawn_egg.png","label":"Donkey Spawn Egg"},{"img":"item/dragon_breath.png","label":"Dragon Breath"},{"img":"item/dried_kelp.png","label":"Dried Kelp"},{"img":"item/drowned_spawn_egg.png","label":"Drowned Spawn Egg"},{"img":"item/echo_shard.png","label":"Echo Shard"},{"img":"item/egg.png","label":"Egg"},{"img":"item/elder_guardian_spawn_egg.png","label":"Elder Guardian Spawn Egg"},{"img":"item/elytra.png","label":"Elytra"},{"img":"item/elytra_broken.png","label":"Elytra Broken"},{"img":"item/emerald.png","label":"Emerald"},{"img":"item/enchanted_book.png","label":"Enchanted Book"},{"img":"item/end_crystal.png","label":"End Crystal"},{"img":"item/ender_dragon_spawn_egg.png","label":"Ender Dragon Spawn Egg"},{"img":"item/ender_eye.png","label":"Ender Eye"},{"img":"item/ender_pearl.png","label":"Ender Pearl"},{"img":"item/enderman_spawn_egg.png","label":"Enderman Spawn Egg"},{"img":"item/evoker_spawn_egg.png","label":"Evoker Spawn Egg"},{"img":"item/experience_bottle.png","label":"Experience Bottle"},{"img":"item/explorer_pottery_sherd.png","label":"Explorer Pottery Sherd"},{"img":"item/exposed_copper_chain.png","label":"Exposed Copper Chain"},{"img":"item/exposed_copper_door.png","label":"Exposed Copper Door"},{"img":"item/exposed_copper_lantern.png","label":"Exposed Copper Lantern"},{"img":"item/feather.png","label":"Feather"},{"img":"item/fermented_spider_eye.png","label":"Fermented Spider Eye"},{"img":"item/field_masoned_banner_pattern.png","label":"Field Masoned Banner Pattern"},{"img":"item/filled_map.png","label":"Filled Map"},{"img":"item/filled_map_markings.png","label":"Filled Map Markings"},{"img":"item/fire_charge.png","label":"Fire Charge"},{"img":"item/firefly_bush.png","label":"Firefly Bush"},{"img":"item/firework_rocket.png","label":"Firework Rocket"},{"img":"item/firework_star.png","label":"Firework Star"},{"img":"item/firework_star_overlay.png","label":"Firework Star Overlay"},{"img":"item/fishing_rod_cast.png","label":"Fishing Rod Cast"},{"img":"item/flint.png","label":"Flint"},{"img":"item/flint_and_steel.png","label":"Flint And Steel"},{"img":"item/flow_banner_pattern.png","label":"Flow Banner Pattern"},{"img":"item/flow_pottery_sherd.png","label":"Flow Pottery Sherd"},{"img":"item/flower_pot.png","label":"Flower Pot"},{"img":"item/fox_spawn_egg.png","label":"Fox Spawn Egg"},{"img":"item/friend_pottery_sherd.png","label":"Friend Pottery Sherd"},{"img":"item/frog_spawn_egg.png","label":"Frog Spawn Egg"},{"img":"item/furnace_minecart.png","label":"Furnace Minecart"},{"img":"item/ghast_spawn_egg.png","label":"Ghast Spawn Egg"},{"img":"item/ghast_tear.png","label":"Ghast Tear"},{"img":"item/glass_bottle.png","label":"Glass Bottle"},{"img":"item/glistering_melon_slice.png","label":"Glistering Melon Slice"},{"img":"item/globe_banner_pattern.png","label":"Globe Banner Pattern"},{"img":"item/glow_berries.png","label":"Glow Berries"},{"img":"item/glow_ink_sac.png","label":"Glow Ink Sac"},{"img":"item/glow_item_frame.png","label":"Glow Item Frame"},{"img":"item/glow_squid_spawn_egg.png","label":"Glow Squid Spawn Egg"},{"img":"item/glowstone_dust.png","label":"Glowstone Dust"},{"img":"item/goat_horn.png","label":"Goat Horn"},{"img":"item/goat_spawn_egg.png","label":"Goat Spawn Egg"},{"img":"item/gold_ingot.png","label":"Gold Ingot"},{"img":"item/gold_nugget.png","label":"Gold Nugget"},{"img":"item/golden_apple.png","label":"Golden Apple"},{"img":"item/golden_axe.png","label":"Golden Axe"},{"img":"item/golden_boots.png","label":"Golden Boots"},{"img":"item/golden_carrot.png","label":"Golden Carrot"},{"img":"item/golden_chestplate.png","label":"Golden Chestplate"},{"img":"item/golden_helmet.png","label":"Golden Helmet"},{"img":"item/golden_hoe.png","label":"Golden Hoe"},{"img":"item/golden_horse_armor.png","label":"Golden Horse Armor"},{"img":"item/golden_leggings.png","label":"Golden Leggings"},{"img":"item/golden_nautilus_armor.png","label":"Golden Nautilus Armor"},{"img":"item/golden_pickaxe.png","label":"Golden Pickaxe"},{"img":"item/golden_shovel.png","label":"Golden Shovel"},{"img":"item/golden_spear.png","label":"Golden Spear"},{"img":"item/golden_sword.png","label":"Golden Sword"},{"img":"item/gray_bundle.png","label":"Gray Bundle"},{"img":"item/gray_bundle_open_back.png","label":"Gray Bundle Open Back"},{"img":"item/gray_bundle_open_front.png","label":"Gray Bundle Open Front"},{"img":"item/gray_candle.png","label":"Gray Candle"},{"img":"item/gray_dye.png","label":"Gray Dye"},{"img":"item/gray_harness.png","label":"Gray Harness"},{"img":"item/green_bundle.png","label":"Green Bundle"},{"img":"item/green_candle.png","label":"Green Candle"},{"img":"item/green_dye.png","label":"Green Dye"},{"img":"item/green_harness.png","label":"Green Harness"},{"img":"item/guardian_spawn_egg.png","label":"Guardian Spawn Egg"},{"img":"item/gunpowder.png","label":"Gunpowder"},{"img":"item/guster_banner_pattern.png","label":"Guster Banner Pattern"},{"img":"item/guster_pottery_sherd.png","label":"Guster Pottery Sherd"},{"img":"item/happy_ghast_spawn_egg.png","label":"Happy Ghast Spawn Egg"},{"img":"item/heart_of_the_sea.png","label":"Heart Of The Sea"},{"img":"item/heart_pottery_sherd.png","label":"Heart Pottery Sherd"},{"img":"item/heartbreak_pottery_sherd.png","label":"Heartbreak Pottery Sherd"},{"img":"item/hoglin_spawn_egg.png","label":"Hoglin Spawn Egg"},{"img":"item/honey_bottle.png","label":"Honey Bottle"},{"img":"item/honeycomb.png","label":"Honeycomb"},{"img":"item/hopper.png","label":"Hopper"},{"img":"item/hopper_minecart.png","label":"Hopper Minecart"},{"img":"item/horse_spawn_egg.png","label":"Horse Spawn Egg"},{"img":"item/howl_pottery_sherd.png","label":"Howl Pottery Sherd"},{"img":"item/husk_spawn_egg.png","label":"Husk Spawn Egg"},{"img":"item/ink_sac.png","label":"Ink Sac"},{"img":"item/iron_axe.png","label":"Iron Axe"},{"img":"item/iron_boots.png","label":"Iron Boots"},{"img":"item/iron_chain.png","label":"Iron Chain"},{"img":"item/iron_chestplate.png","label":"Iron Chestplate"},{"img":"item/iron_door.png","label":"Iron Door"},{"img":"item/iron_golem_spawn_egg.png","label":"Iron Golem Spawn Egg"},{"img":"item/iron_helmet.png","label":"Iron Helmet"},{"img":"item/iron_hoe.png","label":"Iron Hoe"},{"img":"item/iron_horse_armor.png","label":"Iron Horse Armor"},{"img":"item/iron_ingot.png","label":"Iron Ingot"},{"img":"item/iron_leggings.png","label":"Iron Leggings"},{"img":"item/iron_nautilus_armor.png","label":"Iron Nautilus Armor"},{"img":"item/iron_nugget.png","label":"Iron Nugget"},{"img":"item/iron_pickaxe.png","label":"Iron Pickaxe"},{"img":"item/iron_shovel.png","label":"Iron Shovel"},{"img":"item/iron_spear.png","label":"Iron Spear"},{"img":"item/iron_sword.png","label":"Iron Sword"},{"img":"item/item_frame.png","label":"Item Frame"},{"img":"item/jungle_boat.png","label":"Jungle Boat"},{"img":"item/jungle_door.png","label":"Jungle Door"},{"img":"item/jungle_hanging_sign.png","label":"Jungle Hanging Sign"},{"img":"item/jungle_sign.png","label":"Jungle Sign"},{"img":"item/kelp.png","label":"Kelp"},{"img":"item/knowledge_book.png","label":"Knowledge Book"},{"img":"item/lantern.png","label":"Lantern"},{"img":"item/lapis_lazuli.png","label":"Lapis Lazuli"},{"img":"item/lava_bucket.png","label":"Lava Bucket"},{"img":"item/lead.png","label":"Lead"},{"img":"item/leaf_litter.png","label":"Leaf Litter"},{"img":"item/leather.png","label":"Leather"},{"img":"item/leather_boots.png","label":"Leather Boots"},{"img":"item/leather_boots_overlay.png","label":"Leather Boots Overlay"},{"img":"item/leather_chestplate.png","label":"Leather Chestplate"},{"img":"item/leather_chestplate_overlay.png","label":"Leather Chestplate Overlay"},{"img":"item/leather_helmet.png","label":"Leather Helmet"},{"img":"item/leather_helmet_overlay.png","label":"Leather Helmet Overlay"},{"img":"item/leather_horse_armor.png","label":"Leather Horse Armor"},{"img":"item/leather_horse_armor_overlay.png","label":"Leather Horse Armor Overlay"},{"img":"item/leather_leggings.png","label":"Leather Leggings"},{"img":"item/leather_leggings_overlay.png","label":"Leather Leggings Overlay"},{"img":"item/light.png","label":"Light"},{"img":"item/light_blue_bundle.png","label":"Light Blue Bundle"},{"img":"item/light_blue_bundle_open_back.png","label":"Light Blue Bundle Open Back"},{"img":"item/light_blue_bundle_open_front.png","label":"Light Blue Bundle Open Front"},{"img":"item/light_blue_candle.png","label":"Light Blue Candle"},{"img":"item/light_blue_dye.png","label":"Light Blue Dye"},{"img":"item/light_blue_harness.png","label":"Light Blue Harness"},{"img":"item/light_gray_bundle.png","label":"Light Gray Bundle"},{"img":"item/light_gray_bundle_open_back.png","label":"Light Gray Bundle Open Back"},{"img":"item/light_gray_bundle_open_front.png","label":"Light Gray Bundle Open Front"},{"img":"item/light_gray_candle.png","label":"Light Gray Candle"},{"img":"item/light_gray_dye.png","label":"Light Gray Dye"},{"img":"item/light_gray_harness.png","label":"Light Gray Harness"},{"img":"item/lime_candle.png","label":"Lime Candle"},{"img":"item/lime_dye.png","label":"Lime Dye"},{"img":"item/lime_harness.png","label":"Lime Harness"},{"img":"item/lingering_potion.png","label":"Lingering Potion"},{"img":"item/llama_spawn_egg.png","label":"Llama Spawn Egg"},{"img":"item/mace.png","label":"Mace"},{"img":"item/magenta_bundle.png","label":"Magenta Bundle"},{"img":"item/magenta_bundle_open_back.png","label":"Magenta Bundle Open Back"},{"img":"item/magenta_bundle_open_front.png","label":"Magenta Bundle Open Front"},{"img":"item/magenta_candle.png","label":"Magenta Candle"},{"img":"item/magenta_dye.png","label":"Magenta Dye"},{"img":"item/magenta_harness.png","label":"Magenta Harness"},{"img":"item/magma_cream.png","label":"Magma Cream"},{"img":"item/magma_cube_spawn_egg.png","label":"Magma Cube Spawn Egg"},{"img":"item/mangrove_boat.png","label":"Mangrove Boat"},{"img":"item/mangrove_chest_boat.png","label":"Mangrove Chest Boat"},{"img":"item/mangrove_door.png","label":"Mangrove Door"},{"img":"item/mangrove_hanging_sign.png","label":"Mangrove Hanging Sign"},{"img":"item/mangrove_propagule.png","label":"Mangrove Propagule"},{"img":"item/mangrove_sign.png","label":"Mangrove Sign"},{"img":"item/map.png","label":"Map"},{"img":"item/melon_seeds.png","label":"Melon Seeds"},{"img":"item/melon_slice.png","label":"Melon Slice"},{"img":"item/milk_bucket.png","label":"Milk Bucket"},{"img":"item/minecart.png","label":"Minecart"},{"img":"item/miner_pottery_sherd.png","label":"Miner Pottery Sherd"},{"img":"item/mojang_banner_pattern.png","label":"Mojang Banner Pattern"},{"img":"item/mooshroom_spawn_egg.png","label":"Mooshroom Spawn Egg"},{"img":"item/mourner_pottery_sherd.png","label":"Mourner Pottery Sherd"},{"img":"item/mule_spawn_egg.png","label":"Mule Spawn Egg"},{"img":"item/mushroom_stew.png","label":"Mushroom Stew"},{"img":"item/music_disc_11.png","label":"Music Disc 11"},{"img":"item/music_disc_13.png","label":"Music Disc 13"},{"img":"item/music_disc_5.png","label":"Music Disc 5"},{"img":"item/music_disc_blocks.png","label":"Music Disc Blocks"},{"img":"item/music_disc_bounce.png","label":"Music Disc Bounce"},{"img":"item/music_disc_cat.png","label":"Music Disc Cat"},{"img":"item/music_disc_chirp.png","label":"Music Disc Chirp"},{"img":"item/music_disc_creator.png","label":"Music Disc Creator"},{"img":"item/music_disc_creator_music_box.png","label":"Music Disc Creator Music Box"},{"img":"item/music_disc_far.png","label":"Music Disc Far"},{"img":"item/music_disc_lava_chicken.png","label":"Music Disc Lava Chicken"},{"img":"item/music_disc_mall.png","label":"Music Disc Mall"},{"img":"item/music_disc_mellohi.png","label":"Music Disc Mellohi"},{"img":"item/music_disc_otherside.png","label":"Music Disc Otherside"},{"img":"item/music_disc_pigstep.png","label":"Music Disc Pigstep"},{"img":"item/music_disc_precipice.png","label":"Music Disc Precipice"},{"img":"item/music_disc_relic.png","label":"Music Disc Relic"},{"img":"item/music_disc_stal.png","label":"Music Disc Stal"},{"img":"item/music_disc_strad.png","label":"Music Disc Strad"},{"img":"item/music_disc_tears.png","label":"Music Disc Tears"},{"img":"item/music_disc_wait.png","label":"Music Disc Wait"},{"img":"item/music_disc_ward.png","label":"Music Disc Ward"},{"img":"item/mutton.png","label":"Mutton"},{"img":"item/name_tag.png","label":"Name Tag"},{"img":"item/nautilus_shell.png","label":"Nautilus Shell"},{"img":"item/nautilus_spawn_egg.png","label":"Nautilus Spawn Egg"},{"img":"item/nether_brick.png","label":"Nether Brick"},{"img":"item/nether_sprouts.png","label":"Nether Sprouts"},{"img":"item/nether_star.png","label":"Nether Star"},{"img":"item/nether_wart.png","label":"Nether Wart"},{"img":"item/netherite_axe.png","label":"Netherite Axe"},{"img":"item/netherite_boots.png","label":"Netherite Boots"},{"img":"item/netherite_chestplate.png","label":"Netherite Chestplate"},{"img":"item/netherite_helmet.png","label":"Netherite Helmet"},{"img":"item/netherite_hoe.png","label":"Netherite Hoe"},{"img":"item/netherite_horse_armor.png","label":"Netherite Horse Armor"},{"img":"item/netherite_ingot.png","label":"Netherite Ingot"},{"img":"item/netherite_leggings.png","label":"Netherite Leggings"},{"img":"item/netherite_nautilus_armor.png","label":"Netherite Nautilus Armor"},{"img":"item/netherite_pickaxe.png","label":"Netherite Pickaxe"},{"img":"item/netherite_scrap.png","label":"Netherite Scrap"},{"img":"item/netherite_shovel.png","label":"Netherite Shovel"},{"img":"item/netherite_spear.png","label":"Netherite Spear"},{"img":"item/netherite_sword.png","label":"Netherite Sword"},{"img":"item/oak_boat.png","label":"Oak Boat"},{"img":"item/oak_chest_boat.png","label":"Oak Chest Boat"},{"img":"item/oak_door.png","label":"Oak Door"},{"img":"item/oak_hanging_sign.png","label":"Oak Hanging Sign"},{"img":"item/oak_sign.png","label":"Oak Sign"},{"img":"item/ocelot_spawn_egg.png","label":"Ocelot Spawn Egg"},{"img":"item/ominous_bottle.png","label":"Ominous Bottle"},{"img":"item/ominous_trial_key.png","label":"Ominous Trial Key"},{"img":"item/orange_bundle.png","label":"Orange Bundle"},{"img":"item/orange_bundle_open_back.png","label":"Orange Bundle Open Back"},{"img":"item/orange_bundle_open_front.png","label":"Orange Bundle Open Front"},{"img":"item/orange_candle.png","label":"Orange Candle"},{"img":"item/orange_dye.png","label":"Orange Dye"},{"img":"item/orange_harness.png","label":"Orange Harness"},{"img":"item/oxidized_copper_chain.png","label":"Oxidized Copper Chain"},{"img":"item/oxidized_copper_door.png","label":"Oxidized Copper Door"},{"img":"item/oxidized_copper_lantern.png","label":"Oxidized Copper Lantern"},{"img":"item/painting.png","label":"Painting"},{"img":"item/pale_oak_boat.png","label":"Pale Oak Boat"},{"img":"item/pale_oak_door.png","label":"Pale Oak Door"},{"img":"item/pale_oak_hanging_sign.png","label":"Pale Oak Hanging Sign"},{"img":"item/pale_oak_sign.png","label":"Pale Oak Sign"},{"img":"item/panda_spawn_egg.png","label":"Panda Spawn Egg"},{"img":"item/paper.png","label":"Paper"},{"img":"item/parched_spawn_egg.png","label":"Parched Spawn Egg"},{"img":"item/parrot_spawn_egg.png","label":"Parrot Spawn Egg"},{"img":"item/phantom_membrane.png","label":"Phantom Membrane"},{"img":"item/phantom_spawn_egg.png","label":"Phantom Spawn Egg"},{"img":"item/pig_spawn_egg.png","label":"Pig Spawn Egg"},{"img":"item/piglin_banner_pattern.png","label":"Piglin Banner Pattern"},{"img":"item/piglin_brute_spawn_egg.png","label":"Piglin Brute Spawn Egg"},{"img":"item/piglin_spawn_egg.png","label":"Piglin Spawn Egg"},{"img":"item/pillager_spawn_egg.png","label":"Pillager Spawn Egg"},{"img":"item/pink_bundle.png","label":"Pink Bundle"},{"img":"item/pink_bundle_open_back.png","label":"Pink Bundle Open Back"},{"img":"item/pink_bundle_open_front.png","label":"Pink Bundle Open Front"},{"img":"item/pink_candle.png","label":"Pink Candle"},{"img":"item/pink_dye.png","label":"Pink Dye"},{"img":"item/pink_harness.png","label":"Pink Harness"},{"img":"item/pink_petals.png","label":"Pink Petals"},{"img":"item/pitcher_plant.png","label":"Pitcher Plant"},{"img":"item/pitcher_pod.png","label":"Pitcher Pod"},{"img":"item/plenty_pottery_sherd.png","label":"Plenty Pottery Sherd"},{"img":"item/pointed_dripstone.png","label":"Pointed Dripstone"},{"img":"item/poisonous_potato.png","label":"Poisonous Potato"},{"img":"item/polar_bear_spawn_egg.png","label":"Polar Bear Spawn Egg"},{"img":"item/popped_chorus_fruit.png","label":"Popped Chorus Fruit"},{"img":"item/porkchop.png","label":"Porkchop"},{"img":"item/potato.png","label":"Potato"},{"img":"item/potion.png","label":"Potion"},{"img":"item/potion_overlay.png","label":"Potion Overlay"},{"img":"item/powder_snow_bucket.png","label":"Powder Snow Bucket"},{"img":"item/prismarine_crystals.png","label":"Prismarine Crystals"},{"img":"item/prismarine_shard.png","label":"Prismarine Shard"},{"img":"item/prize_pottery_sherd.png","label":"Prize Pottery Sherd"},{"img":"item/pufferfish.png","label":"Pufferfish"},{"img":"item/pufferfish_bucket.png","label":"Pufferfish Bucket"},{"img":"item/pufferfish_spawn_egg.png","label":"Pufferfish Spawn Egg"},{"img":"item/pumpkin_pie.png","label":"Pumpkin Pie"},{"img":"item/pumpkin_seeds.png","label":"Pumpkin Seeds"},{"img":"item/purple_bundle.png","label":"Purple Bundle"},{"img":"item/purple_bundle_open_back.png","label":"Purple Bundle Open Back"},{"img":"item/purple_bundle_open_front.png","label":"Purple Bundle Open Front"},{"img":"item/purple_candle.png","label":"Purple Candle"},{"img":"item/purple_dye.png","label":"Purple Dye"},{"img":"item/purple_harness.png","label":"Purple Harness"},{"img":"item/quartz.png","label":"Quartz"},{"img":"item/rabbit.png","label":"Rabbit"},{"img":"item/rabbit_foot.png","label":"Rabbit Foot"},{"img":"item/rabbit_hide.png","label":"Rabbit Hide"},{"img":"item/rabbit_spawn_egg.png","label":"Rabbit Spawn Egg"},{"img":"item/rabbit_stew.png","label":"Rabbit Stew"},{"img":"item/ravager_spawn_egg.png","label":"Ravager Spawn Egg"},{"img":"item/raw_copper.png","label":"Raw Copper"},{"img":"item/raw_gold.png","label":"Raw Gold"},{"img":"item/raw_iron.png","label":"Raw Iron"},{"img":"item/recovery_compass_00.png","label":"Recovery Compass 00"},{"img":"item/red_bundle.png","label":"Red Bundle"},{"img":"item/red_bundle_open_back.png","label":"Red Bundle Open Back"},{"img":"item/red_bundle_open_front.png","label":"Red Bundle Open Front"},{"img":"item/red_candle.png","label":"Red Candle"},{"img":"item/red_dye.png","label":"Red Dye"},{"img":"item/red_harness.png","label":"Red Harness"},{"img":"item/redstone.png","label":"Redstone"},{"img":"item/repeater.png","label":"Repeater"},{"img":"item/resin_brick.png","label":"Resin Brick"},{"img":"item/resin_clump.png","label":"Resin Clump"},{"img":"item/rotten_flesh.png","label":"Rotten Flesh"},{"img":"item/saddle.png","label":"Saddle"},{"img":"item/salmon.png","label":"Salmon"},{"img":"item/salmon_bucket.png","label":"Salmon Bucket"},{"img":"item/salmon_spawn_egg.png","label":"Salmon Spawn Egg"},{"img":"item/scrape_pottery_sherd.png","label":"Scrape Pottery Sherd"},{"img":"item/sea_pickle.png","label":"Sea Pickle"},{"img":"item/seagrass.png","label":"Seagrass"},{"img":"item/sheaf_pottery_sherd.png","label":"Sheaf Pottery Sherd"},{"img":"item/shears.png","label":"Shears"},{"img":"item/sheep_spawn_egg.png","label":"Sheep Spawn Egg"},{"img":"item/shelter_pottery_sherd.png","label":"Shelter Pottery Sherd"},{"img":"item/shulker_shell.png","label":"Shulker Shell"},{"img":"item/shulker_spawn_egg.png","label":"Shulker Spawn Egg"},{"img":"item/silverfish_spawn_egg.png","label":"Silverfish Spawn Egg"},{"img":"item/skeleton_horse_spawn_egg.png","label":"Skeleton Horse Spawn Egg"},{"img":"item/skeleton_spawn_egg.png","label":"Skeleton Spawn Egg"},{"img":"item/skull_banner_pattern.png","label":"Skull Banner Pattern"},{"img":"item/skull_pottery_sherd.png","label":"Skull Pottery Sherd"},{"img":"item/slime_ball.png","label":"Slime Ball"},{"img":"item/slime_spawn_egg.png","label":"Slime Spawn Egg"},{"img":"item/sniffer_egg.png","label":"Sniffer Egg"},{"img":"item/sniffer_spawn_egg.png","label":"Sniffer Spawn Egg"},{"img":"item/snort_pottery_sherd.png","label":"Snort Pottery Sherd"},{"img":"item/snow_golem_spawn_egg.png","label":"Snow Golem Spawn Egg"},{"img":"item/snowball.png","label":"Snowball"},{"img":"item/soul_campfire.png","label":"Soul Campfire"},{"img":"item/soul_lantern.png","label":"Soul Lantern"},{"img":"item/spectral_arrow.png","label":"Spectral Arrow"},{"img":"item/spider_eye.png","label":"Spider Eye"},{"img":"item/spider_spawn_egg.png","label":"Spider Spawn Egg"},{"img":"item/splash_potion.png","label":"Splash Potion"},{"img":"item/spruce_boat.png","label":"Spruce Boat"},{"img":"item/spruce_chest_boat.png","label":"Spruce Chest Boat"},{"img":"item/spruce_door.png","label":"Spruce Door"},{"img":"item/spruce_hanging_sign.png","label":"Spruce Hanging Sign"},{"img":"item/spruce_sign.png","label":"Spruce Sign"},{"img":"item/spyglass.png","label":"Spyglass"},{"img":"item/spyglass_model.png","label":"Spyglass Model"},{"img":"item/squid_spawn_egg.png","label":"Squid Spawn Egg"},{"img":"item/stick.png","label":"Stick"},{"img":"item/stone_axe.png","label":"Stone Axe"},{"img":"item/stone_hoe.png","label":"Stone Hoe"},{"img":"item/stone_pickaxe.png","label":"Stone Pickaxe"},{"img":"item/stone_shovel.png","label":"Stone Shovel"},{"img":"item/stone_spear.png","label":"Stone Spear"},{"img":"item/stone_sword.png","label":"Stone Sword"},{"img":"item/stray_spawn_egg.png","label":"Stray Spawn Egg"},{"img":"item/strider_spawn_egg.png","label":"Strider Spawn Egg"},{"img":"item/string.png","label":"String"},{"img":"item/structure_void.png","label":"Structure Void"},{"img":"item/sugar.png","label":"Sugar"},{"img":"item/sugar_cane.png","label":"Sugar Cane"},{"img":"item/sulfur_cube_bucket.png","label":"Sulfur Cube Bucket"},{"img":"item/sulfur_cube_spawn_egg.png","label":"Sulfur Cube Spawn Egg"},{"img":"item/sulfur_spike.png","label":"Sulfur Spike"},{"img":"item/suspicious_stew.png","label":"Suspicious Stew"},{"img":"item/sweet_berries.png","label":"Sweet Berries"},{"img":"item/tadpole_bucket.png","label":"Tadpole Bucket"},{"img":"item/tadpole_spawn_egg.png","label":"Tadpole Spawn Egg"},{"img":"item/tipped_arrow_base.png","label":"Tipped Arrow Base"},{"img":"item/tipped_arrow_head.png","label":"Tipped Arrow Head"},{"img":"item/tnt_minecart.png","label":"Tnt Minecart"},{"img":"item/torchflower_seeds.png","label":"Torchflower Seeds"},{"img":"item/totem_of_undying.png","label":"Totem Of Undying"},{"img":"item/trader_llama_spawn_egg.png","label":"Trader Llama Spawn Egg"},{"img":"item/trial_key.png","label":"Trial Key"},{"img":"item/trident.png","label":"Trident"},{"img":"item/tropical_fish.png","label":"Tropical Fish"},{"img":"item/tropical_fish_bucket.png","label":"Tropical Fish Bucket"},{"img":"item/tropical_fish_spawn_egg.png","label":"Tropical Fish Spawn Egg"},{"img":"item/turtle_egg.png","label":"Turtle Egg"},{"img":"item/turtle_helmet.png","label":"Turtle Helmet"},{"img":"item/turtle_scute.png","label":"Turtle Scute"},{"img":"item/turtle_spawn_egg.png","label":"Turtle Spawn Egg"},{"img":"item/vex_spawn_egg.png","label":"Vex Spawn Egg"},{"img":"item/villager_spawn_egg.png","label":"Villager Spawn Egg"},{"img":"item/vindicator_spawn_egg.png","label":"Vindicator Spawn Egg"},{"img":"item/wandering_trader_spawn_egg.png","label":"Wandering Trader Spawn Egg"},{"img":"item/warden_spawn_egg.png","label":"Warden Spawn Egg"},{"img":"item/warped_door.png","label":"Warped Door"},{"img":"item/warped_fungus_on_a_stick.png","label":"Warped Fungus On A Stick"},{"img":"item/warped_hanging_sign.png","label":"Warped Hanging Sign"},{"img":"item/warped_sign.png","label":"Warped Sign"},{"img":"item/water_bucket.png","label":"Water Bucket"},{"img":"item/weathered_copper_chain.png","label":"Weathered Copper Chain"},{"img":"item/weathered_copper_door.png","label":"Weathered Copper Door"},{"img":"item/weathered_copper_lantern.png","label":"Weathered Copper Lantern"},{"img":"item/wheat.png","label":"Wheat"},{"img":"item/wheat_seeds.png","label":"Wheat Seeds"},{"img":"item/white_bundle.png","label":"White Bundle"},{"img":"item/white_bundle_open_back.png","label":"White Bundle Open Back"},{"img":"item/white_bundle_open_front.png","label":"White Bundle Open Front"},{"img":"item/white_candle.png","label":"White Candle"},{"img":"item/white_dye.png","label":"White Dye"},{"img":"item/white_harness.png","label":"White Harness"},{"img":"item/wildflowers.png","label":"Wildflowers"},{"img":"item/wind_charge.png","label":"Wind Charge"},{"img":"item/witch_spawn_egg.png","label":"Witch Spawn Egg"},{"img":"item/wither_skeleton_spawn_egg.png","label":"Wither Skeleton Spawn Egg"},{"img":"item/wither_spawn_egg.png","label":"Wither Spawn Egg"},{"img":"item/wolf_armor.png","label":"Wolf Armor"},{"img":"item/wolf_armor_overlay.png","label":"Wolf Armor Overlay"},{"img":"item/wolf_spawn_egg.png","label":"Wolf Spawn Egg"},{"img":"item/wooden_axe.png","label":"Wooden Axe"},{"img":"item/wooden_hoe.png","label":"Wooden Hoe"},{"img":"item/wooden_pickaxe.png","label":"Wooden Pickaxe"},{"img":"item/wooden_shovel.png","label":"Wooden Shovel"},{"img":"item/wooden_spear.png","label":"Wooden Spear"},{"img":"item/wooden_sword.png","label":"Wooden Sword"},{"img":"item/writable_book.png","label":"Writable Book"},{"img":"item/written_book.png","label":"Written Book"},{"img":"item/yellow_bundle.png","label":"Yellow Bundle"},{"img":"item/yellow_bundle_open_front.png","label":"Yellow Bundle Open Front"},{"img":"item/yellow_candle.png","label":"Yellow Candle"},{"img":"item/yellow_dye.png","label":"Yellow Dye"},{"img":"item/yellow_harness.png","label":"Yellow Harness"},{"img":"item/zoglin_spawn_egg.png","label":"Zoglin Spawn Egg"},{"img":"item/zombie_horse_spawn_egg.png","label":"Zombie Horse Spawn Egg"},{"img":"item/zombie_villager_spawn_egg.png","label":"Zombie Villager Spawn Egg"},{"img":"item/zombified_piglin_spawn_egg.png","label":"Zombified Piglin Spawn Egg"}];
+  const ASSETS_PATH = "assets/mc/";
+  const AUTO_CONTINUE_SECONDS = 15;
+  const LEVEL_TRANSITION_MS = 1800; // مدة توقف قصيرة بين المستويات لعرض رسالة "المستوى التالي"
+
+  // مستويات اللعبة: 4، 6، 8 ... لين 66 زوج (كل مستوى أزواج أكثر من اللي قبله بـ2)
+  const LEVELS = [];
+  for(let n=4; n<=66; n+=2) LEVELS.push(n);
+  const LAST_LEVEL_INDEX = LEVELS.length - 1;
+
+  let currentLevelIndex = 0;
+  function pairsForLevel(idx){ return LEVELS[Math.min(idx, LAST_LEVEL_INDEX)]; }
+
+  // يختار مجموعة عشوائية جديدة من الأغراض حسب عدد أزواج المستوى الحالي (يضمن عدم تكرار نفس الغرض بنفس المستوى)
+  function pickRoundIcons(count){
+    const pool = ICON_POOL.slice();
+    for(let i=pool.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [pool[i],pool[j]] = [pool[j],pool[i]];
+    }
+    return pool.slice(0, Math.min(count, pool.length));
+  }
+
+  let ICONS = pickRoundIcons(pairsForLevel(currentLevelIndex));
+  let TOTAL_CARDS = ICONS.length * 2;
+  let TOTAL_PAIRS = ICONS.length;
+
+  /* ===================== الحالة ===================== */
+  let players = {};        // username -> { username, displayName, totalScore }
+  let joinOrder = [];       // ترتيب الدخول = ترتيب الأدوار
+  let phase = "playing";    // playing | ended
+  let board = [];           // [{icon:{img,label}, matched}]
+  let flipped = [];         // indices المقلوبة حاليًا (0 أو 1 أثناء الانتظار)
+  let acting = false;       // قفل مؤقت أثناء تقييم الزوج
+  let pairsFound = 0;
+  let autoContinueTimer = null;
+  const logEntries = [];
+
+  /* ===================== أدوات مساعدة ===================== */
+  function avatarUrl(username){
+    return `https://decapi.me/twitch/avatar/${encodeURIComponent(username)}`;
+  }
+  const FALLBACK_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">' +
+    '<rect width="64" height="64" rx="14" fill="#403022"/>' +
+    '<circle cx="32" cy="25" r="13" fill="#cbb08a"/>' +
+    '<path d="M10 58c0-14 10-24 22-24s22 10 22 24" fill="#cbb08a"/>' +
+    '</svg>'
+  );
+  // مصدر احتياطي: لو decapi ما قدرش يجيب صورة تويتش الحقيقية (تعطل مؤقت/تحديد معدل)
+  // نجرب مصدر ثاني قبل ما نستسلم للصورة الافتراضية
+  function avatarUrlBackup(username){
+    return `https://unavatar.io/twitch/${encodeURIComponent(username)}?fallback=false`;
+  }
+  function onAvatarError(img){
+    if(!img.dataset.triedBackup){
+      img.dataset.triedBackup = "1";
+      const m = (img.src||"").match(/twitch\/avatar\/([^/?]+)/);
+      const uname = m ? decodeURIComponent(m[1]) : null;
+      if(uname){ img.src = avatarUrlBackup(uname); return; }
+    }
+    img.onerror = null;
+    img.src = FALLBACK_AVATAR;
+  }
+  window.onAvatarError = onAvatarError;
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function pushLog(text){
+    logEntries.unshift(text);
+    if(logEntries.length > 30) logEntries.pop();
+    document.getElementById("logBox").innerHTML = logEntries.map(t => `<div>${t}</div>`).join("");
+  }
+  function normalize(s){
+    return (s||"").replace(/[\u200B-\u200F\u202A-\u202E\u2060\uFEFF\u061C]/g, "").trim();
+  }
+  function toEnglishDigits(s){
+    return (s||"").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+  }
+  // يرجع [index1, index2] لو الرسالة رقمين صحيحين ضمن مدى البطاقات، وإلا null
+  function parseTwoCardNumbers(msg){
+    const t = toEnglishDigits(normalize(msg));
+    const m = t.match(/^(\d{1,2})\D+(\d{1,2})$/);
+    if(!m) return null;
+    const a = parseInt(m[1],10), b = parseInt(m[2],10);
+    if(!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    if(a<1 || a>TOTAL_CARDS || b<1 || b>TOTAL_CARDS || a===b) return null;
+    return [a-1, b-1];
+  }
+
+  /* ===================== عرض قائمة اللاعبين أثناء اللعب (مرتبة حسب النقاط) ===================== */
+  function renderQueue(){
+    const panel = document.getElementById("queuePanel");
+    if(!joinOrder.length){
+      panel.innerHTML = `<div class="queue-title">قائمة اللاعبين</div><span class="empty-note">ولا لاعب جاوب لسا... اكتبوا رقمين بالشات 👇</span>`;
+      return;
+    }
+    const sorted = joinOrder.slice().sort((a,b)=> players[b].totalScore - players[a].totalScore);
+    panel.innerHTML = `<div class="queue-title">قائمة اللاعبين</div>` + sorted.map(u => {
+      const p = players[u];
+      return `
+        <div class="queue-tile">
+          <div class="sq"><img src="${avatarUrl(p.username)}" alt="" onerror="onAvatarError(this)"></div>
+          <div class="qname">${escapeHtml(p.displayName)}</div>
+          <div class="qscore">${p.totalScore}</div>
+        </div>`;
+    }).join("");
+  }
+
+  /* ===================== بناء الشبكة وخلطها ===================== */
+  function buildShuffledBoard(){
+    let deck = [];
+    ICONS.forEach(icon => { deck.push(icon); deck.push(icon); });
+    for(let i=deck.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [deck[i],deck[j]] = [deck[j],deck[i]];
+    }
+    // نتأكد إن نفس الغرض ما يطلع جنب بعضه بالبطاقات (مو متجاورين بالصف)
+    for(let i=1;i<deck.length;i++){
+      if(deck[i] === deck[i-1]){
+        let swapped = false;
+        for(let j=i+1;j<deck.length;j++){
+          if(deck[j] !== deck[i-1] && deck[j] !== deck[i] &&
+             (j===deck.length-1 || deck[j+1] !== deck[i]) &&
+             (j===0 || deck[j-1] !== deck[i])){
+            [deck[i],deck[j]] = [deck[j],deck[i]];
+            swapped = true;
+            break;
+          }
+        }
+        if(!swapped){
+          for(let j=0;j<i-1;j++){
+            if(deck[j] !== deck[i-1] && deck[j] !== deck[i] &&
+               (j===0 || deck[j-1] !== deck[i]) &&
+               (j===deck.length-1 || deck[j+1] !== deck[i])){
+              [deck[i],deck[j]] = [deck[j],deck[i]];
+              break;
+            }
+          }
+        }
+      }
+    }
+    return deck.map(icon => ({ icon, matched:false }));
+  }
+
+  let boardPeek = new Set();
+  function renderBoard(){
+    const el = document.getElementById("board");
+    el.innerHTML = board.map((c, i) => {
+      const isFlipped = c.matched || flipped.includes(i) || boardPeek.has(i);
+      let cls = "card";
+      if(isFlipped) cls += " flipped";
+      if(c.matched) cls += " matched";
+      return `<div class="${cls}" id="card-${i}">
+        <div class="card-inner">
+          <div class="card-face card-back"><span class="num">${i+1}</span></div>
+          <div class="card-face card-front"><img class="mc-icon" src="${ASSETS_PATH}${c.icon.img}" alt="${escapeHtml(c.icon.label)}"></div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // تدوير عشوائي وزخرفي لبعض البطاقات أثناء اللعب الفعلي (بدون ما يأثر على النتيجة أو الأزواج)
+  // كل ما زاد المستوى، الدوران يصير أسرع وأكثر بطاقات تنكشف بنفس الوقت
+  function peekIntervalForLevel(idx){
+    const t = 2000 - idx * 45; // من 2000ms بالمستوى الأول لين ~575ms بالمستوى الأخير
+    return Math.max(550, t);
+  }
+  function peekCountForLevel(idx){
+    return Math.min(4 + Math.floor(idx / 6), 10);
+  }
+  function tickBoardPeek(){
+    if(phase !== "playing" || acting || !board.length) return;
+    boardPeek.forEach(i => { const c = document.getElementById(`card-${i}`); if(c && !board[i].matched && !flipped.includes(i)) c.classList.remove("flipped"); });
+    boardPeek.clear();
+    const available = [];
+    for(let i=0;i<board.length;i++){
+      if(!board[i].matched && !flipped.includes(i)) available.push(i);
+    }
+    const count = Math.min(peekCountForLevel(currentLevelIndex), available.length);
+    let guard = 0;
+    while(boardPeek.size < count && guard < 60){
+      const idx = available[Math.floor(Math.random()*available.length)];
+      boardPeek.add(idx);
+      guard++;
+    }
+    boardPeek.forEach(i => { const c = document.getElementById(`card-${i}`); if(c) c.classList.add("flipped"); });
+  }
+  let peekTimer = null;
+  function restartPeekTimer(){
+    if(peekTimer) clearInterval(peekTimer);
+    peekTimer = setInterval(tickBoardPeek, peekIntervalForLevel(currentLevelIndex));
+  }
+  restartPeekTimer();
+
+  /* ===================== لوحة المعاينة الزخرفية (لوبي) ===================== */
+  let previewOpen = new Set();
+  let previewIcons = [];
+  function buildPreviewBoard(){
+    previewIcons = [];
+    for(let i=0;i<TOTAL_CARDS;i++){
+      previewIcons.push(ICONS[Math.floor(Math.random()*ICONS.length)]);
+    }
+    const el = document.getElementById("previewBoard");
+    if(!el) return;
+    el.innerHTML = previewIcons.map((icon, i) => `
+      <div class="card" id="prev-${i}">
+        <div class="card-inner">
+          <div class="card-face card-back"><span class="num">${i+1}</span></div>
+          <div class="card-face card-front"><img class="mc-icon" src="${ASSETS_PATH}${icon.img}" alt="${escapeHtml(icon.label)}"></div>
+        </div>
+      </div>`).join("");
+  }
+  function tickPreview(){
+    const el = document.getElementById("previewBoard");
+    if(!el) return;
+    previewOpen.forEach(i => { const c = document.getElementById(`prev-${i}`); if(c) c.classList.remove("flipped"); });
+    previewOpen.clear();
+    const count = 4;
+    let guard = 0;
+    while(previewOpen.size < count && guard < 60){
+      previewOpen.add(Math.floor(Math.random()*TOTAL_CARDS));
+      guard++;
+    }
+    previewOpen.forEach(i => { const c = document.getElementById(`prev-${i}`); if(c) c.classList.add("flipped"); });
+  }
+  buildPreviewBoard();
+  setInterval(tickPreview, 2000);
+
+  /* ===================== منطق اللعبة ===================== */
+  // يبني لوحة المستوى الحالي (currentLevelIndex) بدون ما يلمس نقاط اللاعبين
+  function buildLevelBoard(){
+    phase = "playing";
+    pairsFound = 0;
+    ICONS = pickRoundIcons(pairsForLevel(currentLevelIndex));
+    TOTAL_CARDS = ICONS.length * 2;
+    TOTAL_PAIRS = ICONS.length;
+    board = buildShuffledBoard();
+    flipped = [];
+    acting = false;
+    boardPeek.clear();
+    const lvlEl = document.getElementById("levelNum");
+    if(lvlEl) lvlEl.textContent = (currentLevelIndex + 1) + " / " + LEVELS.length;
+    document.getElementById("pairsLeft").textContent = TOTAL_PAIRS;
+    renderBoard();
+    renderQueue();
+    restartPeekTimer();
+  }
+
+  function initGame(){
+    currentLevelIndex = 0;
+    buildLevelBoard();
+    pushLog("🎮 اكتبوا رقمين بالشات عشان تقلبوا بطاقتين وتلاقوا الزوج المتطابق — الكل يقدر يجاوب بأي وقت!");
+  }
+
+  function pickCards(a, b, username){
+    if(acting || phase !== "playing") return;
+    if(board[a].matched || board[b].matched) return;
+    acting = true;
+    flipped = [a, b];
+    renderBoard();
+
+    setTimeout(() => {
+      const p = players[username];
+      if(board[a].icon === board[b].icon){
+        board[a].matched = true;
+        board[b].matched = true;
+        pairsFound++;
+        if(p) p.totalScore++;
+        renderBoard();
+        document.getElementById(`card-${a}`).classList.add("pop");
+        document.getElementById(`card-${b}`).classList.add("pop");
+        pushLog(`✅ ${escapeHtml(p ? p.displayName : username)} لقى زوج (${escapeHtml(board[a].icon.label)}) — ${a+1} و ${b+1}!`);
+        document.getElementById("pairsLeft").textContent = TOTAL_PAIRS - pairsFound;
+        renderQueue();
+
+        if(pairsFound >= TOTAL_PAIRS){
+          if(currentLevelIndex >= LAST_LEVEL_INDEX){
+            setTimeout(() => endGame(), 500);
+          }else{
+            phase = "levelup";
+            pushLog(`🎉 خلص المستوى ${currentLevelIndex + 1}! جاري الانتقال للمستوى ${currentLevelIndex + 2} (${pairsForLevel(currentLevelIndex + 1)} زوج)...`);
+            setTimeout(() => {
+              currentLevelIndex++;
+              buildLevelBoard();
+            }, LEVEL_TRANSITION_MS);
+          }
+          return;
+        }
+        flipped = [];
+        acting = false;
+      } else {
+        document.getElementById(`card-${a}`).classList.add("wrong");
+        document.getElementById(`card-${b}`).classList.add("wrong");
+        pushLog(`❌ ${escapeHtml(p ? p.displayName : username)} حاول ${a+1} و ${b+1} بس ما تطابقوا... جرب أي واحد ثاني`);
+        setTimeout(() => {
+          flipped = [];
+          acting = false;
+          renderBoard();
+        }, 850);
+      }
+    }, 700);
+  }
+
+  function endGame(){
+    phase = "ended";
+    pushLog(`🎉 خلصت كل الأزواج! شوف مين جمع الأكثر`);
+    showResult();
+    startAutoContinueCountdown();
+  }
+
+  function showResult(){
+    const overlay = document.getElementById("resultOverlay");
+    const ranking = joinOrder.slice().sort((a,b)=> players[b].totalScore - players[a].totalScore);
+    const winnerUser = ranking[0];
+    const winner = winnerUser ? players[winnerUser] : null;
+    document.getElementById("resultTitle").textContent = "🏆 فاز باللعبة!";
+    document.getElementById("resultSub").textContent = winner
+      ? `${escapeHtml(winner.displayName)} جمع أكثر أزواج (${winner.totalScore} من ${TOTAL_PAIRS}) 🎉`
+      : `ما في نتائج 😅`;
+
+    const top3 = ranking.slice(0,3);
+    const medals = ["🥇","🥈","🥉"];
+    const rankClasses = ["rank1","rank2","rank3"];
+    document.getElementById("podiumTop3").innerHTML = top3.map((username, i) => {
+      const p = players[username];
+      return `
+        <div class="p-col ${rankClasses[i]}">
+          <span class="medal">${medals[i]}</span>
+          <img src="${avatarUrl(username)}" alt="" onerror="onAvatarError(this)">
+          <span class="pname">${escapeHtml(p.displayName)}</span>
+          <span class="pscore">${p.totalScore} زوج</span>
+          <div class="bar">${i+1}</div>
+        </div>`;
+    }).join("");
+
+    const rest = ranking.slice(3,8);
+    document.getElementById("podiumRest").innerHTML = rest.map((username, i) => `
+      <div class="podium-row">
+        <span class="podium-rank">${i+4}</span>
+        <img src="${avatarUrl(username)}" alt="" onerror="onAvatarError(this)">
+        <span class="podium-name">${escapeHtml(players[username].displayName)}</span>
+        <span class="podium-score">${players[username].totalScore}</span>
+      </div>`).join("");
+
+    overlay.style.display = "flex";
+  }
+
+  function startAutoContinueCountdown(){
+    let secs = AUTO_CONTINUE_SECONDS;
+    const el = document.getElementById("autoCountdown");
+    el.textContent = secs;
+    clearInterval(autoContinueTimer);
+    autoContinueTimer = setInterval(() => {
+      secs--;
+      if(secs <= 0){
+        clearInterval(autoContinueTimer);
+        startNextRound();
+      } else {
+        el.textContent = secs;
+      }
+    }, 1000);
+  }
+
+  // تُستخدم بالضغط على "استمر الحين" أو تلقائيًا بعد 15 ثانية: تبدأ جولة جديدة بنفس اللاعبين
+  function startNextRound(){
+    clearInterval(autoContinueTimer);
+    document.getElementById("resultOverlay").style.display = "none";
+    Object.values(players).forEach(p => p.totalScore = 0);
+    pushLog("🔁 جولة جديدة بدأت — وبأغراض جديدة! 🎲");
+    initGame();
+  }
+
+  function resetGame(){
+    clearInterval(autoContinueTimer);
+    players = {}; joinOrder = []; board = []; flipped = []; pairsFound = 0; acting = false;
+    document.getElementById("resultOverlay").style.display = "none";
+    logEntries.length = 0;
+    document.getElementById("logBox").innerHTML = "";
+    initGame();
+  }
+
+  /* ===================== معالجة رسائل الشات ===================== */
+  function handleChatMessage({ username, displayName, message }){
+    if(!username) return;
+    // الكل يلعب مباشرة بدون أمر دخول — أول رسالة تسجّل اللاعب تلقائيًا
+    if(!players[username]){
+      players[username] = { username, displayName: displayName || username, totalScore: 0 };
+      joinOrder.push(username);
+      renderQueue();
+      pushLog(`✅ ${escapeHtml(displayName||username)} دخل اللعبة`);
+    }
+    if(phase === "playing"){
+      const pair = parseTwoCardNumbers(message);
+      if(pair) pickCards(pair[0], pair[1], username);
+    }
+  }
+
+  /* ===================== الاتصال الحقيقي بشات تويتش (بدون تسجيل دخول) ===================== */
+  let ws = null;
+  function setStatus(connected){
+    document.getElementById("statusDot").className = "status-dot " + (connected ? "on" : "off");
+    document.getElementById("statusDot").title = connected ? `متصل بشات ${TWITCH_CHANNEL}` : "منقطع، جاري إعادة الاتصال";
+  }
+  function connectTwitchChat(){
+    try{
+      ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+    }catch(e){ setTimeout(connectTwitchChat, 4000); return; }
+
+    ws.onopen = () => {
+      ws.send("CAP REQ :twitch.tv/tags twitch.tv/commands");
+      const nick = "justinfan" + Math.floor(10000 + Math.random()*89999);
+      ws.send(`NICK ${nick}`);
+      ws.send(`JOIN #${TWITCH_CHANNEL}`);
+      setStatus(true);
+    };
+    ws.onmessage = (evt) => {
+      const lines = String(evt.data).split("\r\n").filter(Boolean);
+      for(const line of lines){
+        if(line.startsWith("PING")){ ws.send("PONG :tmi.twitch.tv"); continue; }
+        if(line.indexOf("PRIVMSG") === -1) continue;
+        let tagsPart = "", rest = line;
+        if(line.startsWith("@")){
+          const sp = line.indexOf(" ");
+          tagsPart = line.slice(1, sp);
+          rest = line.slice(sp+1);
+        }
+        const tags = {};
+        tagsPart.split(";").forEach(kv=>{
+          const idx = kv.indexOf("=");
+          if(idx>-1) tags[kv.slice(0,idx)] = kv.slice(idx+1);
+        });
+        const m = rest.match(/^:([^!]+)![^ ]* PRIVMSG #[^ ]+ :(.*)$/);
+        if(m){
+          const username = m[1].toLowerCase();
+          const message = m[2];
+          const displayName = tags["display-name"] || username;
+          handleChatMessage({ username, displayName, message });
+        }
+      }
+    };
+    ws.onclose = () => { setStatus(false); setTimeout(connectTwitchChat, 4000); };
+    ws.onerror = () => { try{ ws.close(); }catch(e){} };
+  }
+  connectTwitchChat();
+
+  /* ===================== تبديل القناة يدويًا ===================== */
+  function switchChannel(newChannel){
+    const clean = (newChannel||"").trim().replace(/^#/, "").toLowerCase();
+    if(!clean) return;
+    TWITCH_CHANNEL = clean;
+    localStorage.setItem(CHANNEL_KEY, clean);
+    localStorage.setItem("s3as3_saved_channel", clean);
+    if(ws){ ws.onclose = null; try{ ws.close(); }catch(e){} }
+    setStatus(false);
+    document.getElementById("statusDot").title = `يتصل بشات ${TWITCH_CHANNEL}...`;
+    resetGame();
+    connectTwitchChat();
+  }
+
+  const switchBox = document.getElementById("channelSwitchBox");
+  document.getElementById("switchChannelBtn").addEventListener("click", ()=>{
+    const showing = switchBox.style.display !== "none";
+    switchBox.style.display = showing ? "none" : "flex";
+    if(!showing) document.getElementById("channelSwitchInput").focus();
+  });
+  document.getElementById("channelSwitchSaveBtn").addEventListener("click", ()=>{
+    switchChannel(document.getElementById("channelSwitchInput").value);
+    switchBox.style.display = "none";
+  });
+  document.getElementById("channelSwitchInput").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){ switchChannel(e.target.value); switchBox.style.display = "none"; }
+  });
+
+  /* ===================== أدوات التجربة اليدوية ===================== */
+  document.getElementById("simSendBtn").addEventListener("click", () => {
+    const u = document.getElementById("simUser").value.trim() || "TestUser";
+    const msg = document.getElementById("simMsg").value;
+    handleChatMessage({ username: u.toLowerCase(), displayName: u, message: msg });
+  });
+
+  /* ===================== أزرار التحكم ===================== */
+  document.getElementById("continueBtn").addEventListener("click", startNextRound);
+
+  initGame();
+})();
+</script>
+<script>
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    let closeTimer = null;
+    item.addEventListener("mouseenter", function(){
+      clearTimeout(closeTimer);
+      item.classList.add("open");
+    });
+    item.addEventListener("mouseleave", function(){
+      closeTimer = setTimeout(function(){
+        item.classList.remove("open");
+      }, 300);
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,2839 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S3eeD — سعيد</title>
+<link rel="icon" href="assets/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tan:#e4d0b4;
+    --tan-deep:#cbb08a;
+    --walnut:#403022;
+    --charcoal:#2e2216;
+    --cream:#FBF6EE;
+    --paper:#37291d;
+    --ink:#292118;
+    --ink-soft:#6e5d4d;
+    --sage:#7C8B6F;
+    --clay:#6F4E37;
+    --line: rgba(228,208,180,.16);
+    --shadow: 0 10px 28px rgba(0,0,0,.45);
+    --radius: 4px;
+    --font-display:'Fraunces', 'Cairo', serif;
+    --font-body:'Inter','Tajawal', sans-serif;
+    --bg:#403022;
+    --surface:#37291d;
+    --text:#e4d0b4;
+    --text-soft:#cbb08a;
+    --header-bg: var(--walnut);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Tajawal', sans-serif;
+    transition: background .25s ease, color .25s ease;
+    min-height:100vh;
+  }
+  h1,h2,h3,.brand-name{ font-family:'Cairo', sans-serif; }
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+  img{max-width:100%; display:block;}
+
+  /* ===== topbar ===== */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background: var(--header-bg);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 22px;
+    display:flex; align-items:center; gap:18px;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .brand .mark{
+    width:34px; height:34px; border-radius:3px;
+    background: var(--charcoal); color:var(--tan);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Cairo', sans-serif; font-weight:700; font-size:18px;
+    transform: rotate(-3deg); overflow:hidden; position:relative;
+  }
+
+  /* ===== مؤثرات ماين كرافت على صورة البروفايل: توهج مشعل + لمعان إنشانتمنت ===== */
+  .brand .mark{ animation: mcTorchGlow 2.4s ease-in-out infinite; }
+  .brand .mark::before{
+    content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); z-index:2;
+  }
+  .brand .mark::after{
+    content:""; position:absolute; inset:-60% -160%; pointer-events:none; z-index:1;
+    background: linear-gradient(75deg, transparent 42%, rgba(255,255,255,.65) 50%, transparent 58%);
+    transform: translateX(-130%);
+    animation: mcEnchantSweep 4.5s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  .brand .mark img{ position:relative; z-index:0; }
+  @keyframes mcTorchGlow{
+    0%,100%{ box-shadow: 0 0 5px 1px rgba(255,170,60,.35); }
+    50%{ box-shadow: 0 0 14px 4px rgba(255,170,60,.6); }
+  }
+  @keyframes mcEnchantSweep{
+    0%, 62%{ transform: translateX(-130%); }
+    82%{ transform: translateX(130%); }
+    100%{ transform: translateX(130%); }
+  }
+  .brand .mark img{ width:100%; height:100%; object-fit:cover; }
+  .brand-name{ font-weight:800; font-size:20px; color:var(--charcoal); letter-spacing:.3px;}
+  html[data-theme="dark"] .brand-name{color:var(--tan);}
+
+  nav.main-nav{
+    display:flex; align-items:center;
+    position:absolute; left:50%; top:50%; transform:translate(calc(-50% + 145px), -50%); z-index:60;
+  }
+  .nav-item.nav-item-center{
+    position:absolute; left:50%; top:50%; transform:translate(-50%, -50%); z-index:61;
+  }
+  .nav-item.nav-item-fanart-wrap{
+    position:absolute; left:50%; top:50%; transform:translate(calc(-50% - 145px), -50%); z-index:60;
+  }
+  .nav-link{
+    padding:9px 14px; border-radius:18px; font-size:13.5px; font-weight:700; color:var(--charcoal); opacity:.75;
+  }
+  .nav-link:hover{ opacity:1; background:rgba(43,36,32,.08); }
+  html[data-theme="dark"] .nav-link{ color:var(--tan); opacity:.85; }
+  html[data-theme="dark"] .nav-link:hover{ opacity:1; background:rgba(228,208,180,.12); }
+
+  .nav-item{ position:relative; display:flex; align-items:center; }
+  .nav-dropdown{
+    position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+  }
+  .nav-item.open .nav-dropdown{ display:flex; }
+  .nav-dropdown a{
+    display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px;
+    font-size:13px; font-weight:700; color:var(--charcoal); opacity:.85; white-space:nowrap;
+  }
+  .nav-dropdown a:hover{ opacity:1; background:rgba(43,36,32,.08); }
+  html[data-theme="dark"] .nav-dropdown a{ color:var(--tan); opacity:.9; }
+  html[data-theme="dark"] .nav-dropdown a:hover{ opacity:1; background:rgba(228,208,180,.12); }
+
+  /* ===== جلو + تكبير عند تمرير الماوس (كل أزرار الموقع والصورة) ===== */
+  .nav-link, button, [class*="btn"], .watch, .stat-card{
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .nav-link:hover, button:hover, [class*="btn"]:hover, .watch:hover, .stat-card:hover{
+    transform: scale(1.06);
+    box-shadow: 0 0 16px 3px rgba(203,176,138,.55);
+    filter: brightness(1.08);
+  }
+  .brand .mark{ transition: transform .18s ease, box-shadow .18s ease; }
+  .brand:hover .mark{
+    animation: none;
+    transform: rotate(-3deg) scale(1.1);
+    box-shadow: 0 0 18px 4px rgba(203,176,138,.6), 0 0 26px 8px rgba(255,170,60,.35);
+  }
+  .brand:hover .mark::after{ animation-play-state: paused; }
+
+  .controls{ display:flex; align-items:center; gap:10px; margin-inline-start:auto; flex-shrink:0;}
+  .icon-btn{
+    width:36px; height:36px; border-radius:50%; border:1px solid rgba(43,36,32,.25);
+    background:rgba(255,255,255,.4); display:flex; align-items:center; justify-content:center;
+  }
+  html[data-theme="dark"] .icon-btn{ background:rgba(0,0,0,.25); border-color:rgba(255,255,255,.2);}
+
+  .auth-btn{
+    background:var(--charcoal); color:var(--tan); padding:9px 18px; border-radius:20px; border:none;
+    font-weight:700; font-size:13px;
+  }
+  .avatar-btn{ width:38px; height:38px; border-radius:50%; overflow:hidden; border:2px solid var(--charcoal); padding:0; background:none; cursor:pointer;}
+  .avatar-caret-btn{ width:20px; height:20px; border-radius:50%; border:1px solid var(--charcoal); background:none; color:var(--charcoal); font-size:11px; line-height:1; padding:0; cursor:pointer; opacity:.75; }
+  .avatar-caret-btn:hover{ opacity:1; }
+  html[data-theme="dark"] .avatar-caret-btn{ border-color:var(--tan); color:var(--tan); }
+  .avatar-btn img{ width:100%; height:100%; object-fit:cover;}
+
+  .dropdown{ position:relative; }
+  .dropdown-menu{
+    position:absolute; inset-inline-end:0; top:48px; background:var(--surface); border:1px solid var(--line);
+    border-radius:10px; box-shadow:var(--shadow); min-width:190px; padding:6px; display:none; z-index:60;
+  }
+  .dropdown-menu.open{ display:block; }
+  .dropdown-menu button{
+    width:100%; text-align:start; padding:10px 12px; background:none; border:none; border-radius:7px;
+    font-size:14px; color:var(--text); display:flex; align-items:center; gap:10px;
+  }
+  .dropdown-menu button:hover{ background:var(--paper); }
+
+  .wrap{ max-width:1080px; margin:0 auto; padding:0 22px; }
+
+  /* ===== HERO ===== */
+  .hero{ padding:64px 22px 40px; text-align:center; position:relative; overflow:hidden; }
+  .hero-inner{ position:relative; z-index:1; }
+  .avatar-wrap{ position:relative; width:180px; height:180px; margin:0 auto 22px; }
+  .avatar-ring{
+    position:absolute; inset:-14px; border-radius:50%;
+    border:2px dashed var(--clay); opacity:.55;
+    animation: spin 26s linear infinite;
+  }
+  .avatar-glow{
+    position:absolute; inset:-26px; border-radius:50%;
+    background: radial-gradient(circle, rgba(111,78,55,.35), transparent 70%);
+    animation: pulse 3.2s ease-in-out infinite;
+  }
+  .avatar-img{
+    position:relative; width:180px; height:180px; border-radius:50%; overflow:hidden;
+    border:5px solid var(--surface); box-shadow:0 16px 34px rgba(43,36,32,.25);
+    animation: float 4.5s ease-in-out infinite;
+    background:var(--paper);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .avatar-img:hover{
+    transform: scale(1.08);
+    box-shadow: 0 16px 34px rgba(43,36,32,.25), 0 0 26px 6px rgba(203,176,138,.55);
+  }
+  .avatar-img img{ width:100%; height:100%; object-fit:cover; }
+  @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-12px);} }
+  @keyframes spin{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
+  @keyframes pulse{ 0%,100%{ opacity:.55; transform:scale(1);} 50%{ opacity:.9; transform:scale(1.08);} }
+  @media (prefers-reduced-motion: reduce){
+    .avatar-img, .avatar-ring, .avatar-glow{ animation:none; }
+  }
+
+  .hero-eyebrow{
+    font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--tan); font-weight:800; margin-bottom:8px;
+  }
+  .hero h1{ font-size:44px; margin:0 0 8px; color:var(--charcoal); }
+  html[data-theme="dark"] .hero h1{ color:var(--tan); }
+  .hero p{ font-size:15.5px; color:var(--text-soft); max-width:520px; margin:0 auto 26px; line-height:1.8; }
+  .hero-cta{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .btn-primary{
+    background:var(--clay); color:#fff; padding:13px 26px; border-radius:24px; font-weight:700; font-size:14px;
+    box-shadow:0 8px 18px rgba(111,78,55,.35); display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary:hover{ background:var(--clay); }
+  .btn-ghost{
+    border:1.5px solid var(--charcoal); color:var(--charcoal); padding:12px 24px; border-radius:24px; font-weight:700; font-size:14px;
+  }
+  html[data-theme="dark"] .btn-ghost{ border-color:var(--tan); color:var(--tan); }
+  .btn-ghost:hover{ background:var(--charcoal); color:var(--tan); }
+
+  /* ===== sections ===== */
+  section.block{ padding:46px 0; scroll-margin-top:90px; }
+  section.block.section-land{ animation: sectionLand .9s cubic-bezier(.22,.68,.32,1); }
+  @keyframes sectionLand{
+    0%{ opacity:.35; transform:translateY(-14px); filter:brightness(1.35); }
+    55%{ opacity:1; transform:translateY(2px); filter:brightness(1.18); }
+    100%{ opacity:1; transform:translateY(0); filter:brightness(1); }
+  }
+  section.block.section-land .block-head::after{
+    content:""; display:block; height:2px; margin-top:10px; border-radius:2px;
+    background:linear-gradient(90deg, transparent, var(--tan-deep), transparent);
+    animation: sectionLandLine .9s ease-out;
+  }
+  @keyframes sectionLandLine{
+    0%{ opacity:0; transform:scaleX(0); }
+    45%{ opacity:1; }
+    100%{ opacity:0; transform:scaleX(1); }
+  }
+  .block-head{ text-align:center; margin-bottom:26px; }
+  .block-head .eyebrow{
+    font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); font-weight:700; display:block; margin-bottom:6px;
+  }
+  .block-head h2{ font-size:26px; margin:0; color:var(--charcoal); }
+  html[data-theme="dark"] .block-head h2{ color:var(--tan); }
+
+  /* video */
+  .video-frame{
+    max-width:820px; margin:0 auto; border-radius:14px; overflow:hidden; box-shadow:var(--shadow);
+    border:1px solid var(--line); background:var(--paper); position:relative; aspect-ratio:16/9;
+  }
+  .video-frame iframe{ width:100%; height:100%; border:0; display:block; background:var(--paper); color-scheme:dark; }
+
+  /* game banner */
+  .game-banner{
+    max-width:820px; margin:0 auto; background: linear-gradient(135deg, var(--charcoal), var(--walnut));
+    border-radius:16px; padding:34px 30px; display:flex; align-items:center; justify-content:space-between;
+    gap:20px; box-shadow:var(--shadow); flex-wrap:wrap;
+  }
+  .game-banner-text h3{ color:var(--tan); font-size:22px; margin:0 0 6px; font-family:'Cairo',sans-serif; }
+  .game-banner-text p{ color:#e8dcc8; font-size:13.5px; margin:0 0 16px; max-width:400px; line-height:1.7; }
+  .game-banner-icon{ font-size:64px; opacity:.85; }
+
+  /* video + stats two-column row */
+  .two-col-row{ display:grid; grid-template-columns:1fr 1fr; gap:38px; align-items:center; }
+  .two-col-row .block-head{ margin-bottom:20px; }
+  .two-col-row .block-head.sub-block{ margin-top:38px; }
+  .two-col-row .video-frame{ max-width:100%; }
+  .two-col-row .stats-grid{ max-width:100%; gap:12px; }
+  .two-col-row .stat-card{ padding:18px 8px; }
+  .two-col-row .stat-card b{ font-size:22px; }
+  @media(max-width:900px){ .two-col-row{ grid-template-columns:1fr; gap:46px; } }
+
+  /* stream + stats side-by-side row */
+  .stream-stats-row{ display:flex; gap:16px; align-items:stretch; }
+  .stream-stats-row .stream-col{ flex:1 1 62%; min-width:0; }
+  .stream-stats-row .stream-col .video-frame{ max-width:100%; height:100%; }
+  .stream-stats-row .twitch-stats-col{ flex:1 1 34%; min-width:150px; }
+  .stats-grid.stack{ display:flex; flex-direction:column; gap:10px; max-width:100%; }
+  .stats-grid.stack .stat-card{ padding:14px 8px; }
+  .stats-grid.stack .stat-card b{ font-size:20px; }
+  @media(max-width:640px){ .stream-stats-row{ flex-direction:column; } }
+
+  /* stats */
+  .stats-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; max-width:760px; margin:0 auto; }
+  .stat-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:26px 14px; text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .stat-card b{ display:block; font-family:'Fraunces', 'Cairo', serif; font-size:32px; color:var(--tan); }
+  .stat-card span{ font-size:12.5px; color:var(--text-soft); font-weight:600; }
+  @media(max-width:640px){ .stats-grid{ grid-template-columns:1fr; } }
+
+  /* socials */
+  .social-bar{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:900px; margin:0 auto;
+  }
+  .s-btn{
+    --glow:var(--clay); width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    background:var(--surface); border:1px solid var(--line); color:var(--text-soft);
+    transition:transform .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .s-btn svg{ width:20px; height:20px; }
+  .s-btn:hover{ color:var(--glow); border-color:var(--glow); box-shadow:0 0 14px var(--glow); transform:translateY(-3px); }
+
+  /* ===== سكرول بلون بني فاتح متناسق مع خلفية الموقع ===== */
+  html{ scrollbar-width: thin; scrollbar-color: var(--tan) var(--bg); scroll-behavior: smooth; }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background: var(--bg); }
+  ::-webkit-scrollbar-thumb{ background: var(--tan); border-radius:8px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--tan-deep); }
+
+  footer{ text-align:center; padding:40px 20px 50px; color:var(--text-soft); font-size:12px; }
+
+  /* ===== modal ===== */
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,16,12,.62); backdrop-filter:blur(2px);
+    display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:var(--surface); border-radius:12px; max-width:380px; width:100%; max-height:90vh; overflow:auto;
+    box-shadow:0 30px 60px rgba(0,0,0,.4); position:relative; padding:30px 26px; text-align:center;
+  }
+  .modal-close{
+    position:absolute; top:12px; inset-inline-end:12px; width:32px; height:32px; border-radius:50%;
+    background:rgba(0,0,0,.5); color:#fff; border:none; font-size:16px; z-index:5;
+  }
+  .modal h2{ margin:6px 0 4px; font-size:22px;}
+  .modal p{ color:var(--text-soft); font-size:13px; margin-bottom:20px;}
+  .field{ text-align:start; margin-bottom:12px;}
+  .field label{ font-size:12px; font-weight:600; display:block; margin-bottom:5px;}
+  .field input{
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:14px;
+  }
+  .btn-main{
+    width:100%; padding:12px; border-radius:8px; border:none; background:var(--charcoal); color:var(--tan); font-weight:700; margin-top:6px;
+  }
+  .btn-google{
+    width:100%; padding:11px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text);
+    font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px;
+  }
+  .btn-discord{
+    width:100%; padding:11px; border-radius:8px; border:none; background:#5865F2; color:#fff;
+    font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px;
+  }
+  .divider{ display:flex; align-items:center; gap:10px; color:var(--text-soft); font-size:12px; margin:16px 0;}
+  .divider::before,.divider::after{ content:""; flex:1; height:1px; background:var(--line);}
+  .switch-auth{ font-size:12.5px; margin-top:14px; color:var(--text-soft);}
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--charcoal); color:var(--tan);
+    padding:11px 22px; border-radius:24px; font-size:13px; z-index:400; opacity:0; pointer-events:none; transition:opacity .25s;
+  }
+  .toast.show{ opacity:1;}
+
+  @media(max-width:720px){
+    nav.main-nav{ display:none; }
+    .nav-item-center{ display:none; }
+    .nav-item-fanart-wrap{ position:static; transform:none; margin-inline-start:auto; }
+    .hero h1{ font-size:32px; }
+  }
+
+  /* ===== archive ===== */
+  .archive-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; max-width:1000px; margin:0 auto; }
+  .archive-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:var(--shadow);
+    transition:transform .15s ease;
+  }
+  .archive-card:hover{ transform:translateY(-3px); }
+  .archive-card .thumb{ position:relative; aspect-ratio:16/9; background:var(--paper); display:flex; align-items:center; justify-content:center; font-size:30px; overflow:hidden; }
+  .archive-card .thumb img, .archive-card .thumb video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .archive-card .thumb.clickable{ cursor:pointer; }
+  .archive-card .thumb-play{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,.18); transition:background .15s ease;
+  }
+  .archive-card .thumb-play::after{
+    content:"▶"; width:44px; height:44px; border-radius:50%; background:rgba(20,16,12,.55); color:#fff; font-size:15px;
+    display:flex; align-items:center; justify-content:center; backdrop-filter:blur(1px);
+  }
+  .archive-card .thumb.clickable:hover .thumb-play{ background:rgba(0,0,0,.32); }
+  .archive-card .body{ padding:13px 15px; }
+  .archive-card h4{ margin:0 0 4px; font-size:14px; color:var(--text); }
+  .archive-card p{ margin:0; font-size:12px; color:var(--text-soft); line-height:1.6; }
+  .archive-card a.watch{ display:inline-block; margin-top:9px; font-size:12px; font-weight:700; color:var(--tan); }
+  .archive-viewer-modal{ max-width:880px; width:100%; padding:20px; text-align:start; }
+  .archive-viewer-title{ font-size:15px; font-weight:700; margin:0 0 12px; color:var(--text); }
+
+  /* ===== games rating ===== */
+  .games-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px; max-width:1000px; margin:0 auto; }
+  .rate-game-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .rate-game-card:hover{ transform:translateY(-4px); box-shadow:0 16px 32px rgba(0,0,0,.5); }
+  .rate-game-card .cover{ width:100%; aspect-ratio:16/9; object-fit:cover; display:block; background:var(--paper); }
+  .rate-game-card .body{ padding:15px 16px; }
+  .rate-game-card h4{ margin:0 0 4px; font-size:15px; color:var(--text); }
+  .rate-game-card .desc{ margin:0 0 10px; font-size:12px; color:var(--text-soft); line-height:1.6; }
+
+  .avg-row{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .avg-stars{ display:inline-flex; gap:1px; direction:ltr; }
+  .avg-stars .star{ font-size:16px; color:var(--line); }
+  .avg-stars .star.filled{ color:#f0b429; text-shadow:0 0 8px rgba(240,180,41,.5); }
+  .avg-badge{ font-size:12px; font-weight:800; color:var(--tan); background:rgba(111,78,55,.12); padding:2px 9px; border-radius:10px; }
+  .avg-count{ font-size:11px; color:var(--text-soft); }
+
+  .my-rate-box{ border-top:1px solid var(--line); padding-top:12px; }
+  .my-rate-label{ font-size:11.5px; font-weight:700; color:var(--text-soft); margin-bottom:6px; }
+  .rate-stars{ display:inline-flex; gap:4px; direction:ltr; }
+  .rate-stars .star{
+    font-size:24px; color:var(--line); cursor:pointer; transition:transform .12s ease, color .12s ease;
+  }
+  .rate-stars .star:hover{ transform:scale(1.2); }
+  .rate-stars .star.filled{ color:#f0b429; text-shadow:0 0 10px rgba(240,180,41,.55); }
+  .rate-comment-box{ margin-top:10px; }
+  .rate-comment-box textarea{
+    width:100%; border:1px solid var(--line); border-radius:10px; padding:9px 11px; font-family:inherit;
+    font-size:12.5px; background:var(--bg); color:var(--text); resize:vertical; min-height:56px;
+  }
+  .rate-comment-box button{
+    margin-top:7px; padding:8px 16px; border-radius:16px; border:none; background:var(--clay); color:#fff;
+    font-size:12px; font-weight:700;
+  }
+  .rate-comments{ margin-top:12px; display:flex; flex-direction:column; gap:9px; max-height:160px; overflow:auto; }
+  .rate-comment{ display:flex; gap:8px; align-items:flex-start; }
+  .rate-comment img{ width:26px; height:26px; border-radius:50%; object-fit:cover; flex-shrink:0; margin-top:1px; }
+  .rate-comment .txt{ font-size:12px; background:var(--paper); padding:7px 10px; border-radius:10px; border-top-right-radius:2px; flex:1; }
+  .rate-comment .txt b{ font-size:11.5px; }
+  .rate-comment .mini-stars{ direction:ltr; color:#f0b429; font-size:10px; margin-inline-start:4px; }
+
+  .see-all-comments-btn{
+    display:block; width:100%; margin-top:10px; padding:8px; border-radius:10px; border:1px solid var(--line);
+    background:var(--paper); color:var(--tan); font-family:inherit; font-size:12px; font-weight:700;
+  }
+  .game-detail-modal{ max-width:920px; padding:28px; text-align:start; }
+  .game-detail-grid{ display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; }
+  .game-detail-side{ flex:1 1 280px; min-width:240px; }
+  .game-detail-cover{ width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:12px; background:var(--paper); display:block; margin-bottom:12px; }
+  .game-detail-side h3{ margin:0 0 6px; font-size:18px; color:var(--text); }
+  .game-detail-desc{ font-size:12.5px; color:var(--text-soft); line-height:1.7; margin:0 0 10px; }
+  .game-detail-comments{
+    flex:1.3 1 300px; min-width:260px; max-height:70vh; overflow:auto;
+    border-inline-start:1px solid var(--line); padding-inline-start:22px;
+  }
+  .game-detail-comments .rate-comment{ margin-bottom:12px; }
+  @media(max-width:680px){
+    .game-detail-comments{ border-inline-start:none; border-top:1px solid var(--line); padding-inline-start:0; padding-top:16px; max-height:none; }
+  }
+
+  /* ===== suggestion banner ===== */
+  .suggest-banner{
+    max-width:820px; margin:0 auto; background:var(--surface); border:1px solid var(--line); border-radius:16px;
+    padding:24px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; box-shadow:var(--shadow); flex-wrap:wrap;
+  }
+  .suggest-banner h3{ margin:0 0 4px; font-size:17px; color:var(--tan); font-family:'Cairo',sans-serif; }
+  .suggest-banner p{ margin:0; font-size:12.5px; color:var(--text-soft); }
+
+  /* ===== search + lang (topbar) ===== */
+  .search-wrap{ position:relative; width:190px; flex-shrink:1; min-width:0; }
+  .search-wrap input{
+    width:100%; padding:8px 34px 8px 12px; border-radius:16px; border:1px solid rgba(43,36,32,.25);
+    background:rgba(255,255,255,.4); color:var(--charcoal); font-family:inherit; font-size:12.5px;
+  }
+  html[data-theme="dark"] .search-wrap input{ background:rgba(0,0,0,.25); color:var(--text); border-color:rgba(255,255,255,.2); }
+  .search-wrap svg{ position:absolute; inset-inline-end:11px; top:50%; transform:translateY(-50%); width:14px; height:14px; opacity:.65; pointer-events:none; }
+  .search-results{
+    position:absolute; top:42px; inset-inline-start:0; width:260px; max-height:320px; overflow:auto;
+    background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow);
+    padding:6px; display:none; z-index:80;
+  }
+  .search-results.open{ display:block; }
+  .search-item{ display:flex; align-items:center; gap:9px; padding:8px 9px; border-radius:8px; cursor:pointer; }
+  .search-item:hover{ background:var(--paper); }
+  .search-item img{ width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+  .search-item .thumb-sq{ width:28px; height:28px; border-radius:6px; object-fit:cover; flex-shrink:0; background:var(--paper); }
+  .search-item .lbl{ font-size:12.5px; flex:1; }
+  .search-item .tag{ font-size:10px; color:var(--text-soft); }
+  .search-more{ display:block; text-align:center; font-size:11.5px; padding:8px; color:var(--tan); font-weight:700; }
+  .search-empty{ padding:12px; text-align:center; font-size:12px; color:var(--text-soft); }
+
+  select#langSelect{
+    border:1px solid rgba(43,36,32,.25); background:rgba(255,255,255,.4); color:var(--charcoal);
+    border-radius:14px; padding:7px 10px; font-family:inherit; font-size:12px; font-weight:700;
+  }
+  html[data-theme="dark"] select#langSelect{ background:rgba(0,0,0,.25); color:var(--text); border-color:rgba(255,255,255,.2); }
+
+  @media(max-width:900px){ .search-wrap{ display:none; } }
+
+  /* ===== badges ===== */
+  .user-badges{ display:inline-flex; align-items:center; gap:3px; vertical-align:middle; margin-inline-start:6px; }
+  .badge-chip{ display:inline-flex; }
+  .badge-icon{ width:1.2em; height:1.2em; display:block; filter:drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+  .badges-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:14px; }
+  .badge-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px 14px; text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:8px; box-shadow:var(--shadow);
+  }
+  .badge-card .badge-icon{ width:52px; height:52px; }
+  .badge-card h4{ margin:0; font-size:14px; }
+  .badge-card p{ margin:0; font-size:11.5px; color:var(--text-soft); line-height:1.5; }
+
+  /* ===== levels / XP ===== */
+  .level-chip{
+    display:inline-flex; align-items:center; justify-content:center; padding:2px 9px; border-radius:10px;
+    font-size:11.5px; font-weight:800; color:#fff; vertical-align:middle; line-height:1.6;
+  }
+  .level-progress-block{ margin:10px auto 4px; max-width:260px; }
+  .level-progress-head{ display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:6px; flex-wrap:wrap; }
+  .level-tier-name{ font-size:12.5px; font-weight:700; }
+  .level-xp-text{ font-size:11.5px; color:var(--text-soft); }
+  .level-bar-track{ height:8px; border-radius:5px; background:var(--paper); border:1px solid var(--line); overflow:hidden; }
+  .level-bar-fill{ height:100%; border-radius:5px; transition:width .4s ease; }
+  .level-bar-caption{ font-size:10.5px; color:var(--text-soft); text-align:center; margin-top:4px; }
+  #profileBadges.user-badges{ display:flex; justify-content:center; margin:4px 0 0; font-size:16px; }
+  #profileBadges .badge-chip{ font-size:16px; }
+  .badges-subhead{ font-size:13px; font-weight:800; color:var(--tan); margin:18px 0 10px; text-align:center; }
+
+  /* ===== profile / settings modal ===== */
+  .panel-modal{ max-width:440px; padding:0; text-align:start; overflow-y:auto; overflow-x:hidden; border-radius:12px; }
+  .profile-head{ background:linear-gradient(135deg,var(--tan),var(--tan-deep)); padding:34px 26px 26px; position:relative; text-align:center; }
+  .profile-head .pf-avatar{ width:84px; height:84px; border-radius:50%; border:4px solid var(--surface); object-fit:cover; }
+  .profile-head h3{ margin:12px 0 2px; color:var(--charcoal); font-size:18px; }
+  .profile-stats{ display:flex; gap:24px; margin-top:12px; justify-content:center; }
+  .profile-stats div{ text-align:center; cursor:default; }
+  .profile-stats div b{ display:block; font-size:17px; color:var(--charcoal); }
+  .profile-stats div span{ font-size:11.5px; color:rgba(43,36,32,.7); }
+  .profile-body{ padding:22px 24px 26px; }
+  .follow-btn{ background:var(--charcoal); color:var(--tan); border:none; padding:8px 20px; border-radius:16px; font-size:12.5px; font-weight:700; }
+  .follow-btn.following{ background:rgba(43,36,32,.5); }
+  .pf-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .pf-item{ position:relative; aspect-ratio:1; border-radius:6px; overflow:hidden; background:var(--paper); }
+  .pf-item img{ width:100%; height:100%; object-fit:cover; }
+  .pf-del-btn{ position:absolute; top:4px; inset-inline-end:4px; width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,.55); color:#fff; border:none; font-size:11px; }
+  .pending-badge{ position:absolute; top:4px; inset-inline-start:4px; background:var(--clay); color:#fff; font-size:9px; padding:2px 6px; border-radius:6px; z-index:2; }
+  .msg-btn{ background:var(--surface); border:1px solid var(--line); color:var(--text); padding:8px 20px; border-radius:16px; font-size:12.5px; font-weight:700; margin-inline-start:6px; }
+
+  .settings-body{ padding:26px; text-align:start; }
+  .avatar-edit{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .avatar-edit img{ width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--line); }
+  .small-btn{ background:var(--surface); border:1px solid var(--line); color:var(--text); padding:8px 14px; border-radius:14px; font-size:12px; font-weight:700; }
+  .gender-row{ display:flex; gap:8px; }
+  .gender-opt{ flex:1; text-align:center; padding:9px; border:1px solid var(--line); border-radius:10px; font-size:12.5px; cursor:pointer; }
+  .gender-opt.sel{ background:var(--charcoal); color:var(--tan); border-color:var(--charcoal); }
+
+  /* ===== profile social links (edit + display) ===== */
+  .settings-subhead{ font-size:13px; font-weight:800; color:var(--tan); margin:22px 0 10px; }
+  .social-link-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+  .social-link-row select{
+    flex:0 0 118px; padding:9px 8px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-family:inherit; font-size:12.5px;
+  }
+  .social-link-row input{
+    flex:1; min-width:0; padding:9px 10px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:12.5px; font-family:inherit;
+  }
+  .social-link-row .rm-link-btn{
+    flex-shrink:0; width:30px; height:30px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text-soft); font-size:13px;
+  }
+  .add-link-btn{
+    width:100%; padding:9px; border-radius:8px; border:1px dashed var(--line); background:transparent; color:var(--text-soft);
+    font-size:12.5px; font-weight:700; margin-bottom:6px; font-family:inherit;
+  }
+  .pf-social-row{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:12px 0 16px; }
+  .pf-s-btn{
+    --glow:var(--clay); width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+    background:var(--paper); border:1px solid var(--line); color:var(--text-soft); transition:transform .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .pf-s-btn svg{ width:16px; height:16px; }
+  .pf-s-btn:hover{ color:var(--glow); border-color:var(--glow); transform:translateY(-2px); }
+
+  /* ===== profile effects: name color/animation ===== */
+  .name-fx-gold{ color:#D9A93A !important; text-shadow:0 0 8px rgba(217,169,58,.55); }
+  .name-fx-copper{
+    background:linear-gradient(90deg,#c77b4b,#4f9c7a,#c77b4b); background-size:220% auto; -webkit-background-clip:text; background-clip:text;
+    color:transparent !important; -webkit-text-fill-color:transparent; animation:nameFxScroll 3.4s linear infinite;
+  }
+  .name-fx-neon{
+    background:linear-gradient(90deg,#28e0ff,#ff2fd0,#28e0ff); background-size:220% auto; -webkit-background-clip:text; background-clip:text;
+    color:transparent !important; -webkit-text-fill-color:transparent; animation:nameFxScroll 3s linear infinite;
+  }
+  .name-fx-emerald{
+    background:linear-gradient(90deg,#3ddb7a,#0f7a3d,#7cf5a8,#3ddb7a); background-size:240% auto; -webkit-background-clip:text; background-clip:text;
+    color:transparent !important; -webkit-text-fill-color:transparent; text-shadow:0 0 8px rgba(61,219,122,.45); animation:nameFxScroll 2.8s linear infinite;
+  }
+  .name-fx-fire{
+    background:linear-gradient(90deg,#ff5122,#ffb238,#ff2f2f,#ff5122); background-size:220% auto; -webkit-background-clip:text; background-clip:text;
+    color:transparent !important; -webkit-text-fill-color:transparent; animation:nameFxScroll 1.6s linear infinite;
+  }
+  .name-fx-ice{
+    background:linear-gradient(90deg,#dff5ff,#7fc4ec,#ffffff,#a9e9ff,#dff5ff); background-size:240% auto; -webkit-background-clip:text; background-clip:text;
+    color:transparent !important; -webkit-text-fill-color:transparent; text-shadow:0 0 9px rgba(140,205,240,.55); animation:nameFxScroll 3.2s linear infinite;
+  }
+  .name-fx-rainbow{
+    background:linear-gradient(90deg,#ff2d2d,#ff9d2d,#f5e02d,#3ddb5c,#2d9dff,#8a2dff,#ff2d2d); background-size:280% auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent !important; -webkit-text-fill-color:transparent;
+    animation:nameFxScroll 4s linear infinite;
+  }
+  .name-fx-end{
+    background:linear-gradient(90deg,#2B1A40,#8a5fd6,#150C22,#8a5fd6,#2B1A40); background-size:260% auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent !important; -webkit-text-fill-color:transparent;
+    text-shadow:0 0 10px rgba(138,95,214,.5); animation:nameFxScroll 3.6s linear infinite;
+  }
+  .name-fx-diamond{
+    background:linear-gradient(90deg,#dff5ff,#7fc4ec,#ffffff,#7fc4ec,#dff5ff); background-size:260% auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent !important; -webkit-text-fill-color:transparent;
+    text-shadow:0 0 10px rgba(140,205,240,.5); animation:nameFxScroll 2.4s linear infinite;
+  }
+  .name-fx-netherite{
+    background:linear-gradient(90deg,#4A4145,#8a7fa0,#2E2831,#8a7fa0,#4A4145); background-size:260% auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent !important; -webkit-text-fill-color:transparent;
+    text-shadow:0 0 10px rgba(138,127,160,.5); animation:nameFxScroll 3s linear infinite;
+  }
+  .name-fx-galaxy{
+    background:linear-gradient(90deg,#1b1035,#6a2dff,#ff2fd0,#28e0ff,#1b1035); background-size:280% auto;
+    -webkit-background-clip:text; background-clip:text; color:transparent !important; -webkit-text-fill-color:transparent;
+    text-shadow:0 0 10px rgba(106,45,255,.5); animation:nameFxScroll 5s linear infinite;
+  }
+  @keyframes nameFxScroll{ to{ background-position:-260% center; } }
+
+  /* ===== profile effects: avatar frame ===== */
+  .pf-avatar-wrap{
+    width:92px; height:92px; margin:0 auto; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+  .pf-avatar-wrap .pf-avatar{ width:84px; height:84px; }
+  .frame-fx-wood{ background:linear-gradient(135deg,#c99a63,#5c4033); }
+  .frame-fx-copper{ background:linear-gradient(135deg,#c77b4b,#4f9c7a); animation:frameFxPulse 2.2s ease-in-out infinite; }
+  .frame-fx-pulse{ background:radial-gradient(circle,#c9765a,#5c4033); animation:frameFxPulse 1.6s ease-in-out infinite; }
+  .frame-fx-emerald{ background:conic-gradient(from 0deg,#3ddb7a,#0f7a3d,#7cf5a8,#3ddb7a); animation:frameFxSpin 3.4s linear infinite; box-shadow:0 0 12px rgba(61,219,122,.5); }
+  .frame-fx-spin{ background:conic-gradient(from 0deg,#c9765a,#e2b23a,#c9765a); animation:frameFxSpin 3s linear infinite; }
+  .frame-fx-ice{ background:conic-gradient(from 0deg,#dff5ff,#7fc4ec,#ffffff,#a9e9ff,#dff5ff); animation:frameFxSpin 3.8s linear infinite; box-shadow:0 0 12px rgba(140,205,240,.5); }
+  .frame-fx-rainbow{
+    background:conic-gradient(from 0deg,#ff2d2d,#ff9d2d,#f5e02d,#3ddb5c,#2d9dff,#8a2dff,#ff2d2d); animation:frameFxSpin 4s linear infinite;
+  }
+  .frame-fx-end{ background:conic-gradient(from 0deg,#2B1A40,#8a5fd6,#150C22,#8a5fd6,#2B1A40); animation:frameFxSpin 4.2s linear infinite; box-shadow:0 0 14px rgba(138,95,214,.5); }
+  .frame-fx-diamond{
+    background:conic-gradient(from 0deg,#dff5ff,#7fc4ec,#ffffff,#7fc4ec,#dff5ff); animation:frameFxSpin 2.4s linear infinite;
+    box-shadow:0 0 14px rgba(140,205,240,.55);
+  }
+  .frame-fx-netherite{ background:conic-gradient(from 0deg,#4A4145,#8a7fa0,#2E2831,#8a7fa0,#4A4145); animation:frameFxSpin 3.6s linear infinite; box-shadow:0 0 14px rgba(138,127,160,.55); }
+  .frame-fx-galaxy{ background:conic-gradient(from 0deg,#1b1035,#6a2dff,#ff2fd0,#28e0ff,#1b1035); animation:frameFxSpin 5s linear infinite; box-shadow:0 0 16px rgba(106,45,255,.55); }
+  @keyframes frameFxPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(201,118,90,.55);} 50%{ box-shadow:0 0 0 7px rgba(201,118,90,0);} }
+  @keyframes frameFxSpin{ to{ transform:rotate(360deg); } }
+  /* ===== إطار الصورة داخل صفحة البروفايل يكون ثابت (بدون حركة) ===== */
+  .pf-avatar-wrap[class*="frame-fx-"]{ animation:none !important; }
+
+  /* ===== profile effects: big banner (profile-head) ===== */
+  .banner-fx-forest{ background:linear-gradient(135deg,#8fbf6a,#3f6b3a); }
+  .banner-fx-ocean{ background:linear-gradient(135deg,#6ec3d9,#2b5f8a); }
+  .banner-fx-copper{
+    background:linear-gradient(120deg,#c77b4b,#4f9c7a,#8a4a2b,#c77b4b);
+    background-size:240% auto; animation:bannerFxScroll 5s linear infinite;
+  }
+  .banner-fx-sunset{ background:linear-gradient(135deg,#ffb35c,#e0567a); }
+  .banner-fx-purple{ background:linear-gradient(135deg,#c896e0,#6a3f9e); }
+  .banner-fx-emerald{
+    background:linear-gradient(120deg,#3ddb7a,#0f7a3d,#7cf5a8,#3ddb7a);
+    background-size:240% auto; animation:bannerFxScroll 4s linear infinite;
+  }
+  .banner-fx-gold{ background:linear-gradient(135deg,#f3d27a,#b8862f); }
+  .banner-fx-ice{
+    background:linear-gradient(120deg,#dff5ff,#7fc4ec,#ffffff,#a9e9ff,#dff5ff);
+    background-size:240% auto; animation:bannerFxScroll 4.5s linear infinite;
+  }
+  .banner-fx-rainbow{
+    background:linear-gradient(120deg,#ff2d2d,#ff9d2d,#f5e02d,#3ddb5c,#2d9dff,#8a2dff,#ff2d2d);
+    background-size:280% auto; animation:bannerFxScroll 6s linear infinite;
+  }
+  .banner-fx-fire{
+    background:linear-gradient(120deg,#ff5122,#ffb238,#ff2f2f,#ff5122);
+    background-size:240% auto; animation:bannerFxScroll 3s linear infinite;
+  }
+  .banner-fx-aurora{
+    background:linear-gradient(120deg,#28e0ff,#8a2dff,#28ffb2,#28e0ff);
+    background-size:260% auto; animation:bannerFxScroll 4.5s linear infinite;
+  }
+  .banner-fx-end{
+    background:linear-gradient(120deg,#2B1A40,#8a5fd6,#150C22,#8a5fd6,#2B1A40);
+    background-size:260% auto; animation:bannerFxScroll 5.5s linear infinite;
+  }
+  .banner-fx-netherite{
+    background:linear-gradient(120deg,#4A4145,#8a7fa0,#2E2831,#8a7fa0,#4A4145);
+    background-size:260% auto; animation:bannerFxScroll 5s linear infinite;
+  }
+  .banner-fx-galaxy{
+    background:linear-gradient(120deg,#1b1035,#6a2dff,#ff2fd0,#28e0ff,#1b1035);
+    background-size:300% auto; animation:bannerFxScroll 7s linear infinite;
+  }
+  @keyframes bannerFxScroll{ to{ background-position:-260% center; } }
+  /* لو ما فيه لون اسم مختار، منضيف ظل خفيف حوالين النص عشان يضل واضح فوق أي بانر */
+  .profile-head[class*="banner-fx-"] h3[class=""]{ text-shadow:0 1px 3px rgba(255,255,255,.5), 0 1px 8px rgba(0,0,0,.25); }
+
+  .banner-fx-mini{ width:100%; height:38px; border-radius:8px; margin-bottom:6px; }
+  .banner-fx-mini.banner-fx-none{ background:linear-gradient(135deg,var(--tan),var(--tan-deep)); }
+
+  /* ===== effects picker (settings) ===== */
+  .fx-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:10px; margin-bottom:6px; }
+  .fx-card{
+    position:relative; background:var(--surface); border:2px solid var(--line); border-radius:12px; padding:10px 4px 8px;
+    text-align:center; cursor:pointer;
+  }
+  .fx-card.selected{ border-color:var(--clay); box-shadow:0 0 0 2px rgba(111,78,55,.3); }
+  .fx-card.locked{ cursor:default; opacity:.5; }
+  .fx-card .fx-name-preview{ font-size:13px; font-weight:800; margin-bottom:6px; }
+  .fx-card .fx-label{ font-size:10px; color:var(--text-soft); line-height:1.3; }
+  .fx-card .fx-lock-note{ font-size:9px; color:var(--text-soft); margin-top:2px; }
+  .fx-frame-mini{ width:42px; height:42px; border-radius:50%; margin:0 auto 6px; display:flex; align-items:center; justify-content:center; }
+  .fx-frame-mini .dot{ width:34px; height:34px; border-radius:50%; background:var(--paper); border:2px solid var(--surface); }
+
+  /* ===== tickets ===== */
+  .admin-user-row{ display:flex; align-items:center; gap:10px; padding:11px 12px; border-radius:10px; background:var(--surface); border:1px solid var(--line); margin-bottom:8px; }
+  .admin-user-row img{ width:30px; height:30px; border-radius:50%; object-fit:cover; }
+  .admin-user-row .uname{ flex:1; font-size:13px; font-weight:700; }
+  .ticket-modal .modal{ max-width:480px; padding:0; overflow:hidden; display:flex; flex-direction:column; height:70vh; text-align:start; }
+
+  /* ===== notifications + DM ===== */
+  .icon-btn{ position:relative; }
+  .notif-dot{
+    position:absolute; top:-2px; inset-inline-end:-2px; min-width:16px; height:16px; padding:0 3px; border-radius:8px;
+    background:var(--clay); color:#fff; font-size:9.5px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    line-height:1; border:2px solid var(--surface);
+  }
+  .dropdown-panel{
+    position:absolute; top:46px; inset-inline-end:0; width:300px; max-height:400px; overflow:auto;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow);
+    padding:6px; display:none; z-index:90;
+  }
+  .dropdown-panel.open{ display:block; }
+  .notif-row{ display:flex; align-items:center; gap:10px; padding:9px 10px; border-radius:9px; cursor:pointer; }
+  .notif-row:hover{ background:var(--paper); }
+  .notif-row.unread{ background:rgba(111,78,55,.1); }
+  .notif-row img{ width:34px; height:34px; border-radius:50%; object-fit:cover; flex-shrink:0; }
+  .notif-row .txt{ font-size:12.5px; flex:1; line-height:1.5; }
+  .notif-row .time{ font-size:10.5px; color:var(--text-soft); flex-shrink:0; }
+  .notif-empty{ padding:20px; text-align:center; font-size:12.5px; color:var(--text-soft); }
+</style>
+
+<style>
+  html, body, button, a{
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="white" stop-opacity="1"/><stop offset="55%" stop-color="white" stop-opacity="0.9"/><stop offset="100%" stop-color="white" stop-opacity="0"/></radialGradient></defs><circle cx="8" cy="8" r="7" fill="url(%23g)"/><circle cx="8" cy="8" r="2.3" fill="white"/></svg>') 8 8, auto;
+  }
+</style>
+  <style>
+  .ico{ display:inline-block; }
+  .ico-notif{ filter: brightness(0) saturate(100%) invert(66%) sepia(83%) saturate(195%) hue-rotate(-17deg) brightness(39%) contrast(144%); }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"><img src="assets/avatar.png" alt="S3eeD"></div>
+  </div>
+  <nav class="main-nav">
+    <div class="nav-item">
+      <a class="nav-link" data-i18n="navGames" href="games.html">S3aS3 Games</a>
+      <div class="nav-dropdown">
+        <a href="creeper.html">كريبر شات</a>
+        <a href="miners.html">ماينر شات</a>
+        <a href="minshow.html">ماين شو</a>
+        <a href="quiz.html">أسئلة ماين كرافت</a>
+        <a href="toolminer.html">كوكيز كليكر</a>
+        <a href="minecraftle.html">ماينكرافتل</a>
+
+        <a href="runner.html">ستيف رنر</a>
+        <a href="puzzle.html">بازل</a>
+      </div>
+    </div>
+  </nav>
+  <div class="nav-item nav-item-center">
+    <a class="nav-link" href="#top">S3eeD</a>
+    <div class="nav-dropdown">
+      <a data-i18n="navVideo" href="#video">آخر فيديو</a>
+      <a data-i18n="navStream" href="#twitch">آخر بث</a>
+      <a data-i18n="navArchive" href="#archive">الأرشيف</a>
+      <a data-i18n="navRating" href="#gamesRating">تقييم الألعاب</a>
+      <a data-i18n="navSuggest" href="javascript:void(0)" class="js-suggest-link" onclick="openSuggestBox()">الاقتراحات</a>
+    </div>
+  </div>
+  <div class="nav-item nav-item-fanart-wrap">
+    <a class="nav-link" href="fanart.html">FAN ART</a>
+    <div class="nav-dropdown">
+      <a href="fanart.html#home">آخر الرسمات</a>
+      <a href="fanart.html#topart">الأعلى تفاعلاً</a>
+      <a href="fanart.html#badges">البادجات</a>
+      <a href="fanart.html#create">نشر رسمة</a>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="search-wrap">
+      <input id="mainSearchInput" type="text" data-i18n-ph="searchPh" placeholder="ابحث عن قناة، لعبة، أرشيف...">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <div class="search-results" id="mainSearchResults"></div>
+    </div>
+    <div style="position:relative;">
+      <button class="icon-btn" id="notifBellBtn" onclick="toggleNotifPanel()" title="الإشعارات"><span class="ico ico-notif">🔔</span><span class="notif-dot" id="notifDot" style="display:none;">0</span></button>
+      <div class="dropdown-panel" id="notifPanel"></div>
+    </div>
+    <div id="authArea"></div>
+  </div>
+</header>
+
+<div id="top"></div>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="avatar-wrap">
+      <div class="avatar-glow"></div>
+      <div class="avatar-img"><img src="assets/avatar.png" alt="صورة قناة S3eeD"></div>
+    </div>
+    <div class="hero-eyebrow" data-i18n="heroEyebrow">صانع محتوى</div>
+    <p data-i18n="heroDesc">ماين كرافت هاردكور، سلاسل جديدة، وترندات — محتوى يومي جديد كل ما توفر وقت. انضم لعائلة القناة وتابع كل جديد أول بأول.</p>
+    <div class="hero-cta">
+      <a class="btn-primary" data-i18n="watchYoutube" href="https://www.youtube.com/@S3eeD" target="_blank" rel="noopener">
+        شاهد على يوتيوب
+      </a>
+      <a class="btn-primary" href="https://www.twitch.tv/s3eedxx" target="_blank" rel="noopener" id="twitchWatchBtn">
+        شاهد على تويتش
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+
+  <!-- ============ VIDEO + STATS ROW ============ -->
+  <section class="block" id="video">
+    <div class="two-col-row">
+
+      <!-- LEFT COLUMN: latest video + last stream -->
+      <div class="col-video">
+        <div class="block-head">
+          <span class="eyebrow" data-i18n="videoEyebrow">جديد على القناة</span>
+          <h2 data-i18n="videoTitle">آخر فيديو </h2>
+        </div>
+        <div class="video-frame">
+          <iframe src="https://www.youtube.com/embed/videoseries?list=UUIsVLXrNbgf29eHu5QTSAQQ"
+            title="آخر فيديو من قناة S3eeD" loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen></iframe>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: youtube stats -->
+      <div class="col-stats">
+        <div class="block-head" id="stats">
+          <span class="eyebrow">أرقام القناة</span>
+          <h2>إحصائيات يوتيوب </h2>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><b id="statSubs" data-count="240000">0</b><span>مشترك</span></div>
+          <div class="stat-card"><b id="statViews" data-count="24000000">0</b><span>مشاهدة</span></div>
+          <div class="stat-card"><b id="statVideos" data-count="99">0</b><span>فيديو</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ STREAM + STREAM STATS ROW (same layout as YouTube row) ============ -->
+  <section class="block" id="twitch">
+    <div class="two-col-row">
+
+      <!-- LEFT COLUMN (visually right, RTL): latest stream -->
+      <div class="col-video">
+        <div class="block-head">
+          <span class="eyebrow">بث مباشر <span id="twitchLiveBadge" style="font-size:12px;font-weight:700;padding:3px 9px;border-radius:12px;background:var(--paper);color:var(--text-soft);vertical-align:middle;">غير متصل</span></span>
+          <h2>آخر بث القناة </h2>
+        </div>
+        <div class="video-frame">
+          <iframe id="twitchEmbedFrame" src="" title="بث S3eeD على تويتش" loading="lazy"
+            allow="autoplay; fullscreen" allowfullscreen style="display:none;"></iframe>
+          <div id="twitchOfflinePlaceholder" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:20px;">
+            <span style="font-size:34px;"></span>
+            <span style="font-weight:800; font-size:16px; color:var(--text);">البث غير متصل حالياً</span>
+            <span style="font-size:13px; color:var(--text-soft);">تابعنا عشان توصلك إشعارات البث القادم</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN (visually left, RTL): stream stats -->
+      <div class="col-stats">
+        <div class="block-head">
+          <span class="eyebrow">أرقام البث</span>
+          <h2>إحصائيات تويتش </h2>
+        </div>
+        <div class="stats-grid" id="twitchStatsGrid">
+          <div class="stat-card"><b id="statTwitchFollowers" data-count="0">—</b><span>متابع تويتش</span></div>
+          <div class="stat-card"><b id="statStreamsYear" data-count="110">0</b><span>بث هالسنة</span></div>
+          <div class="stat-card"><b id="statAvgViewers" data-count="0">0</b><span>متوسط المشاهدين</span></div>
+          <!-- الرقم فوق يتحدث لحاله تلقائياً من متوسط مشاهدين آخر بث (لايف أو خلص)، ما يحتاج تعديل يدوي -->
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ ARCHIVE ============ -->
+  <section class="block" id="archive">
+    <div class="block-head">
+      <span class="eyebrow" data-i18n="archiveEyebrow">كليبات وبثوث</span>
+      <h2 data-i18n="archiveTitle">الأرشيف </h2>
+    </div>
+    <div class="archive-grid" id="archiveGrid"></div>
+  </section>
+
+  <!-- ============ GAMES RATING ============ -->
+  <section class="block" id="gamesRating">
+    <div class="block-head">
+      <span class="eyebrow" data-i18n="ratingEyebrow">قيّم وشارك رأيك</span>
+      <h2 data-i18n="ratingTitle">الألعاب </h2>
+    </div>
+    <div class="games-list" id="ratingGamesList"></div>
+  </section>
+
+  <!-- ============ SUGGESTION BOX ============ -->
+  <section class="block" id="suggestBlock">
+    <div class="suggest-banner">
+      <div>
+        <h3>عندك اقتراح؟ </h3>
+        <p>شاركنا رأيك، بيوصل لفريق الإدارة مباشرة</p>
+      </div>
+      <button class="btn-primary" onclick="openSuggestBox()">إرسال اقتراح</button>
+    </div>
+  </section>
+
+  <!-- ============ SOCIALS ============ -->
+  <section class="block" id="social">
+    <div class="block-head">
+      <span class="eyebrow" data-i18n="socialEyebrow">تواصل معي</span>
+      <h2 data-i18n="socialTitle">منصات التواصل</h2>
+    </div>
+    <div class="social-bar" id="socialGrid"></div>
+  </section>
+
+
+
+<footer data-i18n="footer">S3eeD — الموقع الرسمي © 2026</footer>
+
+<!-- ============ AUTH MODAL ============ -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeOverlay('authOverlay')"></button>
+    <h2>تسجيل الدخول</h2>
+    <p>سجّل دخولك لاستخدام حسابك في موقع S3eeD وموقع FAN ART معاً</p>
+    <div id="authError" style="color:var(--tan);font-size:12.5px;margin-top:8px;display:none;"></div>
+    <button class="btn-google" onclick="loginWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.81.54-1.85.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+      <span>المتابعة باستخدام Google</span>
+    </button>
+    <button class="btn-discord" onclick="loginWithDiscord()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.955 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.946 2.419-2.157 2.419z"/></svg>
+      <span>المتابعة باستخدام Discord</span>
+    </button>
+    <div class="switch-auth">بتسجيلك أنت توافق على شروط الاستخدام — نفس الحساب يعمل في موقع FAN ART تلقائياً</div>
+  </div>
+</div>
+
+<!-- ============ SUGGESTION MODAL ============ -->
+<div class="overlay" id="suggestOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeOverlay('suggestOverlay')"></button>
+    <h2>عندك اقتراح؟ </h2>
+    <p>بيوصل لفريق الإدارة</p>
+    <div class="field" style="text-align:start;">
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:5px;">نوع الاقتراح</label>
+      <div class="gender-row" style="flex-wrap:wrap;">
+        <div class="gender-opt sel" id="sugCatGame" onclick="selectSuggestCategory('game')" style="min-width:70px;padding:9px 6px;">لعبة</div>
+        <div class="gender-opt" id="sugCatClip" onclick="selectSuggestCategory('clip')" style="min-width:70px;padding:9px 6px;">مقطع</div>
+        <div class="gender-opt" id="sugCatSite" onclick="selectSuggestCategory('site')" style="min-width:70px;padding:9px 6px;">موقع</div>
+        <div class="gender-opt" id="sugCatOther" onclick="selectSuggestCategory('other')" style="min-width:70px;padding:9px 6px;">اخرى</div>
+      </div>
+    </div>
+    <div class="field">
+      <textarea id="suggestionInput" style="width:100%;min-height:100px;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface);color:var(--text);font-family:inherit;" placeholder="اكتب اقتراحك هون..."></textarea>
+    </div>
+    <button class="btn-main" id="suggestSubmitBtn" onclick="submitSuggestion()">إرسال</button>
+    <div id="suggestionError" style="color:var(--tan);font-size:12.5px;margin-top:8px;display:none;"></div>
+  </div>
+</div>
+
+<!-- ============ PROFILE MODAL ============ -->
+<div class="overlay" id="profileOverlay">
+  <div class="modal panel-modal">
+    <button class="modal-close" onclick="closeOverlay('profileOverlay')"></button>
+    <div class="profile-head" id="profileHead">
+      <div class="pf-avatar-wrap" id="profileAvatarWrap"><img class="pf-avatar" id="profileAvatar" src=""></div>
+      <h3 id="profileUsername"></h3>
+      <div class="user-badges" id="profileBadges"></div>
+      <div id="profileLevel"></div>
+      <div>
+        <button class="follow-btn" id="profileFollowBtn" style="display:none;margin-top:8px;"></button>
+      </div>
+      <div class="profile-stats">
+        <div><b id="profilePostsCount">0</b><span>منشورات</span></div>
+        <div><b id="profileLikesCount">0</b><span>إعجابات</span></div>
+        <div style="cursor:pointer;" onclick="openFollowersList(currentProfileUid)"><b id="profileFollowersCount">0</b><span>متابعون</span></div>
+      </div>
+    </div>
+    <div class="profile-body">
+      <p id="profileBio" style="font-size:13px;color:var(--text-soft);margin:0 0 14px;white-space:pre-wrap;"></p>
+      <div class="pf-social-row" id="profileSocialRow"></div>
+      <h3 style="font-size:15px;margin:0 0 4px;">رسمات الحساب</h3>
+      <div class="pf-grid" id="profileGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FOLLOWERS LIST MODAL ============ -->
+<div class="overlay" id="followersListOverlay">
+  <div class="modal panel-modal">
+    <button class="modal-close" onclick="closeOverlay('followersListOverlay')"></button>
+    <h3 id="followersListTitle" style="margin:16px 22px 10px;font-size:15px;">متابعون</h3>
+    <div id="followersListBody" style="padding:0 22px 22px;"></div>
+  </div>
+</div>
+
+<!-- ============ ARCHIVE VIEWER (LIGHTBOX) ============ -->
+<div class="overlay" id="archiveViewerOverlay">
+  <div class="modal archive-viewer-modal">
+    <button class="modal-close" onclick="closeArchiveViewer()"></button>
+    <h4 class="archive-viewer-title" id="archiveViewerTitle"></h4>
+    <div id="archiveViewerBody"></div>
+  </div>
+</div>
+
+<!-- ============ GAME DETAIL MODAL ============ -->
+<div class="overlay" id="gameDetailOverlay">
+  <div class="modal game-detail-modal">
+    <button class="modal-close" onclick="closeOverlay('gameDetailOverlay')"></button>
+    <div class="game-detail-grid">
+      <div class="game-detail-side">
+        <img id="gdCover" class="game-detail-cover">
+        <h3 id="gdTitle"></h3>
+        <p id="gdDesc" class="game-detail-desc"></p>
+        <div class="avg-row" id="gdAvgRow"></div>
+        <a id="gdPlayUrl" class="watch" target="_blank" rel="noopener" style="display:none;margin-bottom:12px;">▶ رابط اللعبة</a>
+        <div id="gdRateBox"></div>
+      </div>
+      <div class="game-detail-comments">
+        <div class="my-rate-label" style="margin-bottom:10px;">كل التقييمات والتعليقات</div>
+        <div id="gdAllComments"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SETTINGS MODAL ============ -->
+<div class="overlay" id="settingsOverlay">
+  <div class="modal panel-modal">
+    <button class="modal-close" onclick="closeOverlay('settingsOverlay')"></button>
+    <div class="settings-body">
+      <h2 style="margin-top:0">الإعدادات</h2>
+      <div class="avatar-edit">
+        <img id="settingsAvatarPreview" src="">
+        <div>
+          <button class="small-btn" onclick="onAvatarChosen()">تغيير الصورة</button>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none">
+          <div id="avatarUploadError" style="color:var(--tan);font-size:11.5px;margin-top:6px;display:none;"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label>اسم المستخدم</label>
+        <input type="text" id="usernameInput">
+      </div>
+      <div class="field">
+        <label>الوصف</label>
+        <textarea id="bioInput" rows="3" maxlength="200" placeholder="اكتب نبذة عنك..." style="width:100%;resize:vertical;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;"></textarea>
+      </div>
+      <div class="field">
+        <label>الجنس</label>
+        <div class="gender-row">
+          <div class="gender-opt" id="genderMale" onclick="selectGender('male')">ذكر</div>
+          <div class="gender-opt" id="genderFemale" onclick="selectGender('female')">أنثى</div>
+        </div>
+      </div>
+
+      <div class="settings-subhead">روابط التواصل</div>
+      <div id="socialLinksEditor"></div>
+      <button type="button" class="add-link-btn" id="addLinkBtn" onclick="addSocialLinkRow()">+ إضافة رابط</button>
+
+      <div class="settings-subhead">لون الاسم <span id="nameFxLevelNote" style="font-weight:400;color:var(--text-soft);"></span></div>
+      <div class="fx-grid" id="nameFxGrid"></div>
+
+      <div class="settings-subhead">اطار الصورة <span id="frameFxLevelNote" style="font-weight:400;color:var(--text-soft);"></span></div>
+      <div class="fx-grid" id="frameFxGrid"></div>
+
+      <div class="settings-subhead">خلفية البروفايل <span id="bannerFxLevelNote" style="font-weight:400;color:var(--text-soft);"></span></div>
+      <div class="fx-grid" id="bannerFxGrid"></div>
+
+      <button class="btn-main" onclick="saveSettings()">حفظ التغييرات</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BADGES GALLERY MODAL ============ -->
+<div class="overlay" id="badgesOverlay">
+  <div class="modal panel-modal" style="max-width:640px;max-height:85vh;overflow:auto;">
+    <button class="modal-close" onclick="closeOverlay('badgesOverlay')"></button>
+    <div class="settings-body">
+      <h2 style="margin-top:0;text-align:center;">البادجات </h2>
+      <div class="badges-subhead">بادجات تلقائية</div>
+      <div class="badges-grid" id="autoBadgesGrid"></div>
+      <div class="badges-subhead">بادجات يدوية (من الإدارة)</div>
+      <div class="badges-grid" id="manualBadgesGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MY TICKETS MODAL ============ -->
+<div class="overlay" id="myTicketsOverlay">
+  <div class="modal panel-modal">
+    <button class="modal-close" onclick="closeOverlay('myTicketsOverlay')"></button>
+    <div class="settings-body">
+      <h2 style="margin-top:0;">تذاكري </h2>
+      <button class="btn-main" style="width:auto;padding:11px 26px;margin-bottom:18px;" onclick="openNewTicket()">+ فتح تذكرة جديدة</button>
+      <div id="myTicketsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TICKET CHAT OVERLAY ============ -->
+<div class="overlay ticket-modal" id="ticketChatOverlay">
+  <div class="modal">
+    <div style="padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;">
+      <h3 id="ticketChatTitle" style="margin:0;font-size:15px;flex:1;">تذكرة #</h3>
+      <span id="ticketChatStatus" style="font-size:11px;padding:3px 9px;border-radius:10px;background:var(--paper);"></span>
+      <button id="ticketCloseBtn" style="display:none;font-size:11px;padding:6px 10px;border-radius:14px;border:1px solid var(--line);background:var(--clay);color:#fff;" onclick="closeTicketRoom()">إغلاق التذكرة</button>
+      <button class="modal-close" style="position:static;background:rgba(0,0,0,.3);" onclick="closeOverlay('ticketChatOverlay')"></button>
+    </div>
+    <div id="ticketMessagesList" style="flex:1;overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;"></div>
+    <div id="ticketInputArea" style="padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;">
+      <input type="file" id="ticketImageInput" accept="image/*" style="display:none;" onchange="sendTicketImage(this)">
+      <button onclick="document.getElementById('ticketImageInput').click()" style="width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--paper);flex-shrink:0;"></button>
+      <input type="text" id="ticketTextInput" placeholder="اكتب رسالة..." style="flex:1;min-width:0;width:100%;padding:10px 14px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;caret-color:var(--text);" onkeydown="if(event.key==='Enter') sendTicketText();">
+      <button onclick="sendTicketText()" style="width:38px;height:38px;border-radius:50%;border:none;background:var(--clay);color:#fff;flex-shrink:0;"></button>
+    </div>
+    <div id="ticketClosedNotice" style="display:none;padding:12px 18px;text-align:center;color:var(--text-soft);font-size:12.5px;border-top:1px solid var(--line);">هذي التذكرة مقفولة</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== SOCIAL LINKS ===================== */
+const socials = [
+  { name:"ديسكورد", url:"https://discord.com/invite/5SATZq9eS", color:"#5865F2",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 5.4A17.5 17.5 0 0 0 15.9 4l-.3.6a13 13 0 0 1 3.9 1.5 15.7 15.7 0 0 0-13 0A13 13 0 0 1 10.4 4l-.3-.6a17.5 17.5 0 0 0-4.4 1.4C2.7 9.3 2 13.1 2.3 16.8a17.6 17.6 0 0 0 5.3 2.7l.7-1.1a11 11 0 0 1-1.8-.9l.5-.4a12.6 12.6 0 0 0 10 0l.5.4a11 11 0 0 1-1.8.9l.7 1.1a17.6 17.6 0 0 0 5.3-2.7c.4-4.3-.7-8.1-2.4-11.4ZM9 14.3c-.8 0-1.5-.8-1.5-1.7S8.1 11 9 11s1.5.8 1.5 1.6-.7 1.7-1.5 1.7Zm6 0c-.8 0-1.5-.8-1.5-1.7S14.2 11 15 11s1.5.8 1.5 1.6-.7 1.7-1.5 1.7Z"/></svg>` },
+  { name:"انستغرام", url:"https://www.instagram.com/is3eedxx", color:"#E1306C",
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>` },
+  { name:"يوتيوب", url:"https://www.youtube.com/@S3eeD", color:"#FF0000",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12s0-3.2-.4-4.7a2.8 2.8 0 0 0-2-2C17.9 5 12 5 12 5s-5.9 0-7.6.3a2.8 2.8 0 0 0-2 2C2 8.8 2 12 2 12s0 3.2.4 4.7a2.8 2.8 0 0 0 2 2C6.1 19 12 19 12 19s5.9 0 7.6-.3a2.8 2.8 0 0 0 2-2C22 15.2 22 12 22 12ZM10 15.5v-7l6 3.5-6 3.5Z"/></svg>` },
+  { name:"ستريم لابس", url:"https://streamlabs.com/s3eedxx/tip", color:"#80F5D2",
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.5-7-10a4.5 4.5 0 0 1 7-3.7A4.5 4.5 0 0 1 19 11c0 5.5-7 10-7 10Z"/></svg>` },
+  { name:"تيك توك", url:"https://www.tiktok.com/@is3eedxx", color:"#000000",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 2c.3 2 1.7 3.6 3.7 3.9v3a7 7 0 0 1-3.7-1.1v6.6a5.6 5.6 0 1 1-4.8-5.5v3.1a2.6 2.6 0 1 0 1.8 2.5V2h3Z"/></svg>` },
+  { name:"سناب شات", url:"https://www.snapchat.com/@is3eedxx", color:"#FFFC00",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c3 0 5 2.2 5 5.3 0 1 .1 2.4.3 3 .3.1.9 0 1.3-.2.4-.2.9-.1 1 .3.2.6-.3 1-1 1.4-.1 0-.5.2-.5.5 0 .5.9 1.6 2.6 1.9.3 0 .5.4.3.8-.4.8-1.9 1.1-2.7 1.2 0 .3-.1.7-.2 1-.1.4-.6.5-1.1.4-.5-.1-1-.2-1.7 0-.9.3-1.6 1.4-3.3 1.4s-2.4-1.1-3.3-1.4c-.7-.2-1.2-.1-1.7 0-.5.1-1 0-1.1-.4-.1-.3-.2-.7-.2-1-.8-.1-2.3-.4-2.7-1.2-.2-.4 0-.8.3-.8 1.7-.3 2.6-1.4 2.6-1.9 0-.3-.4-.5-.5-.5-.7-.4-1.2-.8-1-1.4.1-.4.6-.5 1-.3.4.2 1 .3 1.3.2.2-.6.3-2 .3-3C7 4.2 9 2 12 2Z"/></svg>` },
+  { name:"إكس / تويتر", url:"https://x.com/@is3eedxx", color:"#000000",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3l7.5 9.6L3.4 21h2.4l6-6.9 4.7 6.9H21l-7.8-10L20 3h-2.4l-5.5 6.3L7.6 3H3Z"/></svg>` },
+  { name:"باتريون", url:"https://www.patreon.com/S3eeD", color:"#FF424D",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="15" cy="9" r="6"/><rect x="3" y="3" width="3" height="18"/></svg>` },
+  { name:"NameMC", url:"https://namemc.com/profile/S3eeDxx.1", color:"#2B2420",
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 16V8l8 8V8"/></svg>` },
+];
+document.getElementById("socialGrid").innerHTML = socials.map(s => `
+  <a class="s-btn" style="--glow:${s.color}" href="${s.url}" target="_blank" rel="noopener" title="${s.name}">${s.svg}</a>`).join("");
+
+/* ===================== STATS COUNT-UP ===================== */
+function animateCount(el){
+  const target = parseFloat(el.dataset.count);
+  const start = performance.now();
+  function tick(now){
+    const p = Math.min(1, (now - start) / 1400);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(target * eased).toLocaleString("en-US");
+    if(p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+const statObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      animateCount(entry.target);
+      statObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold:.5 });
+document.querySelectorAll(".stat-card b").forEach(el=> statObserver.observe(el));
+
+/* ===================== LIVE YOUTUBE STATS (optional) =====================
+   حط مفتاح YouTube Data API v3 هنا حتى الأرقام تصير حقيقية وتتحدث تلقائياً
+   من قناتك مباشرة. احصل عليه مجاناً من: https://console.cloud.google.com
+   (فعّل "YouTube Data API v3" ثم أنشئ API key). بدون المفتاح، بتضل
+   الأرقام الثابتة اللي فوق (تقدر تعدلها يدوياً بـ data-count بكل بطاقة). */
+const YOUTUBE_API_KEY = "AIzaSyCW5CWf2jrq7yt4hZRzYyy1U4-WNMlU_Wg"; // مفتاح YouTube Data API v3
+const YOUTUBE_CHANNEL_ID = "UCIsVLXrNbgf29eHu5QTSAQQ"; // قناة S3eeD
+
+async function loadLiveChannelStats(){
+  if(!YOUTUBE_API_KEY) return; // ما فيه مفتاح، خلي الأرقام الثابتة
+  try{
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${YOUTUBE_CHANNEL_ID}&key=${YOUTUBE_API_KEY}`);
+    const data = await res.json();
+    if(!res.ok){ console.error("YouTube API request failed:", res.status, data); return; }
+    const stats = data.items && data.items[0] && data.items[0].statistics;
+    if(!stats){ console.error("YouTube API: no statistics returned", data); return; }
+    // مهم: لا نستبدل الرقم بـ 0 إذا الـ API ما رجّع قيمة لحقل معيّن — نخلي الرقم القديم/الثابت زي ما هو
+    const subsEl = document.getElementById("statSubs");
+    const viewsEl = document.getElementById("statViews");
+    const videosEl = document.getElementById("statVideos");
+    if(stats.subscriberCount) subsEl.dataset.count = stats.subscriberCount;
+    if(stats.viewCount) viewsEl.dataset.count = stats.viewCount;
+    if(stats.videoCount) videosEl.dataset.count = stats.videoCount;
+    // إذا القسم صار عالشاشة أصلاً بس ما كان عندنا رقم حقيقي وقتها، حدّثه الآن مباشرة
+    [subsEl, viewsEl, videosEl].forEach(el=>{
+      el.textContent = Number(el.dataset.count).toLocaleString("en-US");
+    });
+  }catch(err){ console.error("YouTube stats fetch failed (network/CORS):", err); }
+}
+loadLiveChannelStats();
+setInterval(loadLiveChannelStats, 10 * 60 * 1000); // تحديث كل 10 دقايق
+
+/* ===================== TWITCH STATS + بثوث السنة + متوسط المشاهدين =====================
+   هذا الجزء كان هنا بس نقلناه لتاق <script type="module"> تحت (بعد تعريف db)
+   لأنه يستخدم doc/onSnapshot/setDoc/runTransaction من Firebase، وهذي ما تشتغل إلا
+   جوا نفس الـ module اللي فيه db — علشان كذا كان العداد يعلق ("بث هالسنة" ما يزيد،
+   و"متوسط المشاهدين" يضل 0)، لأن الكود كان يحاول يستخدم db قبل لا حتى تنعرّف. */
+
+/* ===================== OVERLAY HELPERS ===================== */
+function openOverlay(id){ document.getElementById(id).classList.add("open"); }
+function closeOverlay(id){ document.getElementById(id).classList.remove("open"); }
+window.openOverlay = openOverlay;
+window.closeOverlay = closeOverlay;
+document.querySelectorAll(".overlay").forEach(ov=>{
+  ov.addEventListener("click",(e)=>{ if(e.target===ov) ov.classList.remove("open"); });
+});
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(()=> el.classList.remove("show"), 2200);
+}
+
+/* Auto-open the login modal if navigated here with #login (e.g. from the FAN ART site) */
+if(window.location.hash === "#login"){ openOverlay("authOverlay"); }
+
+/* ===================== LANGUAGE (AR / EN، وFR-ES-DE تعرض حالياً بالإنجليزي مؤقتاً) ===================== */
+const idxTranslations = {
+  ar:{
+    navHome:"الرئيسية", navVideo:"آخر فيديو", navGames:"S3aS3 Games", navArchive:"الأرشيف", navRating:"تقييم الألعاب",
+    navStream:"آخر بث", navSuggest:"الاقتراحات",
+    navSocial:"تابعني", navTickets:"🎫 تذاكري", navBadges:"🏅 البادجات",
+    heroEyebrow:"صانع محتوى", heroTitle:"S3eeD — سعيد",
+    heroDesc:"ماين كرافت هاردكور، سلاسل جديدة، وترندات — محتوى يومي جديد كل ما توفر وقت. انضم لعائلة القناة وتابع كل جديد أول بأول.",
+    watchYoutube:"شاهد على يوتيوب", exploreFanart:"استكشف FAN ART",
+    videoEyebrow:"جديد على القناة", videoTitle:"آخر فيديو 🎬",
+    gamesEyebrow:"جديد كلياً", gamesTitle:"S3aS3 Games 🎮", gameDesc:"لعبة من إنتاج القناة، جربها الآن مباشرة من المتصفح بدون تحميل.", playNow:"▶ العب الآن",
+    twitchTitle:"تويتش", archiveEyebrow:"كليبات وبثوث", archiveTitle:"الأرشيف 📼",
+    streamsYearEyebrow:"إحصائيات الموسم", streamsYearTitle:"بثوث السنة الحالية 📊",
+    ratingEyebrow:"قيّم وشارك رأيك", ratingTitle:"الألعاب 🎮",
+    suggestTitle:"عندك اقتراح؟ 💡", suggestDesc:"شاركنا رأيك، بيوصل لفريق الإدارة مباشرة", suggestBtn:"إرسال اقتراح",
+    socialEyebrow:"تواصل معي", socialTitle:"منصات التواصل",
+    footer:"S3eeD — الموقع الرسمي © 2026", searchPh:"ابحث عن قناة، لعبة، أرشيف...",
+    login:"تسجيل الدخول"
+  },
+  en:{
+    navHome:"Home", navVideo:"Latest video", navGames:"S3aS3 Games", navArchive:"Archive", navRating:"Rate games",
+    navStream:"Latest stream", navSuggest:"Suggestions",
+    navSocial:"Follow", navTickets:"🎫 My tickets", navBadges:"🏅 Badges",
+    heroEyebrow:"Content Creator", heroTitle:"S3eeD",
+    heroDesc:"Hardcore Minecraft, new series, and trends — fresh content whenever there's time. Join the channel family and stay up to date.",
+    watchYoutube:"Watch on YouTube", exploreFanart:"Explore FAN ART",
+    videoEyebrow:"New on the channel", videoTitle:"Latest video 🎬",
+    gamesEyebrow:"Brand new", gamesTitle:"S3aS3 Games 🎮", gameDesc:"A game made by the channel, play it now directly in your browser, no download needed.", playNow:"▶ Play now",
+    twitchTitle:"Twitch", archiveEyebrow:"Clips and streams", archiveTitle:"Archive 📼",
+    streamsYearEyebrow:"Season stats", streamsYearTitle:"This year's streams 📊",
+    ratingEyebrow:"Rate and share your opinion", ratingTitle:"Games 🎮",
+    suggestTitle:"Got a suggestion? 💡", suggestDesc:"Share your opinion, it reaches the team directly", suggestBtn:"Send suggestion",
+    socialEyebrow:"Get in touch", socialTitle:"Social platforms",
+    footer:"S3eeD — Official website © 2026", searchPh:"Search a channel, game, archive...",
+    login:"Sign in"
+  }
+};
+idxTranslations.fr = idxTranslations.en; idxTranslations.es = idxTranslations.en; idxTranslations.de = idxTranslations.en;
+let lang = "ar";
+function applyIdxTranslations(){
+  const d = idxTranslations[lang] || idxTranslations.ar;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang==="ar") ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const key = el.dataset.i18n;
+    if(d[key]) el.textContent = d[key];
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    const key = el.dataset.i18nPh;
+    if(d[key]) el.placeholder = d[key];
+  });
+  const sel = document.getElementById("langSelect");
+  if(sel) sel.value = lang;
+}
+window.setLang = function(v){
+  // تعطيل تبديل اللغة — الموقع عربي فقط
+};
+applyIdxTranslations();
+</script>
+
+<!-- ===================== FIREBASE AUTH (shared account with FAN ART site) ===================== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithCustomToken,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, orderBy, where,
+  limit as fbLimit, onSnapshot, serverTimestamp, runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// نفس مشروع Firebase المستخدم في موقع FAN ART، لذلك تسجيل الدخول هنا يبقى فعالاً هناك تلقائياً
+const firebaseConfig = {
+  apiKey: "AIzaSyCjThTQY9XutIjTSs7T7PSutEl-Xoo3OII",
+  authDomain: "s3as3-art.firebaseapp.com",
+  projectId: "s3as3-art",
+  storageBucket: "s3as3-art.firebasestorage.app",
+  messagingSenderId: "438396515177",
+  appId: "1:438396515177:web:a4eea1975abd0b3bcf83f8",
+  measurementId: "G-TR67CYJJLW"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth = getAuth(fbApp);
+const db = getFirestore(fbApp);
+const googleProvider = new GoogleAuthProvider();
+
+/* ===================== DISCORD LOGIN (مجاني، عبر Netlify Function) =====================
+   ديسكورد ليس مدعوماً افتراضياً في Firebase (يحتاج خطة Blaze)، فبدل هالحل المدفوع
+   نستخدم مسار redirect عادي: نرسل المستخدم لصفحة موافقة ديسكورد، وديسكورد يرجّعه
+   لدالة Netlify (discord-callback) اللي تصنع Firebase Custom Token وترجّعه هنا. */
+const DISCORD_CLIENT_ID = "1526685627070808255";
+const DISCORD_REDIRECT_URI = "https://cheery-begonia-4f8ec5.netlify.app/.netlify/functions/discord-callback";
+
+/* ===================== TWITCH STATS =====================
+   عدد المتابعين فقط: يجيب مباشرة بدون أي مفتاح (خدمة عامة مجانية: decapi.me).
+   حذفنا عرض عدد البثوث المؤرشفة ومشاهداتها بناءً على طلبك، وعوضناها بقسم
+   "بثوث السنة الحالية" اللي رقمه يتحدث تلقائياً (شوف القسم تحت).
+   (هذا الجزء لازم يكون هنا جوا الـ module، مو بالـ script العادي فوق، عشان يقدر
+   يستخدم db/doc/onSnapshot/setDoc/runTransaction المعرّفين فوق بنفس الملف.) */
+const TWITCH_CHANNEL = "s3eedxx";
+
+// إمبيد البث: يتحمّل بس لما البث يكون لايف فعلاً. لما يكون أوفلاين نعرض مكانه رسالة "غير متصل"
+// بدل ما نحمّل إمبيد تويتش (اللي يطلع صفحة خطأ تويتش لو حمّلناه وهو أوفلاين). لازم parent يطابق الدومين اللي الموقع شغال عليه
+function setTwitchEmbedLive(isLive){
+  const frame = document.getElementById("twitchEmbedFrame");
+  const placeholder = document.getElementById("twitchOfflinePlaceholder");
+  if(!frame || !placeholder) return;
+  if(isLive){
+    const parent = window.location.hostname || "localhost";
+    const embedSrc = `https://player.twitch.tv/?channel=${TWITCH_CHANNEL}&parent=${parent}&muted=true`;
+    if(frame.src !== embedSrc){
+      frame.src = embedSrc;
+    }
+    frame.style.display = "block";
+    placeholder.style.display = "none";
+  } else {
+    frame.style.display = "none";
+    placeholder.style.display = "flex";
+  }
+}
+
+async function loadTwitchFollowers(){
+  try{
+    const res = await fetch(`https://decapi.me/twitch/followcount/${TWITCH_CHANNEL}`);
+    const text = (await res.text()).trim();
+    const n = parseInt(text.replace(/[^\d]/g,""), 10);
+    if(!isNaN(n)){
+      const el = document.getElementById("statTwitchFollowers");
+      el.dataset.count = n;
+      el.textContent = n.toLocaleString("en-US");
+    }
+  }catch(err){ console.error("Twitch follower fetch failed:", err); }
+}
+
+/* ===================== بثوث السنة الحالية (تلقائي) =====================
+   الرقم محفوظ بـ Firestore (مستند stats/streamsYear)، وكل ما سعيد يفتح
+   بث جديد (ينتقل من "غير متصل" لـ "مباشر") يزيد وحدة تلقائياً لكل الزوار،
+   بدون ما حد يعدل الكود يدوياً. */
+const STREAMS_YEAR_FALLBACK = 110;
+const streamsYearRef = doc(db, "stats", "streamsYear");
+const streamsYearEl = document.getElementById("statStreamsYear");
+let streamsYearBaselineChecked = false;
+
+onSnapshot(streamsYearRef, (snap)=>{
+  if(!streamsYearEl) return;
+  const n = snap.exists() ? (snap.data().count || 0) : STREAMS_YEAR_FALLBACK;
+  streamsYearEl.dataset.count = n;
+  streamsYearEl.textContent = n.toLocaleString("en-US");
+
+  // تصحيح تلقائي بصمت مرة وحدة: لو الرقم المحفوظ لسا أقل من 110، نرفعه لـ 110
+  // (بدون أي زر أو تدخل يدوي)، وبعدها العداد يزيد لحاله طبيعي من 110 صعوداً كل ما يبدأ بث جديد (111، 112، 113...) وبدون أي سقف.
+  if(!streamsYearBaselineChecked){
+    streamsYearBaselineChecked = true;
+    if(snap.exists() && (snap.data().count || 0) < STREAMS_YEAR_FALLBACK){
+      setDoc(streamsYearRef, { count: STREAMS_YEAR_FALLBACK }, { merge:true })
+        .catch(err=> console.error("streamsYear baseline fix failed:", err));
+    } else if(!snap.exists()){
+      setDoc(streamsYearRef, { count: STREAMS_YEAR_FALLBACK, lastStatus:"offline" }, { merge:true })
+        .catch(err=> console.error("streamsYear baseline create failed:", err));
+    }
+  }
+}, (err)=> console.error("streamsYear listener error — إذا كان الكود permission-denied، لازم تسمح Firestore Rules بالقراءة لمستند stats/streamsYear:", err));
+
+// يزيد العداد وحدة بس أول لحظة ينتقل فيها البث من "غير متصل" إلى "مباشر"
+// (transaction عشان لو أكثر من زائر بنفس اللحظة يتأكدون، ما يصير عد مكرر)
+async function bumpStreamCountOnGoLive(isLive){
+  try{
+    await runTransaction(db, async (tx)=>{
+      const snap = await tx.get(streamsYearRef);
+      if(!snap.exists()){
+        tx.set(streamsYearRef, {
+          count: isLive ? STREAMS_YEAR_FALLBACK + 1 : STREAMS_YEAR_FALLBACK,
+          lastStatus: isLive ? "live" : "offline"
+        });
+        return;
+      }
+      const data = snap.data();
+      const lastStatus = data.lastStatus || "offline";
+      const baseCount = Math.max(data.count || 0, STREAMS_YEAR_FALLBACK);
+      if(isLive && lastStatus !== "live"){
+        tx.update(streamsYearRef, { count: baseCount + 1, lastStatus: "live" });
+      } else if(!isLive && lastStatus !== "offline"){
+        tx.update(streamsYearRef, { lastStatus: "offline" });
+      }
+    });
+  }catch(err){ console.error("bumpStreamCountOnGoLive failed — إذا كان الكود permission-denied، لازم تسمح Firestore Rules بالكتابة على مستند stats/streamsYear:", err); }
+}
+
+/* ===================== متوسط المشاهدين (يتبع حالة البث) =====================
+   وإحنا لايف: كل ساعتين ياخذ رقم جديد بين 45 و84 (محفوظ بفايرستور، فيبان نفس الرقم
+   لكل الزوار). ولما البث يوقف (يصير أوفلاين): الرقم يتجمد على آخر قيمة كانت وقت آخر
+   نافذة ساعتين من آخر بث، وما يتغير لين يبدأ بث جديد. */
+const AVG_VIEWERS_MIN = 45;
+const AVG_VIEWERS_MAX = 84;
+const AVG_VIEWERS_WINDOW_MS = 2 * 60 * 60 * 1000; // ساعتين
+const avgViewersRef = doc(db, "stats", "avgViewers");
+const avgViewersEl = document.getElementById("statAvgViewers");
+
+// مولد أرقام شبه عشوائي بنتيجة ثابتة لنفس الـ seed (نفس الرقم لكل الزوار بنفس فترة النص ساعة)
+function seededRandom01(seed){
+  let t = seed += 0x6D2B79F5;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+}
+
+onSnapshot(avgViewersRef, (snap)=>{
+  if(!avgViewersEl) return;
+  const data = snap.exists() ? snap.data() : null;
+  // لو ما فيه رقم محفوظ لحد الحين (يعني ما صار بث لايف بعد من وقت ما ركبنا هالنظام)،
+  // نعرض رقم افتراضي بدل الصفر لين يبدأ أول بث ويحسب رقم حقيقي.
+  const n = (data && data.value) ? data.value : (AVG_VIEWERS_MIN + Math.floor(seededRandom01(Math.floor(Date.now() / AVG_VIEWERS_WINDOW_MS)) * (AVG_VIEWERS_MAX - AVG_VIEWERS_MIN + 1)));
+  avgViewersEl.dataset.count = n;
+  avgViewersEl.textContent = n.toLocaleString("en-US");
+}, (err)=> console.error("avgViewers listener error — إذا كان الكود permission-denied، لازم تسمح Firestore Rules بالقراءة لمستند stats/avgViewers:", err));
+
+// يتفحص وقت كل تحقق من حالة تويتش (loadTwitchLiveStatus): لو لايف ودخلنا فترة نص ساعة
+// جديدة يولّد رقم جديد ويحفظه، ولو أوفلاين يسيب الرقم المحفوظ زي ما هو (متجمد).
+async function updateAvgViewersOnLiveCheck(isLive){
+  try{
+    await runTransaction(db, async (tx)=>{
+      const snap = await tx.get(avgViewersRef);
+      const data = snap.exists() ? snap.data() : { value:0, windowIndex:-1, lastStatus:"offline" };
+      if(isLive){
+        const windowIndex = Math.floor(Date.now() / AVG_VIEWERS_WINDOW_MS);
+        if(data.windowIndex !== windowIndex || data.lastStatus !== "live"){
+          const r = seededRandom01(windowIndex);
+          const value = AVG_VIEWERS_MIN + Math.floor(r * (AVG_VIEWERS_MAX - AVG_VIEWERS_MIN + 1));
+          tx.set(avgViewersRef, { value, windowIndex, lastStatus:"live" }, { merge:true });
+        }
+      } else if(data.lastStatus !== "offline"){
+        tx.set(avgViewersRef, { lastStatus:"offline" }, { merge:true });
+      }
+    });
+  }catch(err){ console.error("updateAvgViewersOnLiveCheck failed — إذا كان الكود permission-denied، لازم تسمح Firestore Rules بالكتابة على مستند stats/avgViewers:", err); }
+}
+
+async function loadTwitchLiveStatus(){
+  const badge = document.getElementById("twitchLiveBadge");
+  try{
+    const res = await fetch(`https://decapi.me/twitch/uptime/${TWITCH_CHANNEL}`);
+    const text = (await res.text()).trim().toLowerCase();
+    const isLive = text && !text.includes("offline") && !text.includes("error");
+    if(isLive){
+      badge.textContent = "🔴 مباشر الآن";
+      badge.style.background = "#6F4E37";
+      badge.style.color = "#fff";
+    } else {
+      badge.textContent = "⚫ غير متصل";
+      badge.style.background = "var(--paper)";
+      badge.style.color = "var(--text-soft)";
+    }
+    setTwitchEmbedLive(isLive);
+    bumpStreamCountOnGoLive(isLive);
+    updateAvgViewersOnLiveCheck(isLive);
+  }catch(err){ console.error("Twitch live status fetch failed:", err); }
+}
+
+loadTwitchFollowers();
+loadTwitchLiveStatus();
+setInterval(loadTwitchFollowers, 10 * 60 * 1000);
+setInterval(loadTwitchLiveStatus, 2 * 60 * 1000); // فحص كل دقيقتين، بدون أي مفتاح
+
+let currentUser = null;
+let myProfile = null;
+
+function avatarFallback(uid){
+  const colors = ["6F4E37","7C8B6F","B8966A","5C4033"];
+  const c = colors[Math.abs(hashCode(uid)) % colors.length];
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${uid}&backgroundColor=${c}`;
+}
+function hashCode(str){ let h=0; for(let i=0;i<str.length;i++){ h = (h<<5)-h + str.charCodeAt(i); h|=0; } return h; }
+
+/* ===================== SOCIAL PLATFORMS (روابط بروفايل المستخدم) ===================== */
+const SOCIAL_PLATFORMS = {
+  instagram: { name:"انستغرام", color:"#E1306C",
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>` },
+  tiktok: { name:"تيك توك", color:"#000000",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 2c.3 2 1.7 3.6 3.7 3.9v3a7 7 0 0 1-3.7-1.1v6.6a5.6 5.6 0 1 1-4.8-5.5v3.1a2.6 2.6 0 1 0 1.8 2.5V2h3Z"/></svg>` },
+  x: { name:"إكس / تويتر", color:"#000000",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3l7.5 9.6L3.4 21h2.4l6-6.9 4.7 6.9H21l-7.8-10L20 3h-2.4l-5.5 6.3L7.6 3H3Z"/></svg>` },
+  youtube: { name:"يوتيوب", color:"#FF0000",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12s0-3.2-.4-4.7a2.8 2.8 0 0 0-2-2C17.9 5 12 5 12 5s-5.9 0-7.6.3a2.8 2.8 0 0 0-2 2C2 8.8 2 12 2 12s0 3.2.4 4.7a2.8 2.8 0 0 0 2 2C6.1 19 12 19 12 19s5.9 0 7.6-.3a2.8 2.8 0 0 0 2-2C22 15.2 22 12 22 12ZM10 15.5v-7l6 3.5-6 3.5Z"/></svg>` },
+  discord: { name:"ديسكورد", color:"#5865F2",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 5.4A17.5 17.5 0 0 0 15.9 4l-.3.6a13 13 0 0 1 3.9 1.5 15.7 15.7 0 0 0-13 0A13 13 0 0 1 10.4 4l-.3-.6a17.5 17.5 0 0 0-4.4 1.4C2.7 9.3 2 13.1 2.3 16.8a17.6 17.6 0 0 0 5.3 2.7l.7-1.1a11 11 0 0 1-1.8-.9l.5-.4a12.6 12.6 0 0 0 10 0l.5.4a11 11 0 0 1-1.8.9l.7 1.1a17.6 17.6 0 0 0 5.3-2.7c.4-4.3-.7-8.1-2.4-11.4ZM9 14.3c-.8 0-1.5-.8-1.5-1.7S8.1 11 9 11s1.5.8 1.5 1.6-.7 1.7-1.5 1.7Zm6 0c-.8 0-1.5-.8-1.5-1.7S14.2 11 15 11s1.5.8 1.5 1.6-.7 1.7-1.5 1.7Z"/></svg>` },
+  snapchat: { name:"سناب شات", color:"#FFFC00",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c3 0 5 2.2 5 5.3 0 1 .1 2.4.3 3 .3.1.9 0 1.3-.2.4-.2.9-.1 1 .3.2.6-.3 1-1 1.4-.1 0-.5.2-.5.5 0 .5.9 1.6 2.6 1.9.3 0 .5.4.3.8-.4.8-1.9 1.1-2.7 1.2 0 .3-.1.7-.2 1-.1.4-.6.5-1.1.4-.5-.1-1-.2-1.7 0-.9.3-1.6 1.4-3.3 1.4s-2.4-1.1-3.3-1.4c-.7-.2-1.2-.1-1.7 0-.5.1-1 0-1.1-.4-.1-.3-.2-.7-.2-1-.8-.1-2.3-.4-2.7-1.2-.2-.4 0-.8.3-.8 1.7-.3 2.6-1.4 2.6-1.9 0-.3-.4-.5-.5-.5-.7-.4-1.2-.8-1-1.4.1-.4.6-.5 1-.3.4.2 1 .3 1.3.2.2-.6.3-2 .3-3C7 4.2 9 2 12 2Z"/></svg>` },
+  twitch: { name:"تويتش", color:"#9146FF",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 2 2.5 6v13h5V21l3-2h3.5L19 14V2H4Zm13 11-2.5 2.5H11l-2 2v-2H6V4h11v9Z"/><rect x="9" y="6.5" width="1.8" height="5"/><rect x="13" y="6.5" width="1.8" height="5"/></svg>` },
+  kick: { name:"كيك", color:"#53FC18",
+    svg:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 3h5v6l5-6h6l-7 8 7 10h-6l-5-7v7H4V3Z"/></svg>` },
+  other: { name:"رابط آخر", color:"#6F4E37",
+    svg:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 15 15 9M10.5 6.5l1-1a4 4 0 0 1 5.6 5.6l-1 1M13.5 17.5l-1 1a4 4 0 0 1-5.6-5.6l1-1"/></svg>` }
+};
+
+/* ===================== EFFECTS CATALOG (يتفتحون بتطور اللفلات) ===================== */
+const NAME_EFFECTS = [
+  { id:"none",      label:"بدون تأثير",       minLevel:1,  cls:"" },
+  { id:"gold",      label:"ذهبي لامع",        minLevel:5,  cls:"name-fx-gold" },
+  { id:"copper",    label:"نحاسي متأكسد",     minLevel:8,  cls:"name-fx-copper" },
+  { id:"neon",      label:"نيون متحرك",       minLevel:10, cls:"name-fx-neon" },
+  { id:"emerald",   label:"زمردي متلألئ",     minLevel:15, cls:"name-fx-emerald" },
+  { id:"fire",      label:"نار متوهجة",       minLevel:20, cls:"name-fx-fire" },
+  { id:"ice",       label:"جليدي متوهج",      minLevel:25, cls:"name-fx-ice" },
+  { id:"rainbow",   label:"قوس قزح متحرك",    minLevel:30, cls:"name-fx-rainbow" },
+  { id:"end",       label:"توهج الاند",       minLevel:40, cls:"name-fx-end" },
+  { id:"diamond",   label:"تألق الماس",       minLevel:50, cls:"name-fx-diamond" },
+  { id:"netherite", label:"نذرايت أسطوري",    minLevel:60, cls:"name-fx-netherite" },
+  { id:"galaxy",    label:"مجرة كونية",       minLevel:70, cls:"name-fx-galaxy" },
+];
+const FRAME_EFFECTS = [
+  { id:"none",      label:"بدون اطار",      minLevel:1,  cls:"" },
+  { id:"wood",      label:"اطار خشبي",      minLevel:5,  cls:"frame-fx-wood" },
+  { id:"copper",    label:"اطار نحاسي",     minLevel:8,  cls:"frame-fx-copper" },
+  { id:"pulse",     label:"اطار نابض",      minLevel:10, cls:"frame-fx-pulse" },
+  { id:"emerald",   label:"اطار زمردي",     minLevel:15, cls:"frame-fx-emerald" },
+  { id:"spin",      label:"اطار دوّار",     minLevel:20, cls:"frame-fx-spin" },
+  { id:"ice",       label:"اطار جليدي",     minLevel:25, cls:"frame-fx-ice" },
+  { id:"rainbow",   label:"قوس قزح",        minLevel:30, cls:"frame-fx-rainbow" },
+  { id:"end",       label:"اطار الاند",     minLevel:40, cls:"frame-fx-end" },
+  { id:"diamond",   label:"اطار الماس",     minLevel:50, cls:"frame-fx-diamond" },
+  { id:"netherite", label:"اطار نذرايت",    minLevel:60, cls:"frame-fx-netherite" },
+  { id:"galaxy",    label:"اطار مجرة",      minLevel:70, cls:"frame-fx-galaxy" },
+];
+const BANNER_EFFECTS = [
+  { id:"none",      label:"افتراضي",         minLevel:1,  cls:"" },
+  { id:"forest",    label:"أخضر الغابة",     minLevel:5,  cls:"banner-fx-forest" },
+  { id:"ocean",     label:"أزرق المحيط",     minLevel:5,  cls:"banner-fx-ocean" },
+  { id:"copper",    label:"نحاسي متأكسد",    minLevel:8,  cls:"banner-fx-copper" },
+  { id:"sunset",    label:"غروب الشمس",      minLevel:10, cls:"banner-fx-sunset" },
+  { id:"purple",    label:"أرجواني ملكي",    minLevel:10, cls:"banner-fx-purple" },
+  { id:"emerald",   label:"زمردي فاخر",      minLevel:15, cls:"banner-fx-emerald" },
+  { id:"gold",      label:"ذهبي فخم",        minLevel:20, cls:"banner-fx-gold" },
+  { id:"ice",       label:"جليدي متلألئ",    minLevel:25, cls:"banner-fx-ice" },
+  { id:"fire",      label:"حمم متحركة",      minLevel:30, cls:"banner-fx-fire" },
+  { id:"aurora",    label:"شفق متحرك",       minLevel:30, cls:"banner-fx-aurora" },
+  { id:"end",       label:"أبعاد الاند",     minLevel:40, cls:"banner-fx-end" },
+  { id:"rainbow",   label:"قوس قزح متحرك",   minLevel:50, cls:"banner-fx-rainbow" },
+  { id:"netherite", label:"نذرايت أسطوري",   minLevel:60, cls:"banner-fx-netherite" },
+  { id:"galaxy",    label:"مجرة كونية",      minLevel:70, cls:"banner-fx-galaxy" },
+];
+function nameEffectFor(id){ return NAME_EFFECTS.find(e=>e.id===id) || NAME_EFFECTS[0]; }
+function frameEffectFor(id){ return FRAME_EFFECTS.find(e=>e.id===id) || FRAME_EFFECTS[0]; }
+function bannerEffectFor(id){ return BANNER_EFFECTS.find(e=>e.id===id) || BANNER_EFFECTS[0]; }
+
+async function ensureUserDoc(user, extra={}){
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+  if(!snap.exists()){
+    const profile = {
+      username: extra.username || (user.displayName || (user.email ? user.email.split("@")[0] : "user")),
+      avatarUrl: extra.avatarUrl || user.photoURL || avatarFallback(user.uid),
+      gender: "male",
+      followersCount: 0,
+      seenBadges: [],
+      seenLevel: 1,
+      socialLinks: [],
+      nameEffect: "none",
+      frameEffect: "none",
+      bannerEffect: "none",
+      createdAt: serverTimestamp()
+    };
+    await setDoc(ref, profile);
+    return { id:user.uid, ...profile };
+  }
+  return { id:user.uid, ...snap.data() };
+}
+
+function renderAuthArea(){
+  const area = document.getElementById("authArea");
+  if(!currentUser || !myProfile){
+    area.innerHTML = `<button class="auth-btn" onclick="window.openOverlay('authOverlay')">تسجيل الدخول</button>`;
+    return;
+  }
+  const isStaff = !!myProfile.role; // أي رتبة إدارية (owner/admin/assistant/rater/artist لا تحسب كـ staff هون بس نكتفي بالتحقق البسيط)
+  const staffRoles = ["owner","admin","assistant","rater"];
+  const roleLabels = { owner:"👑 Owner", admin:"🛡️ Admin", assistant:"🧩 مساعد أدمن", rater:"🎨 مقيم رسامين" };
+  const hasAdminAccess = staffRoles.includes(myProfile.role);
+  area.innerHTML = `
+    <div class="dropdown" style="display:flex;align-items:center;gap:4px;">
+      <button class="avatar-btn" title="بروفايلي" onclick="openMyProfile()">
+        <img src="${myProfile.avatarUrl || avatarFallback(currentUser.uid)}">
+      </button>
+      <button class="avatar-caret-btn" title="القائمة" onclick="document.getElementById('userMenu').classList.toggle('open')">▾</button>
+      <div class="dropdown-menu" id="userMenu">
+        ${myProfile.role ? `<div style="padding:6px 12px 2px;font-size:11px;font-weight:800;color:var(--tan);">${roleLabels[myProfile.role]||""}</div>` : ""}
+        <button onclick="document.getElementById('userMenu').classList.remove('open'); openMyProfile();">👤 بروفايلي</button>
+        <button onclick="document.getElementById('userMenu').classList.remove('open'); openMySettings();">⚙️ الإعدادات</button>
+        <button onclick="document.getElementById('userMenu').classList.remove('open'); openMyTickets();">🎫 تذاكري</button>
+        <button onclick="window.location.href='fanart.html'">🎨 رسمات الحساب</button>
+        ${hasAdminAccess ? `<button onclick="window.location.href='fanart.html#admin'">🛡️ لوحة الإدارة</button>` : ""}
+        <button id="logoutBtn">🚪 تسجيل الخروج</button>
+      </div>
+    </div>`;
+  document.getElementById("logoutBtn").onclick = ()=> signOut(auth);
+}
+
+function showAuthError(msg){
+  const el = document.getElementById("authError");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+function clearAuthError(){ document.getElementById("authError").style.display = "none"; }
+
+function handleAuthError(err){
+  const map = {
+    "auth/wrong-password":"كلمة المرور غير صحيحة",
+    "auth/invalid-credential":"كلمة المرور غير صحيحة",
+    "auth/weak-password":"كلمة المرور ضعيفة جداً (6 أحرف على الأقل)",
+    "auth/invalid-email":"البريد الإلكتروني غير صالح",
+    "auth/too-many-requests":"محاولات كثيرة، حاول لاحقاً",
+    "auth/network-request-failed":"تعذر الاتصال، تحقق من الشبكة"
+  };
+  showAuthError(map[err.code] || "حدث خطأ، حاول مرة أخرى");
+}
+
+window.loginWithGoogle = async function(){
+  clearAuthError();
+  try{
+    const result = await signInWithPopup(auth, googleProvider);
+    await ensureUserDoc(result.user);
+    finishLogin();
+  }catch(err){ handleAuthError(err); }
+};
+window.loginWithDiscord = function(){
+  clearAuthError();
+  const authorizeUrl = "https://discord.com/oauth2/authorize"
+    + "?client_id=" + encodeURIComponent(DISCORD_CLIENT_ID)
+    + "&redirect_uri=" + encodeURIComponent(DISCORD_REDIRECT_URI)
+    + "&response_type=code"
+    + "&scope=" + encodeURIComponent("identify email");
+  window.location.href = authorizeUrl; // يطلع من الموقع ويرجع بعد ما يوافق المستخدم
+};
+
+// لما ديسكورد يرجّع المستخدم عبر دالة Netlify، الرابط يجي بصيغة:
+// index.html#discordToken=xxxx  أو  index.html#discordError=xxxx
+async function handleDiscordRedirectResult(){
+  const hash = window.location.hash;
+  if(hash.startsWith("#discordToken=")){
+    const token = decodeURIComponent(hash.replace("#discordToken=", ""));
+    try{
+      const result = await signInWithCustomToken(auth, token);
+      const idTokenResult = await result.user.getIdTokenResult();
+      const claims = idTokenResult.claims || {};
+      await ensureUserDoc(result.user, {
+        username: claims.username,
+        avatarUrl: claims.avatar
+      });
+      finishLogin();
+    }catch(err){
+      handleAuthError(err);
+      openOverlay("authOverlay");
+    }
+  } else if(hash.startsWith("#discordError=")){
+    showAuthError("تعذر تسجيل الدخول عبر ديسكورد، حاول مرة أخرى");
+    openOverlay("authOverlay");
+    history.replaceState(null, "", window.location.pathname);
+  }
+}
+
+function finishLogin(){
+  window.closeOverlay("authOverlay");
+  history.replaceState(null, "", window.location.pathname);
+  toast("تم تسجيل الدخول");
+}
+
+onAuthStateChanged(auth, async (user)=>{
+  currentUser = user;
+  if(user){
+    myProfile = await ensureUserDoc(user);
+  } else {
+    myProfile = null;
+  }
+  renderAuthArea();
+  renderRatingGames(); // إعادة رسم الألعاب لتحديث تقييمي الشخصي بعد تسجيل الدخول/الخروج
+  subscribeTickets();
+  subscribeNotifications();
+  checkProgressForMe();
+});
+
+// نتحقق مرة وحدة عند تحميل الصفحة إذا كان المستخدم راجع للتو من ديسكورد
+handleDiscordRedirectResult();
+
+function escapeHtml(s){
+  return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function requireLogin(){
+  if(!currentUser){
+    openOverlay("authOverlay");
+    toast("سجّل الدخول أول");
+    return false;
+  }
+  return true;
+}
+
+/* ===================== USERS CACHE (لأسماء وصور المعلّقين) ===================== */
+let allChannels = {};
+onSnapshot(query(collection(db,"users"), fbLimit(300)), (snap)=>{
+  allChannels = {};
+  snap.forEach(d=> allChannels[d.id] = { id:d.id, ...d.data() });
+  renderRatingGames();
+  checkProgressForMe();
+}, (err)=> console.error("users listener error", err));
+function channelOf(uid){
+  return allChannels[uid] || { username:"مستخدم", avatarUrl: avatarFallback(uid||"x") };
+}
+
+/* ===================== ARTWORKS (عرض فقط — لحساب البادجات وشبكة رسمات البروفايل) ===================== */
+let allArtworks = [];
+onSnapshot(query(collection(db,"artworks"), fbLimit(1000)), (snap)=>{
+  allArtworks = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+  checkProgressForMe();
+}, (err)=> console.error("artworks listener error", err));
+
+/* ===================== BADGES (نفس تعريفات فان آرت بالضبط) ===================== */
+const BADGE_SEAL_PATH = "M41.1,20L39.8,21.6L37.1,22.7L35.5,23.7L36.1,25.2L38,27.5L38.8,29.6L37.2,30.5L34.3,30.4L32.1,30.4L31.8,31.8L32.4,34.5L32.3,37L30.7,37.5L28.2,36.1L26.2,34.9L25.1,35.6L24.4,38.2L23.3,40.6L21.6,40.7L20,38.5L18.7,36.2L17.5,36L15.7,37.8L13.6,39.6L12,39.3L11.4,36.8L11.4,34.1L10.6,33L8.4,33.6L5.6,34.4L4,33.7L4.4,31.3L5.7,28.8L5.8,27.2L3.8,26.7L1,26.2L-0.5,24.9L0.6,23.1L2.9,21.3L4.1,20L2.9,18.7L0.6,16.9L-0.5,15.1L1,13.8L3.8,13.3L5.8,12.8L5.7,11.2L4.4,8.7L4,6.3L5.6,5.6L8.4,6.4L10.6,7L11.4,5.9L11.4,3.2L12,0.7L13.6,0.4L15.7,2.2L17.5,4L18.7,3.8L20,1.5L21.6,-0.7L23.3,-0.6L24.4,1.8L25.1,4.4L26.2,5.1L28.2,3.9L30.7,2.5L32.3,3L32.4,5.5L31.8,8.2L32.1,9.6L34.3,9.6L37.2,9.5L38.8,10.4L38,12.5L36.1,14.8L35.5,16.3L37.1,17.3L39.8,18.4Z";
+const BADGE_DEFS = {
+  first_art:  { color:"#6F4E37", glyph:'<path d="M27,9L31,13L18,26L12,28L14,22Z" fill="#fff"/>',
+                ar:"أول رسمة",       en:"First Artwork",      ar_desc:"أول ما ينشر رسمته الأولى",             type:"auto" },
+  active:     { color:"#F2762E", glyph:'<path d="M20,8c1,3,-2,4,-2,7c0,2,1.5,3,3,3s3,-1,3,-3c2,2,3,4.5,3,7c0,4.4,-3.1,8,-7,8s-8,-3.6,-8,-8c0,-6,5,-9,8,-14z" fill="#fff"/>',
+                ar:"نشيط",           en:"Active",             ar_desc:"نشر 10+ رسمات",                        type:"auto" },
+  popular:    { color:"#E0A82E", glyph:'<polygon points="20.0,10.5 22.3,16.8 29.0,17.1 23.7,21.2 25.6,27.7 20.0,23.9 14.4,27.7 16.3,21.2 11.0,17.1 17.7,16.8" fill="#fff"/>',
+                ar:"شعبي",           en:"Popular",            ar_desc:"رسمة وحدة وصلت 50+ إعجاب",             type:"auto" },
+  veteran:    { color:"#8A5A2B", glyph:'<path d="M11,26L13,15L18,20L20,12L22,20L27,15L29,26Z" fill="#fff"/>',
+                ar:"مخضرم",          en:"Veteran",            ar_desc:"عضو من أكتر من 3 شهور",                type:"auto" },
+  month1:     { color:"#7A9E7E", glyph:'<rect x="11" y="10" width="18" height="18" rx="2" fill="#fff"/><rect x="11" y="10" width="18" height="6" fill="#7A9E7E"/><text x="20" y="26" text-anchor="middle" font-size="11" font-weight="900" fill="#7A9E7E" font-family="Arial,sans-serif">1</text>',
+                ar:"شهر معنا",       en:"One Month",          ar_desc:"مر شهر كامل وهو عضو بالمجتمع",         type:"auto" },
+  month6:     { color:"#6E8FB5", glyph:'<rect x="11" y="10" width="18" height="18" rx="2" fill="#fff"/><rect x="11" y="10" width="18" height="6" fill="#6E8FB5"/><text x="20" y="26" text-anchor="middle" font-size="11" font-weight="900" fill="#6E8FB5" font-family="Arial,sans-serif">6</text>',
+                ar:"6 أشهر",         en:"Six Months",         ar_desc:"مرت 6 أشهر وهو عضو بالمجتمع",          type:"auto" },
+  month9:     { color:"#A67AB5", glyph:'<rect x="11" y="10" width="18" height="18" rx="2" fill="#fff"/><rect x="11" y="10" width="18" height="6" fill="#A67AB5"/><text x="20" y="26" text-anchor="middle" font-size="11" font-weight="900" fill="#A67AB5" font-family="Arial,sans-serif">9</text>',
+                ar:"9 أشهر",         en:"Nine Months",        ar_desc:"مرت 9 أشهر وهو عضو بالمجتمع",          type:"auto" },
+  influencer: { color:"#6C63C7", glyph:'<path d="M13,18L13,22L17,22L26,27L26,13L17,18Z" fill="#fff"/><path d="M14,22L16,22L16,26L14,25.5Z" fill="#fff"/>',
+                ar:"مؤثر",           en:"Influencer",         ar_desc:"عنده 20+ متابع",                       type:"auto" },
+  founder:    { color:"#5FA777", glyph:'<path d="M20,30c-6,0,-10,-4,-10,-10c0,-8,8,-12,14,-12c0,8,-2,14,-8,18c4,-1,8,-4,10,-9c1,7,-2,13,-6,13z" fill="#fff"/>',
+                ar:"عضو مؤسس",       en:"Founding Member",    ar_desc:"من أول 50 عضو بالموقع",                type:"auto" },
+  first_member:{ color:"#C9A227", glyph:'<path d="M20,30c-6,0,-10,-4,-10,-10c0,-8,8,-12,14,-12c0,8,-2,14,-8,18c4,-1,8,-4,10,-9c1,7,-2,13,-6,13z" fill="#fff"/><circle cx="20" cy="16" r="6" fill="#C9A227"/><text x="20" y="19.5" text-anchor="middle" font-size="9" font-weight="900" fill="#fff" font-family="Arial,sans-serif">1</text>',
+                ar:"العضو الأول",    en:"The Very First Member",ar_desc:"أول عضو انسجل بالموقع على الإطلاق",   type:"auto" },
+  anniversary:{ color:"#E08DA6", glyph:'<rect x="11" y="19" width="18" height="11" rx="2" fill="#fff"/><rect x="11" y="19" width="18" height="3" fill="#000" opacity="0.18"/><rect x="19" y="12" width="2" height="6" fill="#fff"/><path d="M20,7c-1,2,1,2,1,4c0,1,-0.5,1.5,-1,1.5s-1,-0.5,-1,-1.5c0,-2,2,-2,1,-4z" fill="#fff"/>',
+                ar:"سنة معنا",       en:"One Year Anniversary",ar_desc:"مرت سنة كاملة وهو عضو بالمجتمع",       type:"auto" },
+  prolific:   { color:"#2F8F9E", glyph:'<rect x="10" y="14" width="16" height="12" rx="2" fill="#fff" opacity="0.55"/><rect x="14" y="18" width="16" height="12" rx="2" fill="#fff"/><circle cx="19" cy="22.5" r="1.6" fill="#2F8F9E"/><path d="M15,29L19,24L22,27L26,22L29,29Z" fill="#2F8F9E"/>',
+                ar:"غزير الإنتاج",   en:"Prolific",            ar_desc:"نشر 50+ رسمة",                         type:"auto" },
+  engaged:    { color:"#4E6FBF", glyph:'<path d="M10,12h20a2,2 0 0 1 2,2v9a2,2 0 0 1 -2,2H18l-6,5v-5h-2a2,2 0 0 1 -2,-2v-9a2,2 0 0 1 2,-2z" fill="#fff"/>',
+                ar:"متفاعل",         en:"Engaged",             ar_desc:"كتب 10+ تعليقات على الرسمات",          type:"auto" },
+  legend:     { color:"#7B5EA7", glyph:'<path d="M20,9L30,19H24L20,15L16,19H10Z" fill="#fff"/><path d="M20,19L30,29H24L20,25L16,29H10Z" fill="#fff" opacity="0.85"/>',
+                ar:"أسطورة",         en:"Legend",              ar_desc:"نشر 100+ رسمة",                        type:"auto" },
+  newcomer:   { color:"#E0C455", glyph:'<ellipse cx="20" cy="22" rx="8" ry="10" fill="#fff"/><path d="M15,18l3,3l-2,2l4,3" stroke="#E0C455" stroke-width="1.4" fill="none"/>',
+                ar:"عضو جديد",       en:"Newcomer",            ar_desc:"عضو منذ أقل من أسبوع — يلا رحّبوا فيه",type:"auto" },
+  beloved:    { color:"#E08A4B", glyph:'<path d="M14,18h4v12h-4z" fill="#fff"/><path d="M18,18l3,-9c1,-2,4,-1,4,1v6h5c2,0,3,2,2,4l-3,8c-0.5,1,-1.5,2,-3,2h-8z" fill="#fff"/>',
+                ar:"محبوب",          en:"Beloved",             ar_desc:"جمع 200+ إعجاب على رسماته كلها",       type:"auto" },
+  level5:     { color:"#A9744F", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24.5" text-anchor="middle" font-size="11" font-weight="900" fill="#A9744F" font-family="Arial,sans-serif">5</text>',
+                ar:"وصل للفل 5",     en:"Reached Level 5",     ar_desc:"وصل للمستوى 5 بنظام اللفلات",          type:"auto" },
+  level10:    { color:"#9AA0A6", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24.5" text-anchor="middle" font-size="10" font-weight="900" fill="#9AA0A6" font-family="Arial,sans-serif">10</text>',
+                ar:"وصل للفل 10",    en:"Reached Level 10",    ar_desc:"وصل للمستوى 10 بنظام اللفلات",         type:"auto" },
+  level20:    { color:"#D4A72C", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24.5" text-anchor="middle" font-size="10" font-weight="900" fill="#D4A72C" font-family="Arial,sans-serif">20</text>',
+                ar:"وصل للفل 20",    en:"Reached Level 20",    ar_desc:"وصل للمستوى 20 بنظام اللفلات",         type:"auto" },
+  level30:    { color:"#4FC3D9", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24.5" text-anchor="middle" font-size="10" font-weight="900" fill="#4FC3D9" font-family="Arial,sans-serif">30</text>',
+                ar:"وصل للفل 30",    en:"Reached Level 30",    ar_desc:"وصل للمستوى 30 بنظام اللفلات",         type:"auto" },
+  level50:    { color:"#6FA8DC", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24.5" text-anchor="middle" font-size="10" font-weight="900" fill="#6FA8DC" font-family="Arial,sans-serif">50</text>',
+                ar:"وصل للفل 50",    en:"Reached Level 50",    ar_desc:"وصل للمستوى 50 بنظام اللفلات",         type:"auto" },
+  level75:    { color:"#45B39D", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24.5" text-anchor="middle" font-size="9" font-weight="900" fill="#45B39D" font-family="Arial,sans-serif">75</text>',
+                ar:"وصل للفل 75",    en:"Reached Level 75",    ar_desc:"وصل للمستوى 75 بنظام اللفلات",         type:"auto" },
+  level100:   { color:"#C0392B", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24" text-anchor="middle" font-size="8" font-weight="900" fill="#C0392B" font-family="Arial,sans-serif">100</text>',
+                ar:"وصل للفل 100",   en:"Reached Level 100",   ar_desc:"مستوى مئوي! وصل للمستوى 100",          type:"auto" },
+  level150:   { color:"#8E44AD", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24" text-anchor="middle" font-size="8" font-weight="900" fill="#8E44AD" font-family="Arial,sans-serif">150</text>',
+                ar:"وصل للفل 150",   en:"Reached Level 150",   ar_desc:"وصل للمستوى 150 بنظام اللفلات",        type:"auto" },
+  level200:   { color:"#2C3E50", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24" text-anchor="middle" font-size="8" font-weight="900" fill="#2C3E50" font-family="Arial,sans-serif">200</text>',
+                ar:"وصل للفل 200",   en:"Reached Level 200",   ar_desc:"وصل للمستوى 200 بنظام اللفلات",        type:"auto" },
+  level300:   { color:"#D4AF37", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><text x="20" y="24" text-anchor="middle" font-size="8" font-weight="900" fill="#D4AF37" font-family="Arial,sans-serif">300</text>',
+                ar:"وصل للفل 300",   en:"Reached Level 300",   ar_desc:"أعلى مستوى بنظام اللفلات حاليًا",      type:"auto" },
+  verified:        { color:"#2E9BE0", glyph:'<path d="M12.5,20.5L17.5,25.5L27.5,13.5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>',
+                     ar:"موثّق",        en:"Verified",           ar_desc:"علامة توثيق رسمية جنب الاسم",          type:"manual" },
+  supporter:       { color:"#A24FCF", glyph:'<polygon points="20,10 27,17 20,30 13,17" fill="#fff"/><path d="M13,17L27,17M20,10L16,17M20,10L24,17M20,30L16,17M20,30L24,17" stroke="#000" stroke-opacity="0.2" stroke-width="1" fill="none"/>',
+                     ar:"داعم القناة",  en:"Channel Supporter",  ar_desc:"لمين بيدعم بستريم لابس",              type:"manual" },
+  artist_of_month: { color:"#C9972B", glyph:'<path d="M15,8L19,19L11,19Z" fill="#fff" opacity="0.85"/><path d="M25,8L21,19L29,19Z" fill="#fff" opacity="0.85"/><circle cx="20" cy="20" r="7.5" fill="#fff"/><circle cx="20" cy="20" r="7.5" fill="none" stroke="#000" stroke-opacity="0.18" stroke-width="1.3"/>',
+                     ar:"فنان الشهر",  en:"Artist of the Month",ar_desc:"تتغير كل شهر حسب اختيار الإدارة",     type:"manual" },
+  friend:          { color:"#3F9E7D", glyph:'<path d="M20,29c-5,-4,-9,-7.5,-9,-12c0,-3,2.3,-5,5,-5c2,0,3.4,1.1,4,2.4c0.6,-1.3,2,-2.4,4,-2.4c2.7,0,5,2,5,5c0,4.5,-4,8,-9,12z" fill="#fff"/>',
+                     ar:"صديق القناة",  en:"Channel Friend",     ar_desc:"للأصدقاء أو الضيوف المميزين",         type:"manual" },
+  content_creator: { color:"#D8483F", glyph:'<polygon points="15,12 28,20 15,28" fill="#fff"/>',
+                     ar:"صانع محتوى",   en:"Content Creator",    ar_desc:"صانع محتوى متعاون مع القناة",         type:"manual" },
+  bug_hunter:      { color:"#6B7280", glyph:'<ellipse cx="20" cy="22" rx="6" ry="8" fill="#fff"/><circle cx="20" cy="12" r="4" fill="#fff"/><path d="M14,17L9,15M14,21L8,21M14,25L9,27M26,17L31,15M26,21L32,21M26,25L31,27M17,9L15,6M23,9L25,6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>',
+                     ar:"مكتشف أخطاء",  en:"Bug Hunter",         ar_desc:"بلّغ عن مشاكل بالموقع",                type:"manual" },
+  beloved_repost:  { color:"#E0577A", glyph:'<path d="M13,24v-6a3,3 0 0 1 3,-3h10" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M23,12l4,3l-4,3" fill="#fff"/><path d="M27,16v6a3,3 0 0 1 -3,3H14" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M17,28l-4,-3l4,-3" fill="#fff"/>',
+                     ar:"رسمة محبوبة من القناة", en:"Channel-Loved Art", ar_desc:"القناة عملتلها ريبوست بمكان تاني",  type:"manual" },
+  weekly_best:     { color:"#E8B923", glyph:'<path d="M21,8L13,21h6l-2,11l10,-14h-6z" fill="#fff"/>',
+                     ar:"الأفضل هالإسبوع", en:"Best of the Week",  ar_desc:"تختارها الإدارة كل إسبوع",             type:"manual" },
+  staff:           { color:"#5C6B8A", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="#fff"/><polygon points="20,15 21.8,18.8 26,19.2 22.9,21.9 23.8,26 20,23.8 16.2,26 17.1,21.9 14,19.2 18.2,18.8" fill="#5C6B8A"/>',
+                     ar:"فريق العمل",   en:"Staff",              ar_desc:"عضو مساعد أو متعاون مع فريق القناة",   type:"manual" },
+  guest_host:      { color:"#8B5FBF", glyph:'<rect x="17" y="8" width="6" height="14" rx="3" fill="#fff"/><path d="M12,18a8,8 0 0 0 16,0" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/><rect x="19" y="26" width="2" height="5" fill="#fff"/><rect x="15" y="31" width="10" height="2" fill="#fff"/>',
+                     ar:"ضيف بث",       en:"Stream Guest",       ar_desc:"شارك كضيف بستريم لابس",                type:"manual" },
+  artist_of_year:  { color:"#B8860B", glyph:'<polygon points="20,9 22.5,15.5 29.5,16 24,20.3 25.8,27 20,23.2 14.2,27 16,20.3 10.5,16 17.5,15.5" fill="#fff"/>',
+                     ar:"فنان السنة",   en:"Artist of the Year", ar_desc:"أفضل فنان بالمجتمع لهاي السنة",        type:"manual" },
+  guardian:        { color:"#4A6FA5", glyph:'<path d="M20,8l9,4v7c0,7,-5,11,-9,13c-4,-2,-9,-6,-9,-13v-7z" fill="none" stroke="#fff" stroke-width="2"/><path d="M15.5,20L18.5,23L25,15.5" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+                     ar:"حارس المجتمع", en:"Community Guardian", ar_desc:"عضو موثوق بساعد بحفظ نظام المجتمع",    type:"manual" },
+  signature_style: { color:"#7A4FA0", glyph:'<path d="M27,9L31,13L18,26L12,28L14,22Z" fill="#fff"/><circle cx="12.5" cy="27.5" r="1.6" fill="#fff"/>',
+                     ar:"أسلوب مميز",   en:"Signature Style",    ar_desc:"أسلوب رسم مميز ومعروف بالمجتمع",       type:"manual" }
+};
+function badgeIconSVG(id){
+  const b = BADGE_DEFS[id];
+  if(!b) return "";
+  return `<svg viewBox="0 0 40 40" class="badge-icon" aria-hidden="true"><path d="${BADGE_SEAL_PATH}" fill="${b.color}"></path>${b.glyph}</svg>`;
+}
+function badgeCardHTML(id){
+  const b = BADGE_DEFS[id];
+  const name = lang==="ar" ? b.ar : b.en;
+  const desc = b.ar_desc || "";
+  return `<div class="badge-card">${badgeIconSVG(id)}<h4>${escapeHtml(name)}</h4><p>${escapeHtml(desc)}</p></div>`;
+}
+function renderBadgesGallery(){
+  const autoIds = Object.keys(BADGE_DEFS).filter(id=>BADGE_DEFS[id].type==="auto");
+  const manualIds = Object.keys(BADGE_DEFS).filter(id=>BADGE_DEFS[id].type==="manual");
+  const a = document.getElementById("autoBadgesGrid"), m = document.getElementById("manualBadgesGrid");
+  if(a) a.innerHTML = autoIds.map(badgeCardHTML).join("");
+  if(m) m.innerHTML = manualIds.map(badgeCardHTML).join("");
+}
+function tsToMillis(ts){
+  if(!ts) return null;
+  if(typeof ts.toMillis === "function") return ts.toMillis();
+  if(typeof ts.seconds === "number") return ts.seconds*1000;
+  return null;
+}
+function founderCutoffRank(uid){
+  const withDates = Object.values(allChannels).map(c=>({ id:c.id, t: tsToMillis(c.createdAt) }))
+    .filter(c=>c.t!==null).sort((a,b)=>a.t-b.t);
+  return withDates.findIndex(c=>c.id===uid);
+}
+function computeAutoBadgeIds(uid){
+  const c = channelOf(uid);
+  const posts = allArtworks.filter(a=>a.authorUid===uid && (a.status==="approved" || a.status===undefined));
+  const ids = [];
+  if(posts.length >= 1) ids.push("first_art");
+  if(posts.length >= 10) ids.push("active");
+  if(posts.length >= 50) ids.push("prolific");
+  if(posts.length >= 100) ids.push("legend");
+  if(posts.some(p=>(p.likesCount||0) >= 50)) ids.push("popular");
+  if(posts.reduce((sum,p)=>sum+(p.likesCount||0),0) >= 200) ids.push("beloved");
+  const joined = tsToMillis(c.createdAt);
+  if(joined !== null && (Date.now()-joined) < 1000*60*60*24*7) ids.push("newcomer");
+  if(joined !== null && (Date.now()-joined) >= 1000*60*60*24*30) ids.push("month1");
+  if(joined !== null && (Date.now()-joined) >= 1000*60*60*24*30*3) ids.push("veteran");
+  if(joined !== null && (Date.now()-joined) >= 1000*60*60*24*30*6) ids.push("month6");
+  if(joined !== null && (Date.now()-joined) >= 1000*60*60*24*30*9) ids.push("month9");
+  if(joined !== null && (Date.now()-joined) >= 1000*60*60*24*365) ids.push("anniversary");
+  if((c.commentsCount||0) >= 10) ids.push("engaged");
+  if((c.followersCount||0) >= 20) ids.push("influencer");
+  const rank = founderCutoffRank(uid);
+  if(rank !== -1 && rank < 50) ids.push("founder");
+  if(rank === 0) ids.push("first_member");
+  const lvl = levelInfoFor(uid).level;
+  if(lvl >= 5) ids.push("level5");
+  if(lvl >= 10) ids.push("level10");
+  if(lvl >= 20) ids.push("level20");
+  if(lvl >= 30) ids.push("level30");
+  if(lvl >= 50) ids.push("level50");
+  if(lvl >= 75) ids.push("level75");
+  if(lvl >= 100) ids.push("level100");
+  if(lvl >= 150) ids.push("level150");
+  if(lvl >= 200) ids.push("level200");
+  if(lvl >= 300) ids.push("level300");
+  return ids;
+}
+
+/* ===================== LEVELS / XP ===================== */
+// نفس منطق فان آرت بالضبط: 10 لكل رسمة + 1 لكل إعجاب + 2 لكل تعليق + 3 لكل متابع، بدون أي تخزين إضافي
+function computeXP(uid){
+  const c = channelOf(uid);
+  const posts = allArtworks.filter(a=>a.authorUid===uid && (a.status==="approved" || a.status===undefined));
+  const totalLikes = posts.reduce((s,p)=>s+(p.likesCount||0),0);
+  return posts.length*10 + totalLikes*1 + (c.commentsCount||0)*2 + (c.followersCount||0)*3 + (c.bonusXP||0);
+}
+function levelFromXP(xp){ return Math.floor(Math.sqrt(xp/25)) + 1; }
+function xpFloorForLevel(level){ return 25*Math.pow(level-1,2); }
+function tierForLevel(level){
+  if(level>=30) return { name:"أسطورة",  color:"#D4A72C" };
+  if(level>=20) return { name:"نخبة",    color:"#2FA0A0" };
+  if(level>=10) return { name:"محترف",   color:"#9B59B6" };
+  if(level>=5)  return { name:"هاوي",    color:"#4F8FBF" };
+  return                 { name:"مبتدئ",  color:"#7FA65B" };
+}
+function levelInfoFor(uid){
+  const xp = computeXP(uid);
+  const level = levelFromXP(xp);
+  const floor = xpFloorForLevel(level);
+  const next = xpFloorForLevel(level+1);
+  const progress = next>floor ? Math.min(100, Math.round(((xp-floor)/(next-floor))*100)) : 100;
+  return { xp, level, floor, next, progress, tier: tierForLevel(level) };
+}
+function levelChipHTML(uid){
+  const info = levelInfoFor(uid);
+  return `<span class="level-chip" style="background:${info.tier.color};" title="${info.tier.name} — ${fmtNum(info.xp)} XP">Lv.${info.level}</span>`;
+}
+function levelProgressHTML(uid){
+  const info = levelInfoFor(uid);
+  const remaining = Math.max(0, info.next - info.xp);
+  return `<div class="level-progress-block">
+    <div class="level-progress-head">
+      <span class="level-chip" style="background:${info.tier.color};">Lv.${info.level}</span>
+      <span class="level-tier-name" style="color:${info.tier.color};">${info.tier.name}</span>
+      <span class="level-xp-text">${fmtNum(info.xp)} XP</span>
+    </div>
+    <div class="level-bar-track"><div class="level-bar-fill" style="width:${info.progress}%;background:${info.tier.color};"></div></div>
+    <div class="level-bar-caption">${fmtNum(remaining)} XP للمستوى ${info.level+1}</div>
+  </div>`;
+}
+
+function getManualBadgeIds(uid){
+  const c = channelOf(uid);
+  return Array.isArray(c.manualBadges) ? c.manualBadges.filter(id=>BADGE_DEFS[id]) : [];
+}
+function allBadgeIdsFor(uid){ return [...getManualBadgeIds(uid), ...computeAutoBadgeIds(uid)]; }
+function badgesHTML(uid){
+  const ids = allBadgeIdsFor(uid);
+  if(!ids.length) return "";
+  return `<span class="user-badges">${ids.map(id=>{
+    const b = BADGE_DEFS[id];
+    const label = lang==="ar" ? `${b.ar} — ${b.ar_desc||""}` : b.en;
+    return `<span class="badge-chip" title="${escapeHtml(label)}">${badgeIconSVG(id)}</span>`;
+  }).join("")}</span>`;
+}
+window.renderBadgesGallery = renderBadgesGallery;
+const _origOpenOverlay = window.openOverlay;
+window.openOverlay = function(id){ _origOpenOverlay(id); if(id==="badgesOverlay") renderBadgesGallery(); };
+
+/* ===================== BADGE-EARNED NOTIFICATIONS ===================== */
+// كل ما تتحدّث بيانات المستخدم/الرسمات، منقارن البادجات الحالية مع آخر قائمة محفوظة بحساب المستخدم على Firestore (مو بالمتصفح)
+// عند تسجيل الدخول لأول مرة على هاد الحساب منخزّن القائمة كخط أساس بدون إشعار، وبعدين أي بادج جديدة بتظهر بتاخد إشعار مرة وحدة بس، ومهما بدّل جهاز أو متصفح ما رح يتكرر
+function toastHTML(html, duration){
+  const t = document.getElementById("toast");
+  t.innerHTML = html;
+  t.classList.add("show");
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=> t.classList.remove("show"), duration||4200);
+}
+function badgeToast(id){
+  const b = BADGE_DEFS[id]; if(!b) return;
+  const label = lang==="ar" ? b.ar : b.en;
+  toastHTML(`<div style="display:flex;align-items:center;gap:10px;">
+      <span style="width:30px;height:30px;flex-shrink:0;display:block;">${badgeIconSVG(id)}</span>
+      <div style="text-align:start;line-height:1.4;">
+        <b>🎉 حصلت على بادج جديد</b><br>
+        <span style="font-size:12px;opacity:.85;">${escapeHtml(label)}</span>
+      </div>
+    </div>`, 4400);
+}
+function checkNewBadgesForMe(){
+  if(!currentUser || !myProfile) return;
+  const uid = currentUser.uid;
+  const ids = allBadgeIdsFor(uid);
+  const seen = Array.isArray(myProfile.seenBadges) ? myProfile.seenBadges : null;
+  if(seen === null){
+    // أول مرة عالإطلاق لهاد الحساب: خزّن القائمة كخط أساس بدون إشعار
+    myProfile.seenBadges = ids;
+    updateDoc(doc(db,"users",uid), { seenBadges: ids }).catch(()=>{});
+    return;
+  }
+  const newOnes = ids.filter(id=>!seen.includes(id));
+  if(newOnes.length){
+    // الإشعار متوقف بناء على طلبك — منحدّث القائمة بهدوء بدون ما نظهر أي توست
+    myProfile.seenBadges = ids;
+    updateDoc(doc(db,"users",uid), { seenBadges: ids }).catch(()=>{});
+  }
+}
+window.checkNewBadgesForMe = checkNewBadgesForMe;
+
+function checkLevelUpForMe(){
+  if(!currentUser || !myProfile) return;
+  const uid = currentUser.uid;
+  const info = levelInfoFor(uid);
+  const seenLevel = myProfile.seenLevel;
+  if(typeof seenLevel !== "number"){
+    // أول مرة عالإطلاق لهاد الحساب: خزّن الفل الحالي كخط أساس بدون إشعار
+    myProfile.seenLevel = info.level;
+    updateDoc(doc(db,"users",uid), { seenLevel: info.level }).catch(()=>{});
+    return;
+  }
+  if(info.level > seenLevel){
+    toastHTML(`<div style="text-align:center;">
+        <b>🎉 وصلت للفل ${info.level}!</b><br>
+        <span style="font-size:12px;opacity:.85;">${info.tier.name} · ${fmtNum(info.xp)} XP</span>
+      </div>`, 4600);
+  }
+  myProfile.seenLevel = info.level;
+  updateDoc(doc(db,"users",uid), { seenLevel: info.level }).catch(()=>{});
+}
+window.checkLevelUpForMe = checkLevelUpForMe;
+function checkProgressForMe(){ checkNewBadgesForMe(); checkLevelUpForMe(); }
+window.checkProgressForMe = checkProgressForMe;
+
+/* ===================== isAssistant / isOwner helpers ===================== */
+function isOwner(){
+  return !!myProfile && myProfile.role==="owner";
+}
+function isAssistant(){
+  return !!myProfile && ["assistant","admin","owner"].includes(myProfile.role);
+}
+
+/* ===================== TICKETS (من الرئيسية مباشرة) ===================== */
+let allTickets = [];
+let currentTicketId = null;
+let unsubTicketMessages = null;
+let unsubTickets = null;
+function subscribeTickets(){
+  if(unsubTickets){ unsubTickets(); unsubTickets = null; }
+  allTickets = [];
+  if(!currentUser) return;
+  const q = query(collection(db,"tickets"), where("uid","==",currentUser.uid));
+  unsubTickets = onSnapshot(q, (snap)=>{
+    allTickets = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+    allTickets.sort((a,b)=> (b.number||0) - (a.number||0));
+    renderMyTickets();
+  }, (err)=> console.error("tickets listener error", err));
+}
+window.openMyTickets = function(){
+  if(!requireLogin()) return;
+  openOverlay("myTicketsOverlay");
+  renderMyTickets();
+};
+async function openNewTicket(){
+  if(!requireLogin()) return;
+  try{
+    const newTicket = await runTransaction(db, async (trx)=>{
+      const counterRef = doc(db,"counters","tickets");
+      const counterSnap = await trx.get(counterRef);
+      const next = counterSnap.exists() ? (counterSnap.data().count||0) + 1 : 1;
+      trx.set(counterRef, { count: next }, { merge:true });
+      const ticketRef = doc(collection(db,"tickets"));
+      trx.set(ticketRef, { number: next, uid: currentUser.uid, status:"open", createdAt: serverTimestamp() });
+      return { id: ticketRef.id, number: next };
+    });
+    openTicketChat(newTicket.id, newTicket.number);
+  }catch(err){ console.error("openNewTicket failed:", err); toast("حدث خطأ، حاول مرة أخرى"); }
+}
+window.openNewTicket = openNewTicket;
+function tsMillis(ts){ if(!ts) return 0; if(ts.toMillis) return ts.toMillis(); if(ts.seconds) return ts.seconds*1000; return 0; }
+function openTicketChat(ticketId, number){
+  currentTicketId = ticketId;
+  const t = allTickets.find(x=>x.id===ticketId);
+  const ticketNumber = number || (t ? t.number : "?");
+  const isClosed = t ? t.status==="closed" : false;
+  document.getElementById("ticketChatTitle").textContent = "تذكرة #" + ticketNumber;
+  document.getElementById("ticketChatStatus").textContent = isClosed ? "🔒 مقفولة" : "🟢 مفتوحة";
+  document.getElementById("ticketCloseBtn").style.display = "none"; // إغلاق التذكرة يصير من لوحة إدارة فان آرت
+  document.getElementById("ticketInputArea").style.display = isClosed ? "none" : "flex";
+  document.getElementById("ticketClosedNotice").style.display = isClosed ? "block" : "none";
+  document.getElementById("ticketMessagesList").innerHTML = "";
+  openOverlay("ticketChatOverlay");
+  if(unsubTicketMessages) unsubTicketMessages();
+  unsubTicketMessages = onSnapshot(
+    query(collection(db,"ticketMessages"), where("ticketId","==",ticketId)),
+    (snap)=>{
+      const msgs = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+      msgs.sort((a,b)=> tsMillis(a.createdAt) - tsMillis(b.createdAt));
+      renderTicketMessages(msgs);
+    }, (err)=> console.error("ticketMessages listener error", err)
+  );
+}
+window.openTicketChat = openTicketChat;
+function renderTicketMessages(msgs){
+  const el = document.getElementById("ticketMessagesList");
+  el.innerHTML = msgs.map(m=>{
+    const c = channelOf(m.senderUid);
+    const mine = currentUser && m.senderUid===currentUser.uid;
+    return `<div style="align-self:${mine?"flex-end":"flex-start"};max-width:78%;">
+      <div style="font-size:10.5px;color:var(--text-soft);margin-bottom:2px;${mine?"text-align:end;":""}">${escapeHtml(c.username||"")}</div>
+      <div style="background:${mine?"var(--clay)":"var(--paper)"};color:${mine?"#fff":"var(--text)"};padding:8px 12px;border-radius:14px;font-size:13px;">
+        ${m.imageUrl ? `<img src="${m.imageUrl}" style="max-width:100%;border-radius:8px;display:block;">` : ""}
+        ${m.text ? `<span>${escapeHtml(m.text)}</span>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+  el.scrollTop = el.scrollHeight;
+}
+async function sendTicketText(){
+  if(!currentTicketId || !currentUser) return;
+  const input = document.getElementById("ticketTextInput");
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = "";
+  try{
+    await addDoc(collection(db,"ticketMessages"), { ticketId: currentTicketId, senderUid: currentUser.uid, text, createdAt: serverTimestamp() });
+  }catch(err){ console.error("sendTicketText failed:", err); input.value = text; toast("حدث خطأ، حاول مرة أخرى"); }
+}
+window.sendTicketText = sendTicketText;
+async function sendTicketImage(input){
+  if(!currentTicketId || !currentUser || !input.files[0]) return;
+  try{
+    const dataUrl = await resizeImageFile(input.files[0], 700, 0.75);
+    await addDoc(collection(db,"ticketMessages"), { ticketId: currentTicketId, senderUid: currentUser.uid, imageUrl: dataUrl, createdAt: serverTimestamp() });
+  }catch(err){ console.error("sendTicketImage failed:", err); toast("حدث خطأ، حاول مرة أخرى"); }
+  input.value = "";
+}
+window.sendTicketImage = sendTicketImage;
+window.closeTicketRoom = function(){}; // معطّل من الرئيسية، الإغلاق من لوحة إدارة فان آرت
+function renderMyTickets(){
+  const el = document.getElementById("myTicketsList");
+  if(!el || !currentUser) return;
+  const mine = allTickets.filter(t=>t.uid===currentUser.uid && t.status==="open");
+  el.innerHTML = mine.length ? mine.map(t=>`
+    <div class="admin-user-row" style="cursor:pointer;" onclick="openTicketChat('${t.id}', ${t.number})">
+      <span class="uname">تذكرة #${t.number}</span>
+      <span style="font-size:11px;">🟢 مفتوحة</span>
+    </div>`).join("") : `<div style="color:var(--text-soft);text-align:center;padding:12px 0;">ما فيه تذاكر مفتوحة حالياً</div>`;
+}
+
+/* ===================== resizeImageFile (لصور التذاكر والأفاتار) ===================== */
+function resizeImageFile(file, maxSize, quality){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = ()=> reject(new Error("read-failed"));
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onerror = ()=> reject(new Error("decode-failed"));
+      img.onload = ()=>{
+        let { width, height } = img;
+        if(width > height){ if(width > maxSize){ height = Math.round(height * (maxSize/width)); width = maxSize; } }
+        else { if(height > maxSize){ width = Math.round(width * (maxSize/height)); height = maxSize; } }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ===================== NOTIFICATIONS (قراءة فقط من الرئيسية — الإنشاء يصير من فان آرت عند لايك/متابعة/إعادة نشر) ===================== */
+let allNotifications = [];
+let unsubNotifications = null;
+function subscribeNotifications(){
+  if(unsubNotifications){ unsubNotifications(); unsubNotifications = null; }
+  allNotifications = [];
+  updateNotifDot();
+  if(!currentUser) return;
+  const q = query(collection(db,"notifications"), where("recipientUid","==",currentUser.uid), orderBy("createdAt","desc"), fbLimit(40));
+  unsubNotifications = onSnapshot(q, (snap)=>{
+    allNotifications = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+    updateNotifDot();
+    renderNotifPanel();
+  }, (err)=> console.error("notifications listener error", err));
+}
+function updateNotifDot(){
+  const dot = document.getElementById("notifDot");
+  if(!dot) return;
+  const unread = allNotifications.filter(n=>!n.read).length;
+  dot.style.display = unread ? "flex" : "none";
+  dot.textContent = unread > 9 ? "9+" : String(unread);
+}
+function timeAgoShort(ts){
+  const t = tsMillis(ts);
+  if(!t) return "";
+  const diff = Math.max(0, Date.now() - t);
+  const m = Math.floor(diff/60000);
+  if(m < 1) return "الآن";
+  if(m < 60) return m + "د";
+  const h = Math.floor(m/60);
+  if(h < 24) return h + "س";
+  return Math.floor(h/24) + "ي";
+}
+const NOTIF_TEXT = {
+  like:   (name)=> `${name} أعجب برسمتك`,
+  repost: (name)=> `${name} أعاد نشر رسمتك`,
+  follow: (name)=> `${name} صار يتابعك`,
+  message:(name)=> `${name} أرسلّك رسالة`,
+};
+function renderNotifPanel(){
+  const el = document.getElementById("notifPanel");
+  if(!el) return;
+  el.innerHTML = allNotifications.length ? allNotifications.map(n=>{
+    const c = channelOf(n.actorUid);
+    const textFn = NOTIF_TEXT[n.type];
+    const text = textFn ? textFn(escapeHtml(c.username||"")) : "";
+    return `<div class="notif-row ${n.read?"":"unread"}" onclick="openNotification('${n.id}')">
+      <img src="${c.avatarUrl||avatarFallback(n.actorUid)}">
+      <div class="txt">${text}</div>
+      <div class="time">${timeAgoShort(n.createdAt)}</div>
+    </div>`;
+  }).join("") : `<div class="notif-empty">ما فيه إشعارات لسا</div>`;
+}
+window.toggleNotifPanel = function(){
+  if(!requireLogin()) return;
+  const panel = document.getElementById("notifPanel");
+  panel.classList.toggle("open");
+  if(panel.classList.contains("open")){
+    renderNotifPanel();
+    allNotifications.filter(n=>!n.read).forEach(n=>{
+      updateDoc(doc(db,"notifications",n.id), { read:true }).catch(()=>{});
+    });
+  }
+};
+document.addEventListener("click", (e)=>{
+  const panel = document.getElementById("notifPanel");
+  if(panel && panel.classList.contains("open") && !e.target.closest("#notifBellBtn") && !e.target.closest("#notifPanel")){
+    panel.classList.remove("open");
+  }
+});
+window.openNotification = function(notifId){
+  const n = allNotifications.find(x=>x.id===notifId);
+  if(!n) return;
+  document.getElementById("notifPanel").classList.remove("open");
+  if(n.type==="like" || n.type==="repost"){
+    window.location.href = "fanart.html";
+  } else if(n.type==="follow"){
+    openChannelProfile(n.actorUid);
+  }
+};
+
+/* ===================== PROFILE (عرض/فتح البروفايل من الرئيسية) ===================== */
+let currentProfileUid = null;
+function fmtNum(n){ return Number(n||0).toLocaleString("en-US"); }
+window.openMyProfile = function(){
+  if(!requireLogin()) return;
+  openChannelProfile(currentUser.uid);
+};
+function openChannelProfile(uid){
+  if(!uid) return;
+  currentProfileUid = uid;
+  try{
+    const c = channelOf(uid);
+    document.getElementById("profileAvatar").src = c.avatarUrl || avatarFallback(uid);
+    document.getElementById("profileUsername").textContent = c.username || "…";
+    try{ document.getElementById("profileBadges").innerHTML = badgesHTML(uid); }catch(e){ console.error("badgesHTML error", e); }
+    try{ document.getElementById("profileLevel").innerHTML = levelProgressHTML(uid); }catch(e){ console.error("levelProgressHTML error", e); }
+
+    try{
+      const nameFx = nameEffectFor(c.nameEffect);
+      document.getElementById("profileUsername").className = nameFx.cls;
+    }catch(e){ console.error("nameEffect error", e); }
+    try{
+      const frameFx = frameEffectFor(c.frameEffect);
+      document.getElementById("profileAvatarWrap").className = "pf-avatar-wrap " + frameFx.cls;
+    }catch(e){ console.error("frameEffect error", e); }
+    try{
+      const bannerFx = bannerEffectFor(c.bannerEffect);
+      document.getElementById("profileHead").className = "profile-head " + bannerFx.cls;
+    }catch(e){ console.error("bannerEffect error", e); }
+
+    try{
+      const socialRow = document.getElementById("profileSocialRow");
+      const links = Array.isArray(c.socialLinks) ? c.socialLinks.filter(l=>l && l.url) : [];
+      socialRow.innerHTML = links.map(l=>{
+        const p = SOCIAL_PLATFORMS[l.platform] || SOCIAL_PLATFORMS.other;
+        return `<a class="pf-s-btn" style="--glow:${p.color}" href="${escapeHtml(l.url)}" target="_blank" rel="noopener" title="${p.name}">${p.svg}</a>`;
+      }).join("");
+    }catch(e){ console.error("socialRow error", e); }
+
+    try{
+      const bioEl = document.getElementById("profileBio");
+      bioEl.textContent = c.bio || "";
+      bioEl.style.display = c.bio ? "block" : "none";
+    }catch(e){ console.error("bio error", e); }
+
+    try{
+      const isOwnProfile = currentUser && uid === currentUser.uid;
+      const posts = (Array.isArray(allArtworks) ? allArtworks : []).filter(a=>a.authorUid===uid && (isOwnProfile || a.status==="approved" || a.status===undefined));
+      document.getElementById("profilePostsCount").textContent = posts.length;
+      document.getElementById("profileLikesCount").textContent = fmtNum(posts.reduce((s,a)=>s+(a.likesCount||0),0));
+      document.getElementById("profileFollowersCount").textContent = fmtNum(c.followersCount||0);
+      document.getElementById("profileGrid").innerHTML = posts.length
+        ? posts.map(a=>`
+          <div class="pf-item">
+            ${a.status==="pending" ? `<span class="pending-badge">قيد المراجعة</span>` : ""}
+            <img src="${a.imageUrl}" onclick="window.location.href='fanart.html'" onerror="this.src='https://placehold.co/300x300/D2B48C/3A2E22?text=%3F'">
+          </div>`).join("")
+        : `<div style="grid-column:1/-1;color:var(--text-soft);font-size:13px;padding:20px 0;text-align:center;">—</div>`;
+    }catch(e){ console.error("posts grid error", e); }
+
+    try{
+      const followBtn = document.getElementById("profileFollowBtn");
+      if(currentUser && uid !== currentUser.uid){
+        followBtn.style.display = "inline-flex";
+        followBtn.textContent = "متابعة"; // إدارة المتابعة الكاملة موجودة بفان آرت حالياً
+        followBtn.onclick = ()=> window.location.href = "fanart.html";
+      } else {
+        followBtn.style.display = "none";
+      }
+    }catch(e){ console.error("followBtn error", e); }
+  } catch(e){
+    console.error("openChannelProfile error", e);
+  } finally {
+    // نضمن ان نافذة البروفايل تنفتح دائماً حتى لو صار خطأ بجزء من البيانات
+    openOverlay("profileOverlay");
+  }
+}
+window.openChannelProfile = openChannelProfile;
+window.openFollowersList = function(uid){
+  if(!uid) return;
+  document.getElementById("followersListTitle").textContent = "متابعون";
+  document.getElementById("followersListBody").innerHTML =
+    `<div style="color:var(--text-soft);font-size:12.5px;padding:10px 0;text-align:center;">قائمة المتابعين الكاملة موجودة بموقع فان آرت</div>
+     <div style="text-align:center;"><a class="btn-primary" href="fanart.html">فتح فان آرت</a></div>`;
+  openOverlay("followersListOverlay");
+};
+
+/* ===================== SETTINGS (تعديل الحساب من الرئيسية) ===================== */
+let pendingGender = "male";
+let pendingSocialLinks = [];
+let pendingNameEffect = "none";
+let pendingFrameEffect = "none";
+let pendingBannerEffect = "none";
+
+window.openMySettings = function(){
+  if(!requireLogin()) return;
+  try{
+    document.getElementById("settingsAvatarPreview").src = myProfile.avatarUrl || avatarFallback(currentUser.uid);
+    delete document.getElementById("settingsAvatarPreview").dataset.pendingUrl;
+    document.getElementById("avatarUploadError").style.display = "none";
+    document.getElementById("avatarFileInput").value = "";
+    document.getElementById("usernameInput").value = myProfile.username || "";
+    document.getElementById("bioInput").value = myProfile.bio || "";
+    pendingGender = myProfile.gender || "male";
+    selectGender(pendingGender);
+
+    pendingSocialLinks = Array.isArray(myProfile.socialLinks) ? myProfile.socialLinks.map(l=>({...l})) : [];
+    renderSocialLinksEditor();
+
+    pendingNameEffect = myProfile.nameEffect || "none";
+    pendingFrameEffect = myProfile.frameEffect || "none";
+    pendingBannerEffect = myProfile.bannerEffect || "none";
+    renderEffectGrids();
+  } catch(e){
+    console.error("openMySettings error", e);
+  } finally {
+    openOverlay("settingsOverlay");
+  }
+};
+function selectGender(g){
+  pendingGender = g;
+  document.getElementById("genderMale").classList.toggle("sel", g==="male");
+  document.getElementById("genderFemale").classList.toggle("sel", g==="female");
+}
+window.selectGender = selectGender;
+window.onAvatarChosen = function(){ document.getElementById("avatarFileInput").click(); };
+document.getElementById("avatarFileInput").addEventListener("change", async (e)=>{
+  const file = e.target.files[0];
+  const errEl = document.getElementById("avatarUploadError");
+  errEl.style.display = "none";
+  if(!file) return;
+  if(!file.type.startsWith("image/")){ errEl.textContent = "الملف المختار ليس صورة"; errEl.style.display = "block"; return; }
+  try{
+    const dataUrl = await resizeImageFile(file, 300, 0.82);
+    if(dataUrl.length > 700000){ errEl.textContent = "الصورة كبيرة جداً، جرب صورة أخرى"; errEl.style.display = "block"; return; }
+    document.getElementById("settingsAvatarPreview").src = dataUrl;
+    document.getElementById("settingsAvatarPreview").dataset.pendingUrl = dataUrl;
+  }catch(err){ errEl.textContent = "تعذر قراءة الصورة، جرب صورة أخرى"; errEl.style.display = "block"; }
+});
+
+/* ===== روابط التواصل (تعديل) ===== */
+const MAX_SOCIAL_LINKS = 6;
+function renderSocialLinksEditor(){
+  const wrap = document.getElementById("socialLinksEditor");
+  wrap.innerHTML = pendingSocialLinks.map((l, i)=>`
+    <div class="social-link-row">
+      <select onchange="updateSocialLinkField(${i}, 'platform', this.value)">
+        ${Object.keys(SOCIAL_PLATFORMS).map(pid=>`<option value="${pid}" ${l.platform===pid?"selected":""}>${SOCIAL_PLATFORMS[pid].name}</option>`).join("")}
+      </select>
+      <input type="text" placeholder="https://..." value="${escapeHtml(l.url||"")}" oninput="updateSocialLinkField(${i}, 'url', this.value)">
+      <button type="button" class="rm-link-btn" onclick="removeSocialLinkRow(${i})">✕</button>
+    </div>`).join("") || `<div style="font-size:12px;color:var(--text-soft);margin-bottom:8px;">ما فيه روابط مضافة بعد</div>`;
+  document.getElementById("addLinkBtn").style.display = pendingSocialLinks.length >= MAX_SOCIAL_LINKS ? "none" : "block";
+}
+window.updateSocialLinkField = function(i, field, val){
+  if(!pendingSocialLinks[i]) return;
+  pendingSocialLinks[i][field] = val;
+};
+window.addSocialLinkRow = function(){
+  if(pendingSocialLinks.length >= MAX_SOCIAL_LINKS) return;
+  pendingSocialLinks.push({ platform:"instagram", url:"" });
+  renderSocialLinksEditor();
+};
+window.removeSocialLinkRow = function(i){
+  pendingSocialLinks.splice(i, 1);
+  renderSocialLinksEditor();
+};
+
+/* ===== المؤثرات (تتفتح بتطور اللفلات) ===== */
+function renderEffectGrids(){
+  const myLevel = currentUser ? levelInfoFor(currentUser.uid).level : 1;
+
+  document.getElementById("nameFxLevelNote").textContent = `— مستواك الحالي: Lv.${myLevel}`;
+  document.getElementById("nameFxGrid").innerHTML = NAME_EFFECTS.map(fx=>{
+    const locked = myLevel < fx.minLevel;
+    const selected = pendingNameEffect === fx.id;
+    return `<div class="fx-card ${locked?"locked":""} ${selected?"selected":""}" ${locked?"":`onclick="selectNameEffect('${fx.id}')"`}>
+      ${locked ? `<div style="position:absolute;top:6px;inset-inline-end:8px;">🔒</div>` : ""}
+      <div class="fx-name-preview ${fx.cls}">S3eeD</div>
+      <div class="fx-label">${fx.label}</div>
+      ${locked ? `<div class="fx-lock-note">يفتح بـ Lv.${fx.minLevel}</div>` : ""}
+    </div>`;
+  }).join("");
+
+  document.getElementById("frameFxLevelNote").textContent = `— مستواك الحالي: Lv.${myLevel}`;
+  document.getElementById("frameFxGrid").innerHTML = FRAME_EFFECTS.map(fx=>{
+    const locked = myLevel < fx.minLevel;
+    const selected = pendingFrameEffect === fx.id;
+    return `<div class="fx-card ${locked?"locked":""} ${selected?"selected":""}" ${locked?"":`onclick="selectFrameEffect('${fx.id}')"`}>
+      ${locked ? `<div style="position:absolute;top:6px;inset-inline-end:8px;">🔒</div>` : ""}
+      <div class="fx-frame-mini ${fx.cls}"><div class="dot"></div></div>
+      <div class="fx-label">${fx.label}</div>
+      ${locked ? `<div class="fx-lock-note">يفتح بـ Lv.${fx.minLevel}</div>` : ""}
+    </div>`;
+  }).join("");
+
+  document.getElementById("bannerFxLevelNote").textContent = `— مستواك الحالي: Lv.${myLevel}`;
+  document.getElementById("bannerFxGrid").innerHTML = BANNER_EFFECTS.map(fx=>{
+    const locked = myLevel < fx.minLevel;
+    const selected = pendingBannerEffect === fx.id;
+    return `<div class="fx-card ${locked?"locked":""} ${selected?"selected":""}" ${locked?"":`onclick="selectBannerEffect('${fx.id}')"`}>
+      ${locked ? `<div style="position:absolute;top:6px;inset-inline-end:8px;">🔒</div>` : ""}
+      <div class="banner-fx-mini ${fx.cls || "banner-fx-none"}"></div>
+      <div class="fx-label">${fx.label}</div>
+      ${locked ? `<div class="fx-lock-note">يفتح بـ Lv.${fx.minLevel}</div>` : ""}
+    </div>`;
+  }).join("");
+}
+window.selectNameEffect = function(id){
+  const myLevel = currentUser ? levelInfoFor(currentUser.uid).level : 1;
+  const fx = nameEffectFor(id);
+  if(myLevel < fx.minLevel) return;
+  pendingNameEffect = id;
+  renderEffectGrids();
+};
+window.selectFrameEffect = function(id){
+  const myLevel = currentUser ? levelInfoFor(currentUser.uid).level : 1;
+  const fx = frameEffectFor(id);
+  if(myLevel < fx.minLevel) return;
+  pendingFrameEffect = id;
+  renderEffectGrids();
+};
+window.selectBannerEffect = function(id){
+  const myLevel = currentUser ? levelInfoFor(currentUser.uid).level : 1;
+  const fx = bannerEffectFor(id);
+  if(myLevel < fx.minLevel) return;
+  pendingBannerEffect = id;
+  renderEffectGrids();
+};
+
+window.saveSettings = async function(){
+  if(!currentUser) return;
+  const newUsername = document.getElementById("usernameInput").value.trim() || myProfile.username;
+  const newBio = document.getElementById("bioInput").value.trim();
+  const pendingUrl = document.getElementById("settingsAvatarPreview").dataset.pendingUrl;
+
+  const myLevel = levelInfoFor(currentUser.uid).level;
+  // تأكيد أمني إضافي: ما ينحفظ أي تأثير غير مفتوح بعد، حتى لو تم التلاعب بالواجهة
+  const safeNameEffect = myLevel >= nameEffectFor(pendingNameEffect).minLevel ? pendingNameEffect : "none";
+  const safeFrameEffect = myLevel >= frameEffectFor(pendingFrameEffect).minLevel ? pendingFrameEffect : "none";
+  const safeBannerEffect = myLevel >= bannerEffectFor(pendingBannerEffect).minLevel ? pendingBannerEffect : "none";
+  const cleanLinks = pendingSocialLinks.filter(l=>l && l.url && l.url.trim()).map(l=>({ platform:l.platform||"other", url:l.url.trim() }));
+
+  const updates = {
+    username:newUsername, gender:pendingGender, bio:newBio,
+    socialLinks:cleanLinks, nameEffect:safeNameEffect, frameEffect:safeFrameEffect, bannerEffect:safeBannerEffect
+  };
+  if(pendingUrl) updates.avatarUrl = pendingUrl;
+  try{
+    await updateDoc(doc(db,"users",currentUser.uid), updates);
+    myProfile = { ...myProfile, ...updates };
+    renderAuthArea();
+    closeOverlay("settingsOverlay");
+    toast("تم حفظ التغييرات");
+  }catch(err){ console.error("saveSettings failed:", err); toast("حدث خطأ، حاول مرة أخرى"); }
+};
+
+
+
+/* ===================== SEARCH (قنوات/ألعاب/أرشيف) ===================== */
+const mainSearchInput = document.getElementById("mainSearchInput");
+const mainSearchResults = document.getElementById("mainSearchResults");
+mainSearchInput.addEventListener("input", ()=>{
+  const q = mainSearchInput.value.trim().toLowerCase();
+  if(!q){ mainSearchResults.classList.remove("open"); mainSearchResults.innerHTML=""; return; }
+  const channelHits = Object.values(allChannels).filter(c=>(c.username||"").toLowerCase().includes(q)).slice(0,5);
+  const gameHits = (allRatingGames||[]).filter(g=>(g.title||"").toLowerCase().includes(q)).slice(0,5);
+  const archiveHits = (allArchive||[]).filter(a=>(a.title||"").toLowerCase().includes(q)).slice(0,5);
+  const rows = [];
+  channelHits.forEach(c=> rows.push(`<div class="search-item" onclick="document.getElementById('mainSearchResults').classList.remove('open'); openChannelProfile('${c.id}')"><img src="${c.avatarUrl||avatarFallback(c.id)}"><span class="lbl">${escapeHtml(c.username||"")}</span><span class="tag">قناة</span></div>`));
+  gameHits.forEach(g=> rows.push(`<div class="search-item" onclick="document.getElementById('mainSearchResults').classList.remove('open'); document.getElementById('gamesRating').scrollIntoView({behavior:'smooth'})"><span class="thumb-sq" style="display:flex;align-items:center;justify-content:center;">🎮</span><span class="lbl">${escapeHtml(g.title||"")}</span><span class="tag">لعبة</span></div>`));
+  archiveHits.forEach(a=> rows.push(`<div class="search-item" onclick="document.getElementById('mainSearchResults').classList.remove('open'); document.getElementById('archive').scrollIntoView({behavior:'smooth'})"><span class="thumb-sq" style="display:flex;align-items:center;justify-content:center;">📼</span><span class="lbl">${escapeHtml(a.title||"")}</span><span class="tag">أرشيف</span></div>`));
+  mainSearchResults.innerHTML = rows.length ? (rows.join("") + `<a class="search-more" href="fanart.html">🔎 بحث موسّع عن رسمات بفان آرت</a>`) : `<div class="search-empty">لا يوجد نتائج</div>`;
+  mainSearchResults.classList.add("open");
+});
+document.addEventListener("click", (e)=>{
+  if(!e.target.closest(".search-wrap")) mainSearchResults.classList.remove("open");
+});
+
+/* ===================== ARCHIVE (عرض فقط، الإدارة تنشر من موقع FAN ART) ===================== */
+let allArchive = [];
+onSnapshot(query(collection(db,"archive"), orderBy("createdAt","desc"), fbLimit(100)), (snap)=>{
+  allArchive = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+  renderArchive();
+}, (err)=> console.error("archive listener error", err));
+function extractYouTubeId(url){
+  const m = (url||"").match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+function archiveCardHTML(a){
+  const isVideoFile = a.isVideoFile === true || (a.url||"").startsWith("data:video");
+  const hasThumb = !!a.thumbnail;
+  const playableInline = isVideoFile || (a.isYouTube && hasThumb);
+  let thumbInner;
+  if(hasThumb){ thumbInner = `<img src="${a.thumbnail}" loading="lazy" alt="">`; }
+  else if(isVideoFile){ thumbInner = `<video muted preload="metadata" src="${a.url}"></video>`; }
+  else { thumbInner = `📼`; }
+  return `<div class="archive-card">
+    <div class="thumb ${playableInline?"clickable":""}" ${playableInline?`onclick="openArchiveViewer('${a.id}')"`:""}>
+      ${thumbInner}
+      ${playableInline ? `<span class="thumb-play"></span>` : ""}
+    </div>
+    <div class="body">
+      <h4>${escapeHtml(a.title||"")}</h4>
+      <p>${escapeHtml(a.description||"")}</p>
+      ${(a.url && !playableInline) ? `<a class="watch" href="${a.url}" target="_blank" rel="noopener">▶ مشاهدة</a>` : ""}
+    </div>
+  </div>`;
+}
+function renderArchive(){
+  const grid = document.getElementById("archiveGrid");
+  if(!grid) return;
+  grid.innerHTML = allArchive.length
+    ? allArchive.map(archiveCardHTML).join("")
+    : `<div style="grid-column:1/-1;color:var(--text-soft);text-align:center;padding:20px 0;">لا يوجد محتوى بعد</div>`;
+}
+window.openArchiveViewer = function(id){
+  const a = allArchive.find(x=>x.id===id);
+  if(!a) return;
+  const isVideoFile = a.isVideoFile === true || (a.url||"").startsWith("data:video");
+  const body = document.getElementById("archiveViewerBody");
+  if(isVideoFile){
+    body.innerHTML = `<video src="${a.url}" controls autoplay playsinline style="width:100%;max-height:80vh;border-radius:10px;background:#000;display:block;"></video>`;
+  } else {
+    const ytId = extractYouTubeId(a.url);
+    if(!ytId){ window.open(a.url, "_blank", "noopener"); return; }
+    body.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" style="width:100%;aspect-ratio:16/9;border:0;border-radius:10px;" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+  }
+  document.getElementById("archiveViewerTitle").textContent = a.title || "";
+  openOverlay("archiveViewerOverlay");
+};
+window.closeArchiveViewer = function(){
+  document.getElementById("archiveViewerBody").innerHTML = "";
+  closeOverlay("archiveViewerOverlay");
+};
+
+/* ===================== GAMES RATING (تقييم بالنجوم — عرض وتفاعل) ===================== */
+let allRatingGames = [];
+let allGameRatings = [];
+let currentDetailGameId = null; // اللعبة المفتوحة حالياً بنافذة التفاصيل (إن وجدت)
+onSnapshot(query(collection(db,"games"), orderBy("createdAt","desc"), fbLimit(100)), (snap)=>{
+  allRatingGames = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+  renderRatingGames();
+  if(currentDetailGameId) openGameDetail(currentDetailGameId); // حدّث نافذة التفاصيل لو مفتوحة
+}, (err)=> console.error("games listener error", err));
+onSnapshot(collection(db,"gameRatings"), (snap)=>{
+  allGameRatings = snap.docs.map(d=>({ id:d.id, ...d.data() }));
+  renderRatingGames();
+  if(currentDetailGameId) openGameDetail(currentDetailGameId);
+}, (err)=> console.error("gameRatings listener error", err));
+
+function gameStats(gameId){
+  const ratings = allGameRatings.filter(r=>r.gameId===gameId);
+  const avg = ratings.length ? (ratings.reduce((s,r)=>s+r.stars,0) / ratings.length) : 0;
+  return { avg, count: ratings.length, ratings };
+}
+function starsMarkup(value, size){
+  let html = "";
+  for(let i=1;i<=5;i++) html += `<span class="star ${i<=Math.round(value)?"filled":""}">★</span>`;
+  return html;
+}
+// يختار تعليقين عشوائيين لكل لعبة، وتضل نفس التعليقين ظاهرين طول ما الصفحة مفتوحة
+// (يتغيروا بس لما تعمل رفرش أو تدخل الصفحة من جديد)
+let randomCommentPicks = {};
+function pickRandomPreviewComments(gameId, allComments){
+  if(!allComments.length) return [];
+  const key = gameId;
+  const pickedIds = randomCommentPicks[key] || [];
+  // نتأكد إن التعليقات المختارة سابقاً ما زالت موجودة (ما انحذفت أو تعدلت)
+  let picked = allComments.filter(c => pickedIds.includes(c.uid));
+  if(picked.length < Math.min(2, allComments.length)){
+    const remaining = allComments.filter(c => !pickedIds.includes(c.uid));
+    const shuffled = remaining.slice().sort(()=> Math.random()-0.5);
+    const need = Math.min(2, allComments.length) - picked.length;
+    picked = picked.concat(shuffled.slice(0, need));
+    randomCommentPicks[key] = picked.map(c=>c.uid);
+  }
+  return picked;
+}
+function gameCommentsHTML(comments){
+  return comments.map(c=>{
+    const cu = channelOf(c.uid);
+    return `<div class="rate-comment">
+      <img src="${cu.avatarUrl||avatarFallback(c.uid)}">
+      <div class="txt"><b>${escapeHtml(cu.username||"")}</b><span class="mini-stars">${"★".repeat(c.stars)}</span><br>${escapeHtml(c.comment)}</div>
+    </div>`;
+  }).join("");
+}
+function ratingGameCardHTML(g){
+  const stats = gameStats(g.id);
+  const myRating = currentUser ? allGameRatings.find(r=>r.gameId===g.id && r.uid===currentUser.uid) : null;
+  // تعليقين عشوائيين بس بمعاينة الكرت (يتغيروا كل رفرش)، وكل التعليقات تظهر بنافذة تفاصيل اللعبة
+  const allCommentsForGame = stats.ratings.filter(r=>r.comment);
+  const comments = pickRandomPreviewComments(g.id, allCommentsForGame);
+  return `<div class="rate-game-card">
+    ${g.coverUrl ? `<img class="cover" src="${g.coverUrl}" style="cursor:pointer;" onclick="openGameDetail('${g.id}')" onerror="this.style.display='none'">` : ""}
+    <div class="body">
+      <h4 style="cursor:pointer;" onclick="openGameDetail('${g.id}')">${escapeHtml(g.title||"")}</h4>
+      ${g.description ? `<p class="desc">${escapeHtml(g.description)}</p>` : ""}
+      <div class="avg-row">
+        <span class="avg-stars">${starsMarkup(stats.avg)}</span>
+        <span class="avg-badge">${stats.avg.toFixed(1)}</span>
+        <span class="avg-count">(${stats.count} تقييم)</span>
+      </div>
+      ${g.playUrl ? `<a class="watch" href="${g.playUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-bottom:12px;font-size:12px;font-weight:700;color:var(--tan);">▶ رابط اللعبة</a>` : ""}
+      ${(isAssistant() || (currentUser && !g.ratingLocked)) ? `<div class="my-rate-box">
+        <div class="my-rate-label">تقييمك</div>
+        <div class="rate-stars" data-game="${g.id}">
+          ${[1,2,3,4,5].map(i=>`<span class="star ${myRating && i<=myRating.stars?"filled":""}" onclick="rateGame('${g.id}',${i})">★</span>`).join("")}
+        </div>
+        <div class="rate-comment-box">
+          <textarea id="comment-${g.id}" placeholder="اكتب تعليقك (اختياري)...">${myRating&&myRating.comment?escapeHtml(myRating.comment):""}</textarea>
+          <button onclick="saveGameComment('${g.id}')">إرسال</button>
+        </div>
+        ${comments.length ? `<div class="rate-comments">${gameCommentsHTML(comments)}</div>` : ""}
+      </div>` : (g.ratingLocked ? "" : (comments.length ? `<div class="rate-comments">${gameCommentsHTML(comments)}</div>` : ""))}
+      ${stats.count ? `<button class="see-all-comments-btn" onclick="openGameDetail('${g.id}')">شوف كل التقييمات والتعليقات</button>` : ""}
+    </div>
+  </div>`;
+}
+function renderRatingGames(){
+  const list = document.getElementById("ratingGamesList");
+  if(!list) return;
+  list.innerHTML = allRatingGames.length
+    ? allRatingGames.map(ratingGameCardHTML).join("")
+    : `<div style="grid-column:1/-1;color:var(--text-soft);text-align:center;padding:20px 0;">لا يوجد ألعاب بعد</div>`;
+}
+window.rateGame = async function(gameId, stars){
+  if(!requireLogin()) return;
+  const g = allRatingGames.find(x=>x.id===gameId);
+  if(g && g.ratingLocked && !isAssistant()) return; // اللعبة مقفولة على التقييم العام
+  const ratingId = gameId + "_" + currentUser.uid;
+  const existing = allGameRatings.find(r=>r.gameId===gameId && r.uid===currentUser.uid);
+  await setDoc(doc(db,"gameRatings",ratingId), {
+    gameId, uid: currentUser.uid, stars, comment: existing?existing.comment||"":"", createdAt: serverTimestamp()
+  });
+};
+window.saveGameComment = async function(gameId){
+  if(!requireLogin()) return;
+  const g = allRatingGames.find(x=>x.id===gameId);
+  if(g && g.ratingLocked && !isAssistant()) return; // اللعبة مقفولة على التعليق العام
+  const ratingId = gameId + "_" + currentUser.uid;
+  const existing = allGameRatings.find(r=>r.gameId===gameId && r.uid===currentUser.uid);
+  const comment = document.getElementById("comment-"+gameId).value.trim();
+  await setDoc(doc(db,"gameRatings",ratingId), {
+    gameId, uid: currentUser.uid, stars: existing?existing.stars||0:0, comment, createdAt: serverTimestamp()
+  });
+  toast("تم حفظ تقييمك");
+};
+
+/* ===== نافذة تفاصيل اللعبة: صورة اللعبة بجهة، وكل التقييمات والتعليقات بالجهة الثانية ===== */
+window.openGameDetail = function(gameId){
+  const g = allRatingGames.find(x=>x.id===gameId);
+  if(!g) return;
+  currentDetailGameId = gameId;
+  const stats = gameStats(gameId);
+  const myRating = currentUser ? allGameRatings.find(r=>r.gameId===gameId && r.uid===currentUser.uid) : null;
+
+  const coverEl = document.getElementById("gdCover");
+  if(g.coverUrl){ coverEl.src = g.coverUrl; coverEl.style.display = "block"; } else { coverEl.style.display = "none"; }
+  document.getElementById("gdTitle").textContent = g.title || "";
+  document.getElementById("gdDesc").textContent = g.description || "";
+  document.getElementById("gdAvgRow").innerHTML = `<span class="avg-stars">${starsMarkup(stats.avg)}</span><span class="avg-badge">${stats.avg.toFixed(1)}</span><span class="avg-count">(${stats.count} تقييم)</span>`;
+  const playBtn = document.getElementById("gdPlayUrl");
+  if(g.playUrl){ playBtn.style.display = "inline-block"; playBtn.href = g.playUrl; } else { playBtn.style.display = "none"; }
+
+  const rateBox = document.getElementById("gdRateBox");
+  if(isAssistant() || (currentUser && !g.ratingLocked)){
+    rateBox.innerHTML = `<div class="my-rate-box">
+      <div class="my-rate-label">تقييمك</div>
+      <div class="rate-stars" data-game="${g.id}">
+        ${[1,2,3,4,5].map(i=>`<span class="star ${myRating && i<=myRating.stars?"filled":""}" onclick="rateGame('${g.id}',${i})">★</span>`).join("")}
+      </div>
+      <div class="rate-comment-box">
+        <textarea id="gd-comment-${g.id}" placeholder="اكتب تعليقك (اختياري)...">${myRating&&myRating.comment?escapeHtml(myRating.comment):""}</textarea>
+        <button onclick="saveGameCommentFromDetail('${g.id}')">إرسال</button>
+      </div>
+    </div>`;
+  } else {
+    rateBox.innerHTML = "";
+  }
+
+  const allComments = stats.ratings.filter(r=>r.comment).slice().reverse();
+  document.getElementById("gdAllComments").innerHTML = allComments.length
+    ? gameCommentsHTML(allComments)
+    : `<div style="color:var(--text-soft);font-size:12.5px;text-align:center;padding:20px 0;">لا يوجد تعليقات بعد</div>`;
+
+  openOverlay("gameDetailOverlay");
+};
+window.saveGameCommentFromDetail = async function(gameId){
+  if(!requireLogin()) return;
+  const g = allRatingGames.find(x=>x.id===gameId);
+  if(g && g.ratingLocked && !isAssistant()) return;
+  const ratingId = gameId + "_" + currentUser.uid;
+  const existing = allGameRatings.find(r=>r.gameId===gameId && r.uid===currentUser.uid);
+  const comment = document.getElementById("gd-comment-"+gameId).value.trim();
+  await setDoc(doc(db,"gameRatings",ratingId), {
+    gameId, uid: currentUser.uid, stars: existing?existing.stars||0:0, comment, createdAt: serverTimestamp()
+  });
+  toast("تم حفظ تقييمك");
+};
+const _origCloseOverlay = window.closeOverlay;
+window.closeOverlay = function(id){ _origCloseOverlay(id); if(id==="gameDetailOverlay") currentDetailGameId = null; };
+
+/* ===================== SUGGESTIONS ===================== */
+let pendingSuggestCategory = "game";
+window.selectSuggestCategory = function(cat){
+  pendingSuggestCategory = cat;
+  document.getElementById("sugCatGame").classList.toggle("sel", cat==="game");
+  document.getElementById("sugCatClip").classList.toggle("sel", cat==="clip");
+  document.getElementById("sugCatSite").classList.toggle("sel", cat==="site");
+  document.getElementById("sugCatOther").classList.toggle("sel", cat==="other");
+};
+window.openSuggestBox = function(){
+  if(!requireLogin()) return;
+  selectSuggestCategory("game");
+  document.getElementById("suggestionInput").value = "";
+  document.getElementById("suggestionError").style.display = "none";
+  openOverlay("suggestOverlay");
+};
+window.submitSuggestion = async function(){
+  if(!requireLogin()) return;
+  const errEl = document.getElementById("suggestionError");
+  errEl.style.display = "none";
+  const text = document.getElementById("suggestionInput").value.trim();
+  if(!text){ errEl.textContent = "اكتب اقتراحك أول"; errEl.style.display = "block"; return; }
+  const btn = document.getElementById("suggestSubmitBtn");
+  btn.disabled = true;
+  try{
+    // ملاحظة: لازم تكون قواعد Firestore منشورة لكولكشن suggestions (شوف ADMIN_SETUP.md)
+    // وإلا الإرسال بيفشل بصمت بسبب رفض الصلاحيات
+    await addDoc(collection(db,"suggestions"), {
+      text, category: pendingSuggestCategory, uid: currentUser.uid, createdAt: serverTimestamp()
+    });
+    document.getElementById("suggestionInput").value = "";
+    closeOverlay("suggestOverlay");
+    toast("تم إرسال اقتراحك، شكراً!");
+  }catch(err){
+    console.error("submitSuggestion failed:", err.code || err.message, err);
+    errEl.textContent = "تعذر إرسال الاقتراح — تأكد إن قواعد Firestore منشورة (راجع ADMIN_SETUP.md)";
+    errEl.style.display = "block";
+  }
+  btn.disabled = false;
+};
+
+// لو المستخدم جاي من صفحة ثانية بضغطة "الاقتراحات" (index.html#suggest)، افتح صندوق الاقتراح مباشرة
+if(location.hash === "#suggest"){
+  window.addEventListener("DOMContentLoaded", ()=>{ setTimeout(()=>openSuggestBox(), 200); });
+}
+</script>
+<script>
+  // ===== قوائم الأقسام تفتح بمجرد ما يقرب الماوس (هوفر)، وتختفي بس بعد مهلة بسيطة =====
+  // (المهلة عشان لو الماوس يعدي بفجوة صغيرة بين الرابط والقائمة، ما تسكر القائمة قبل ما توصلها)
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    let closeTimer = null;
+    item.addEventListener("mouseenter", function(){
+      clearTimeout(closeTimer);
+      item.classList.add("open");
+    });
+    item.addEventListener("mouseleave", function(){
+      closeTimer = setTimeout(function(){
+        item.classList.remove("open");
+      }, 300);
+    });
+  });
+
+  // ===== أنيميشن "نزول" لطيف عند القفز لقسم عن طريق روابط القوائم (S3eeD, الخ) =====
+  function landOnSection(hash){
+    const id = (hash || "").replace("#","").trim();
+    if(!id) return;
+    const target = document.getElementById(id);
+    if(!target || !target.classList || !target.classList.contains("block")) return;
+    target.classList.remove("section-land");
+    // إعادة تشغيل الأنيميشن حتى لو نفس القسم مرة ثانية
+    void target.offsetWidth;
+    target.classList.add("section-land");
+    setTimeout(function(){ target.classList.remove("section-land"); }, 950);
+  }
+  document.querySelectorAll(".nav-dropdown a[href^='#']").forEach(function(link){
+    link.addEventListener("click", function(){
+      // نستنى شوي حتى يبدأ التمرير السلس (scroll-behavior:smooth) بعدها نشغل التوهج
+      setTimeout(function(){ landOnSection(link.getAttribute("href")); }, 320);
+    });
+  });
+</script>
+</body>
+</html>

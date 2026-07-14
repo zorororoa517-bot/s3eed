@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كوكيز كليكر — S3aS3 Games</title>
+<link rel="icon" href="assets/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tan:#e4d0b4; --tan-deep:#cbb08a; --walnut:#403022; --charcoal:#2e2216; --cream:#FBF6EE;
+    --paper:#37291d; --ink:#292118; --ink-soft:#6e5d4d; --clay:#6F4E37;
+    --line: rgba(228,208,180,.16); --shadow: 0 10px 28px rgba(0,0,0,.45);
+    --bg:#403022; --surface:#37291d; --text:#e4d0b4; --text-soft:#cbb08a; --header-bg: var(--walnut);
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:'Tajawal', sans-serif;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  .topbar{
+    position:relative;
+    background: var(--header-bg); border-bottom: 1px solid var(--line);
+    padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .brand .mark{
+    width:34px; height:34px; border-radius:3px; background: var(--charcoal); color:var(--tan);
+    display:flex; align-items:center; justify-content:center; font-family:'Cairo', sans-serif; font-weight:700;
+    font-size:18px; transform: rotate(-3deg); overflow:hidden; position:relative;
+  }
+
+  /* ===== مؤثرات ماين كرافت على صورة البروفايل: توهج مشعل + لمعان إنشانتمنت ===== */
+  .brand .mark{ animation: mcTorchGlow 2.4s ease-in-out infinite; }
+  .brand .mark::before{
+    content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); z-index:2;
+  }
+  .brand .mark::after{
+    content:""; position:absolute; inset:-60% -160%; pointer-events:none; z-index:1;
+    background: linear-gradient(75deg, transparent 42%, rgba(255,255,255,.65) 50%, transparent 58%);
+    transform: translateX(-130%);
+    animation: mcEnchantSweep 4.5s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  .brand .mark img{ position:relative; z-index:0; }
+  @keyframes mcTorchGlow{
+    0%,100%{ box-shadow: 0 0 5px 1px rgba(255,170,60,.35); }
+    50%{ box-shadow: 0 0 14px 4px rgba(255,170,60,.6); }
+  }
+  @keyframes mcEnchantSweep{
+    0%, 62%{ transform: translateX(-130%); }
+    82%{ transform: translateX(130%); }
+    100%{ transform: translateX(130%); }
+  }
+  .brand .mark img{ width:100%; height:100%; object-fit:cover; }
+  .brand-name{ font-weight:800; font-size:19px; color:var(--charcoal); font-family:'Cairo', sans-serif; }
+  html[data-theme="dark"] .brand-name{ color:var(--tan); }
+
+  nav.main-nav{ display:flex; align-items:center; gap:60px; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .nav-link{ padding:9px 14px; border-radius:18px; font-size:13.5px; font-weight:700; color:var(--charcoal); opacity:.75; }
+  .nav-link:hover{ opacity:1; background:rgba(43,36,32,.08); }
+  .nav-link.active{ background:var(--charcoal); color:var(--tan); opacity:1; }
+
+  .nav-item{ position:relative; display:flex; align-items:center; }
+  .nav-dropdown{
+    position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+  }
+  .nav-item.open .nav-dropdown{ display:flex; }
+  .nav-dropdown a{
+    display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px;
+    font-size:13px; font-weight:700; color:var(--tan); opacity:.9; white-space:nowrap;
+  }
+  .nav-dropdown a:hover{ opacity:1; background:rgba(241,233,220,.08); }
+  html[data-theme="dark"] .nav-link{ color:var(--tan); }
+  @media(max-width:900px){ nav.main-nav{ display:none; } }
+
+  .controls{ margin-inline-start:auto; display:flex; align-items:center; gap:10px; flex-shrink:0;}
+
+  .game-wrap{ flex:1; width:100%; max-width:1100px; margin:0 auto; padding:22px 16px 50px; display:flex; flex-direction:column; gap:18px; }
+  .head-row{ text-align:center; }
+  .eyebrow{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); font-weight:700; display:block; margin-bottom:6px;}
+  .head-row h1{ font-family:'Cairo', sans-serif; font-size:24px; margin:0; color:var(--tan); }
+
+  .layout{ display:grid; grid-template-columns: 1fr 1.15fr 1fr; gap:18px; align-items:start; }
+  @media(max-width:980px){ .layout{ grid-template-columns:1fr 1fr; } .main-panel{ grid-column:1 / -1; order:-1; } }
+  @media(max-width:600px){ .layout{ grid-template-columns:1fr; } .main-panel{ order:-1; } }
+
+  .main-panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);
+    padding:22px 18px; display:flex; flex-direction:column; align-items:center; gap:14px;
+  }
+  .stat-line{ text-align:center; }
+  .stat-line .amount{ font-family:'Cairo', sans-serif; font-size:30px; font-weight:800; color:var(--tan); }
+  .stat-line .persec{ font-size:12.5px; color:var(--text-soft); margin-top:2px; }
+
+  .ore-stage{
+    position:relative; width:230px; height:230px; display:flex; align-items:center; justify-content:center;
+    margin:6px 0;
+  }
+  .ore-block{
+    width:150px; height:150px; cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent;
+    transition: transform .08s ease; filter:drop-shadow(0 10px 18px rgba(0,0,0,.4));
+  }
+  .ore-block:active{ transform:scale(.93); }
+  .orbit-icon{
+    position:absolute; top:50%; left:50%; width:26px; height:26px; margin:-13px;
+    transform-origin: 13px 13px;
+    animation: orbit-spin linear infinite;
+    pointer-events:none;
+  }
+  @keyframes orbit-spin{ from{ transform:rotate(0deg) translateX(105px) rotate(0deg); } to{ transform:rotate(360deg) translateX(105px) rotate(-360deg); } }
+
+  .float-pop{
+    position:absolute; font-weight:800; font-family:'Cairo', sans-serif; color:var(--tan); font-size:16px;
+    pointer-events:none; animation: pop-up .8s ease-out forwards;
+  }
+  @keyframes pop-up{ 0%{ opacity:1; transform:translateY(0);} 100%{ opacity:0; transform:translateY(-55px);} }
+
+  .hint{ font-size:12px; color:var(--text-soft); text-align:center; }
+
+  .shop-panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);
+    padding:16px; display:flex; flex-direction:column; gap:10px; max-height:560px; overflow-y:auto;
+  }
+  .shop-title{ font-family:'Cairo', sans-serif; font-size:15.5px; color:var(--tan); margin:0 0 4px; text-align:center; }
+
+  .item{
+    display:flex; align-items:center; gap:12px; background:var(--paper); border:1px solid var(--line);
+    border-radius:14px; padding:10px 12px; cursor:pointer; transition: filter .15s ease, transform .1s ease;
+  }
+  .item:hover{ filter:brightness(1.08); }
+  .item:active{ transform:scale(.99); }
+  .item.locked{ opacity:.35; pointer-events:none; filter:grayscale(1); }
+  .item.cant-afford{ opacity:.55; }
+  .item.purchased{ opacity:.6; pointer-events:none; filter:saturate(.7); }
+  .item.purchased .stats .cost{ color:#7FE07A; }
+  .item .icon{ width:40px; height:40px; flex-shrink:0; }
+  .item .info{ flex:1; min-width:0; }
+  .item .info .name{ font-weight:800; font-size:13.5px; color:var(--tan); }
+  .item .info .desc{ font-size:11px; color:var(--text-soft); }
+  .item .stats{ text-align:left; flex-shrink:0; }
+  .item .stats .cost{ font-weight:800; font-size:13px; color:var(--tan); }
+  .item .stats .owned{ font-size:11px; color:var(--text-soft); }
+
+  /* ===== جلو + تكبير عند تمرير الماوس (كل أزرار الموقع والصورة) ===== */
+  .nav-link, button, [class*="btn"], .watch{
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .nav-link:hover, button:hover, [class*="btn"]:hover, .watch:hover{
+    transform: scale(1.06);
+    box-shadow: 0 0 16px 3px rgba(203,176,138,.55);
+    filter: brightness(1.08);
+  }
+  .brand .mark{ transition: transform .18s ease, box-shadow .18s ease; }
+  .brand:hover .mark{
+    animation: none;
+    transform: rotate(-3deg) scale(1.1);
+    box-shadow: 0 0 18px 4px rgba(203,176,138,.6), 0 0 26px 8px rgba(255,170,60,.35);
+  }
+  .brand:hover .mark::after{ animation-play-state: paused; }
+
+  .back-btn{
+    position:fixed; top:14px; left:14px; z-index:50;
+    background:var(--paper); border:1px solid var(--line); color:var(--tan); padding:9px 16px;
+    border-radius:20px; font-size:12.5px; font-weight:700; box-shadow:0 6px 16px rgba(0,0,0,.3);
+  }
+
+  /* ===== سكرول بلون بني فاتح متناسق مع خلفية الموقع ===== */
+  html{ scrollbar-width: thin; scrollbar-color: var(--tan) var(--bg); }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background: var(--bg); }
+  ::-webkit-scrollbar-thumb{ background: var(--tan); border-radius:8px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--tan-deep); }
+
+  footer{ text-align:center; padding:16px; color:var(--text-soft); font-size:12px; flex-shrink:0; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"><img src="assets/avatar.png" alt="S3eeD"></div>
+  </div>
+  <nav class="main-nav">
+    <div class="nav-item">
+      <a class="nav-link active" href="games.html">S3aS3 Games</a>
+      <div class="nav-dropdown">
+        <a href="creeper.html">كريبر شات</a>
+        <a href="miners.html">ماينر شات</a>
+        <a href="minshow.html">ماين شو</a>
+        <a href="quiz.html">أسئلة ماين كرافت</a>
+        <a href="toolminer.html">كوكيز كليكر</a>
+        <a href="minecraftle.html">ماينكرافتل</a>
+
+        <a href="runner.html">ستيف رنر</a>
+        <a href="puzzle.html">بازل</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="index.html">S3eeD</a>
+      <div class="nav-dropdown">
+        <a href="index.html#video">آخر فيديو</a>
+        <a href="index.html#twitch">آخر بث</a>
+        <a href="index.html#gamesRating">تقييم الألعاب</a>
+        <a href="index.html#archive">الأرشيف</a>
+        <a href="index.html#suggest" class="js-suggest-link">الاقتراحات</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="fanart.html">FAN ART</a>
+      <div class="nav-dropdown">
+        <a href="fanart.html#home">آخر الرسمات</a>
+        <a href="fanart.html#topart">الأعلى تفاعلاً</a>
+        <a href="fanart.html#badges">البادجات</a>
+        <a href="fanart.html#create">نشر رسمة</a>
+      </div>
+    </div>
+  </nav>
+  <div class="controls"></div>
+</header>
+
+<a href="games.html" class="back-btn">رجوع</a>
+<div class="game-wrap">
+  <div class="head-row">
+    <span class="eyebrow">S3aS3 Games</span>
+    <h1>كوكيز كليكر</h1>
+  </div>
+
+  <div class="layout">
+
+    <div class="shop-panel" id="shopPanelClick">
+      <h2 class="shop-title">تطوير الضغطة العادية</h2>
+      <!-- items injected by JS -->
+    </div>
+
+    <div class="main-panel">
+      <div class="stat-line">
+        <div class="amount" id="oreAmount">0</div>
+        <div class="persec">خام / ثانية: <span id="oreRate">0</span></div>
+        <div class="persec">خام / ضغطة: <span id="clickPowerLabel">1</span></div>
+      </div>
+
+      <div class="ore-stage" id="oreStage">
+        <div id="orbitLayer"></div>
+        <svg id="oreBlock" class="ore-block" viewBox="0 0 16 16" shape-rendering="crispEdges"></svg>
+      </div>
+
+      <div class="hint">اضغط على الكوكيز عشان تجمع خام، واشترِ بيكاكسات عشان تشتغل بدالك أوتوماتيك</div>
+
+    </div>
+
+    <div class="shop-panel" id="shopPanel">
+      <h2 class="shop-title">بيكاكسات التعدين</h2>
+      <!-- items injected by JS -->
+    </div>
+
+  </div>
+</div>
+
+<footer>S3eeD — S3aS3 Games © 2026</footer>
+
+<script>
+(function(){
+
+  // ===================== بيانات البيكاكسات (تدرّج ماين كرافت الحقيقي) =====================
+  const TIERS = [
+    { key:"wood",      name:"بيكاكس خشبي",     desc:"أول أداة تعدين، بطيئة بس بلاش",   baseCost:72,       baseRate:3.4e-05,  head:"#9C7A4B", shade:"#7C5F39" },
+    { key:"stone",     name:"بيكاكس حجري",     desc:"أقوى شوي من الخشب",               baseCost:480,      baseRate:0.000334,    head:"#8C8C8C", shade:"#6E6E6E" },
+    { key:"copper",    name:"بيكاكس نحاسي",    desc:"معدن جديد، تعدين أسرع",            baseCost:5280,     baseRate:0.0026,    head:"#C57A46", shade:"#9C5D33" },
+    { key:"iron",      name:"بيكاكس حديدي",    desc:"متين وسريع نسبياً",                baseCost:57600,    baseRate:0.0156,   head:"#D8D8D2", shade:"#ABABA5" },
+    { key:"gold",      name:"بيكاكس ذهبي",     desc:"يلمع بس فعّال بقوة",               baseCost:624000,   baseRate:0.0866,  head:"#FAE45C", shade:"#C7B238" },
+    { key:"diamond",   name:"بيكاكس الماس",    desc:"من أقوى البيكاكسات بعالم ماين كرافت", baseCost:6720000,  baseRate:0.4666, head:"#62E4D9", shade:"#3BB0A6" },
+    { key:"netherite", name:"بيكاكس النذرايت", desc:"أسطوري.. أقوى بيكاكس ممكن تصنعه",  baseCost:96000000, baseRate:2.6, head:"#4A4145", shade:"#2E2831" },
+    { key:"eff1", name:"بيكاكس كفاءة 1", desc:"تطوير الكفاءة رقم 1 على بيكاكس النذرايت", baseCost:225600000, baseRate:6.334, head:"#7B4FA6", shade:"#4E2F6E" },
+    { key:"eff2", name:"بيكاكس كفاءة 2", desc:"تطوير الكفاءة رقم 2 على بيكاكس النذرايت", baseCost:528000000, baseRate:14.666, head:"#7B4FA6", shade:"#4E2F6E" },
+    { key:"eff3", name:"بيكاكس كفاءة 3", desc:"تطوير الكفاءة رقم 3 على بيكاكس النذرايت", baseCost:1248000000, baseRate:33.334, head:"#7B4FA6", shade:"#4E2F6E" },
+    { key:"eff4", name:"بيكاكس كفاءة 4", desc:"تطوير الكفاءة رقم 4 على بيكاكس النذرايت", baseCost:2880000000, baseRate:80, head:"#7B4FA6", shade:"#4E2F6E" },
+    { key:"eff5", name:"بيكاكس كفاءة 5", desc:"تطوير الكفاءة رقم 5 على بيكاكس النذرايت", baseCost:6720000000, baseRate:186.666, head:"#7B4FA6", shade:"#4E2F6E" },
+    { key:"eff6", name:"بيكاكس كفاءة 6", desc:"تطوير الكفاءة رقم 6 على بيكاكس النذرايت", baseCost:15840000000, baseRate:433.334, head:"#C34FA6", shade:"#7E2F6E" },
+    { key:"eff7", name:"بيكاكس كفاءة 7", desc:"تطوير الكفاءة رقم 7 على بيكاكس النذرايت", baseCost:37440000000, baseRate:1033.334, head:"#C34FA6", shade:"#7E2F6E" },
+    { key:"eff8", name:"بيكاكس كفاءة 8", desc:"تطوير الكفاءة رقم 8 على بيكاكس النذرايت", baseCost:86400000000, baseRate:2400, head:"#C34FA6", shade:"#7E2F6E" },
+    { key:"eff9", name:"بيكاكس كفاءة 9", desc:"تطوير الكفاءة رقم 9 على بيكاكس النذرايت", baseCost:206400000000, baseRate:5666.666, head:"#C34FA6", shade:"#7E2F6E" },
+    { key:"eff10", name:"بيكاكس كفاءة 10", desc:"تطوير الكفاءة رقم 10 على بيكاكس النذرايت", baseCost:480000000000, baseRate:13333.334, head:"#C34FA6", shade:"#7E2F6E" },
+    { key:"eff11", name:"بيكاكس كفاءة 11", desc:"تطوير الكفاءة رقم 11 على بيكاكس النذرايت", baseCost:1104000000000, baseRate:30666.666, head:"#4FA6C3", shade:"#2F6E7E" },
+    { key:"eff12", name:"بيكاكس كفاءة 12", desc:"تطوير الكفاءة رقم 12 على بيكاكس النذرايت", baseCost:2640000000000, baseRate:73333.334, head:"#4FA6C3", shade:"#2F6E7E" },
+    { key:"eff13", name:"بيكاكس كفاءة 13", desc:"تطوير الكفاءة رقم 13 على بيكاكس النذرايت", baseCost:6240000000000, baseRate:173333.334, head:"#4FA6C3", shade:"#2F6E7E" },
+    { key:"eff14", name:"بيكاكس كفاءة 14", desc:"تطوير الكفاءة رقم 14 على بيكاكس النذرايت", baseCost:14400000000000, baseRate:400000, head:"#4FA6C3", shade:"#2F6E7E" },
+    { key:"eff15", name:"بيكاكس كفاءة 15", desc:"تطوير الكفاءة رقم 15 على بيكاكس النذرايت — أعلى بيكاكس ممكن تشتريه", baseCost:48000000000000, baseRate:1333333.334, head:"#4FA6C3", shade:"#2F6E7E" },
+  ];
+  const HANDLE_COLOR = "#7A5A34";
+  const HANDLE_SHADE = "#5E4426";
+
+  // ===================== بيانات تطوير الضغطة العادية (تزيد الخام المكتسب من كل ضغطة يدوية) =====================
+  const CLICK_TIERS = [
+    { key:"grip1",  name:"قفاز قوة 1",  desc:"يزيد الخام المكتسب من كل ضغطة",       baseCost:105,        power:1 },
+    { key:"grip2",  name:"قفاز قوة 2",  desc:"ضغطة أقوى من الأولى",                 baseCost:263,        power:1 },
+    { key:"grip3",  name:"قفاز قوة 3",  desc:"يد أسرع وأقوى بكثير",                 baseCost:665,       power:1 },
+    { key:"grip4",  name:"قفاز قوة 4",  desc:"ضغطة توازي بيكاكس كامل",              baseCost:1645,       power:1 },
+    { key:"grip5",  name:"قفاز قوة 5",  desc:"طاقة هائلة بكل نقرة",                 baseCost:4200,      power:1 },
+    { key:"grip6",  name:"قفاز قوة 6",  desc:"ضغطة أسطورية",                        baseCost:10150,      power:1 },
+    { key:"grip7",  name:"قفاز قوة 7",  desc:"يد لا تتعب أبداً",                     baseCost:25550,      power:1 },
+    { key:"grip8",  name:"قفاز قوة 8",  desc:"أقوى ضغطة كانت موجودة",               baseCost:63000,     power:1 },
+    { key:"grip9",  name:"قفاز قوة 9",  desc:"قفاز مصنوع من الأوبسيديان",           baseCost:157500,     power:1 },
+    { key:"grip10", name:"قفاز قوة 10", desc:"ضغطة توازي انفجار تي إن تي",          baseCost:385000,    power:1 },
+    { key:"grip11", name:"قفاز قوة 11", desc:"طاقة الشبكة تمر بيدك",                 baseCost:980000,    power:2 },
+    { key:"grip12", name:"قفاز قوة 12", desc:"قفاز مسحور بالإندر",                   baseCost:2450000,    power:4 },
+    { key:"grip13", name:"قفاز قوة 13", desc:"يد أقوى من أي بيكاكس بالعالم",         baseCost:6300000,   power:9 },
+    { key:"grip14", name:"قفاز قوة 14", desc:"ضغطة تهز عالم ماين كرافت كله",         baseCost:15400000,   power:20 },
+    { key:"grip15", name:"قفاز قوة 15", desc:"قفاز صنعه التنين نفسه",                baseCost:38500000,  power:43 },
+    { key:"grip16", name:"قفاز قوة 16", desc:"طاقة النذرايت الخام بكل نقرة",          baseCost:94500000,  power:93 },
+    { key:"grip17", name:"قفاز قوة 17", desc:"ضغطة توازي قوة الوذر",                 baseCost:238000000,  power:200 },
+    { key:"grip18", name:"قفاز قوة 18", desc:"قفاز أسطوري ما بعده أسطورة",           baseCost:595000000, power:430 },
+    { key:"grip19", name:"قفاز قوة 19", desc:"يد تكسر حدود اللعبة",                  baseCost:1505000000, power:910 },
+    { key:"grip20", name:"قفاز قوة 20", desc:"أقوى قفاز ممكن توصل له إطلاقاً",       baseCost:3850000000,power:2000 },
+    { key:"grip21", name:"قفاز قوة 21", desc:"قفاز مصنوع من مواد ما بعد الوذر",      baseCost:9450000000, power:4200 },
+    { key:"grip22", name:"قفاز قوة 22", desc:"ضغطة تفوق كل حدود اللعبة القديمة",     baseCost:23100000000, power:9000 },
+    { key:"grip23", name:"قفاز قوة 23", desc:"طاقة نجمية تسري بكل نقرة",             baseCost:59500000000, power:19000 },
+    { key:"grip24", name:"قفاز قوة 24", desc:"قفاز مبارك من الآلهة",                 baseCost:143500000000, power:41000 },
+    { key:"grip25", name:"قفاز قوة 25", desc:"ضغطة تعادل انفجار نجم كامل",           baseCost:350000000000, power:88000 },
+    { key:"grip26", name:"قفاز قوة 26", desc:"يد مصنوعة من مادة الفراغ نفسها",       baseCost:910000000000, power:190000 },
+    { key:"grip27", name:"قفاز قوة 27", desc:"قفاز يهز أبعاد الكون",                 baseCost:2240000000000, power:410000 },
+    { key:"grip28", name:"قفاز قوة 28", desc:"طاقة أقوى من أي شيء تخيلته",           baseCost:5600000000000, power:870000 },
+    { key:"grip29", name:"قفاز قوة 29", desc:"ضغطة تتجاوز حدود الفيزياء",            baseCost:14000000000000, power:1900000 },
+    { key:"grip30", name:"قفاز قوة 30", desc:"أقوى قفاز بالوجود.. لا يوجد أقوى منه — يوصل سعره لـ10 تريليون خام", baseCost:35000000000000, power:4000000 },
+  ];
+  const GEM_COLORS = ["#7FE07A","#5CC7E0","#E0C15C","#E07A9A","#B07AE0","#E0955C","#7AE0C7","#E05C5C"];
+  const GEM_SHADES = ["#4FA84B","#3A93AC","#AC8F3A","#AC4F6C","#7C4FAC","#AC6A3A","#4FAC93","#AC3A3A"];
+
+  // أيقونة "جوهرة طاقة" بسيطة لتمثيل تطوير الضغطة (بدل البيكاكس)
+  function gemSVGInner(color, shade){
+    var rows = [
+      {y:3, x0:7, x1:8}, {y:4, x0:6, x1:9}, {y:5, x0:5, x1:10}, {y:6, x0:4, x1:11},
+      {y:7, x0:4, x1:11}, {y:8, x0:5, x1:10}, {y:9, x0:6, x1:9}, {y:10, x0:7, x1:8}
+    ];
+    var out = "";
+    rows.forEach(function(r){
+      out += '<rect x="'+r.x0+'" y="'+r.y+'" width="'+(r.x1-r.x0+1)+'" height="1" fill="'+color+'"/>';
+    });
+    rows.forEach(function(r){
+      out += '<rect x="'+r.x0+'" y="'+r.y+'" width="1" height="1" fill="'+shade+'"/>';
+      out += '<rect x="'+r.x1+'" y="'+r.y+'" width="1" height="1" fill="'+shade+'"/>';
+    });
+    return out;
+  }
+
+  // إحداثيات بكسل بيكاكس مبسطة (شبكة 16x16) — رأس على شكل V وعصا قطرية
+  const HEAD_PIX = [
+    [1,5],[1,6],[1,7],
+    [2,4],[2,8],
+    [3,3],[3,9],
+    [4,2],[4,10],
+  ];
+  const HEAD_SHADE_PIX = [
+    [2,5],[2,6],[2,7],
+    [3,4],[3,8],
+  ];
+  const HANDLE_PIX = [
+    [5,6],[6,5],[7,4],[8,3],[9,2],[10,1],[11,0]
+  ];
+  const HANDLE_SHADE_PIX = [
+    [6,6],[7,5],[8,4],[9,3],[10,2]
+  ];
+
+  function pickaxeSVGInner(head, shade){
+    let out = "";
+    HEAD_PIX.forEach(function(p){ out += '<rect x="'+p[1]+'" y="'+p[0]+'" width="1" height="1" fill="'+head+'"/>'; });
+    HEAD_SHADE_PIX.forEach(function(p){ out += '<rect x="'+p[1]+'" y="'+p[0]+'" width="1" height="1" fill="'+shade+'"/>'; });
+    HANDLE_PIX.forEach(function(p){ out += '<rect x="'+p[1]+'" y="'+p[0]+'" width="1" height="1" fill="'+HANDLE_COLOR+'"/>'; });
+    HANDLE_SHADE_PIX.forEach(function(p){ out += '<rect x="'+p[1]+'" y="'+p[0]+'" width="1" height="1" fill="'+HANDLE_SHADE+'"/>'; });
+    return out;
+  }
+
+  // بكسل آرت كوكيز — هذا هو الشي الي نضغط عليه
+  function cookieSVGInner(){
+    var base = "#C88A45", edge = "#A8672B", chip = "#5C3317";
+    var rows = [
+      {y:2, x0:5, x1:10}, {y:3, x0:3, x1:12}, {y:4, x0:2, x1:13}, {y:5, x0:1, x1:14},
+      {y:6, x0:1, x1:14}, {y:7, x0:0, x1:15}, {y:8, x0:0, x1:15}, {y:9, x0:1, x1:14},
+      {y:10, x0:1, x1:14}, {y:11, x0:2, x1:13}, {y:12, x0:3, x1:12}, {y:13, x0:5, x1:10}
+    ];
+    var out = "";
+    rows.forEach(function(r){
+      out += '<rect x="'+r.x0+'" y="'+r.y+'" width="'+(r.x1-r.x0+1)+'" height="1" fill="'+base+'"/>';
+    });
+    rows.forEach(function(r){
+      out += '<rect x="'+r.x0+'" y="'+r.y+'" width="1" height="1" fill="'+edge+'"/>';
+      out += '<rect x="'+r.x1+'" y="'+r.y+'" width="1" height="1" fill="'+edge+'"/>';
+    });
+    var chips = [[6,3],[4,5],[10,4],[7,7],[12,8],[3,9],[8,10],[11,11],[5,12]];
+    chips.forEach(function(c){
+      out += '<rect x="'+c[0]+'" y="'+c[1]+'" width="1" height="1" fill="'+chip+'"/>';
+    });
+    return out;
+  }
+
+  // الكوكيز يظهر بمنتصف الحلقة، هو نفسه الشي القابل للضغط
+  function renderOreBlock(){
+    var svg = document.getElementById("oreBlock");
+    svg.innerHTML = cookieSVGInner();
+  }
+
+  // ===================== الحالة =====================
+  var SAVE_KEY = "s3as3_toolminer_save_v1";
+  var state = {
+    ore: 0,
+    owned: {}, // key -> count (بيكاكسات)
+    ownedClick: {} // key -> count (تطوير الضغطة)
+  };
+  TIERS.forEach(function(t){ state.owned[t.key] = 0; });
+  CLICK_TIERS.forEach(function(t){ state.ownedClick[t.key] = 0; });
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(SAVE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        state.ore = parsed.ore || 0;
+        TIERS.forEach(function(t){ state.owned[t.key] = (parsed.owned && parsed.owned[t.key]) || 0; });
+        CLICK_TIERS.forEach(function(t){ state.ownedClick[t.key] = (parsed.ownedClick && parsed.ownedClick[t.key]) || 0; });
+      }
+    }catch(e){}
+  }
+  function save(){
+    try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  function clickPower(){
+    var power = 1;
+    CLICK_TIERS.forEach(function(t){ power += state.ownedClick[t.key] * t.power; });
+    return power;
+  }
+  function costForClick(tier){
+    var owned = state.ownedClick[tier.key];
+    return Math.ceil(tier.baseCost * Math.pow(1.32, owned));
+  }
+
+  function costFor(tier){
+    var owned = state.owned[tier.key];
+    return Math.ceil(tier.baseCost * Math.pow(1.9, owned));
+  }
+  function rateFor(tier){
+    return tier.baseRate * state.owned[tier.key];
+  }
+  function totalRate(){
+    var sum = 0;
+    TIERS.forEach(function(t){ sum += rateFor(t); });
+    return sum;
+  }
+
+  function formatNum(n){
+    n = Math.floor(n);
+    if(n < 1000) return n.toString();
+    var units = [
+      {v:1e15, s:"ق"}, {v:1e12, s:"ت"}, {v:1e9, s:"مليار"}, {v:1e6, s:"مليون"}, {v:1e3, s:"ألف"}
+    ];
+    for(var i=0;i<units.length;i++){
+      if(n >= units[i].v){
+        var val = n / units[i].v;
+        return (val >= 100 ? val.toFixed(0) : val.toFixed(1)) + " " + units[i].s;
+      }
+    }
+    return n.toString();
+  }
+
+  // ===================== الواجهة =====================
+  var oreAmountEl = document.getElementById("oreAmount");
+  var oreRateEl = document.getElementById("oreRate");
+  var shopPanel = document.getElementById("shopPanel");
+  var shopPanelClick = document.getElementById("shopPanelClick");
+  var orbitLayer = document.getElementById("orbitLayer");
+  var oreStage = document.getElementById("oreStage");
+  var clickPowerLabel = document.getElementById("clickPowerLabel");
+
+  function buildShop(){
+    // نحتفظ بالعنوان فقط ونعيد بناء العناصر
+    var title = shopPanel.querySelector(".shop-title");
+    shopPanel.innerHTML = "";
+    shopPanel.appendChild(title);
+
+    TIERS.forEach(function(tier, idx){
+      var unlocked = idx === 0 || state.owned[TIERS[idx-1].key] > 0 || state.owned[tier.key] > 0;
+      var el = document.createElement("div");
+      el.className = "item" + (unlocked ? "" : " locked");
+      el.dataset.key = tier.key;
+
+      var iconSvg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      iconSvg.setAttribute("viewBox","0 0 16 16");
+      iconSvg.setAttribute("class","icon");
+      iconSvg.setAttribute("shape-rendering","crispEdges");
+      iconSvg.innerHTML = pickaxeSVGInner(tier.head, tier.shade);
+
+      el.appendChild(iconSvg);
+
+      var info = document.createElement("div");
+      info.className = "info";
+      info.innerHTML = '<div class="name">'+tier.name+'</div><div class="desc">'+tier.desc+' — '+tier.baseRate+' خام/ثانية لكل واحد</div>';
+      el.appendChild(info);
+
+      var stats = document.createElement("div");
+      stats.className = "stats";
+      stats.innerHTML = '<div class="cost">'+formatNum(costFor(tier))+' خام</div><div class="owned">تملك: '+state.owned[tier.key]+'</div>';
+      el.appendChild(stats);
+
+      el.addEventListener("click", function(){ buy(tier); });
+
+      shopPanel.appendChild(el);
+    });
+  }
+
+  function buildShopClick(){
+    var title = shopPanelClick.querySelector(".shop-title");
+    shopPanelClick.innerHTML = "";
+    shopPanelClick.appendChild(title);
+
+    CLICK_TIERS.forEach(function(tier, idx){
+      var unlocked = idx === 0 || state.ownedClick[CLICK_TIERS[idx-1].key] > 0 || state.ownedClick[tier.key] > 0;
+      var el = document.createElement("div");
+      el.className = "item" + (unlocked ? "" : " locked");
+      el.dataset.key = tier.key;
+
+      var iconSvg = document.createElementNS("http://www.w3.org/2000/svg","svg");
+      iconSvg.setAttribute("viewBox","0 0 16 16");
+      iconSvg.setAttribute("class","icon");
+      iconSvg.setAttribute("shape-rendering","crispEdges");
+      iconSvg.innerHTML = gemSVGInner(GEM_COLORS[idx % GEM_COLORS.length], GEM_SHADES[idx % GEM_SHADES.length]);
+
+      el.appendChild(iconSvg);
+
+      var info = document.createElement("div");
+      info.className = "info";
+      info.innerHTML = '<div class="name">'+tier.name+'</div><div class="desc">'+tier.desc+' — ‎+'+tier.power+' خام لكل ضغطة</div>';
+      el.appendChild(info);
+
+      var purchased = state.ownedClick[tier.key] >= 1;
+      el.classList.toggle("purchased", purchased);
+
+      var stats = document.createElement("div");
+      stats.className = "stats";
+      stats.innerHTML = '<div class="cost">'+(purchased ? '✓ تم الامتلاك' : formatNum(costForClick(tier))+' خام')+'</div><div class="owned">'+(purchased ? '' : 'تملك: '+state.ownedClick[tier.key])+'</div>';
+      el.appendChild(stats);
+
+      el.addEventListener("click", function(){ buyClick(tier); });
+
+      shopPanelClick.appendChild(el);
+    });
+  }
+
+  function refreshShopClickAffordability(){
+    CLICK_TIERS.forEach(function(tier, idx){
+      var el = shopPanelClick.querySelector('[data-key="'+tier.key+'"]');
+      if(!el) return;
+      var unlocked = idx === 0 || state.ownedClick[CLICK_TIERS[idx-1].key] > 0 || state.ownedClick[tier.key] > 0;
+      el.classList.toggle("locked", !unlocked);
+      var purchased = state.ownedClick[tier.key] >= 1;
+      el.classList.toggle("purchased", purchased);
+      var cost = costForClick(tier);
+      el.classList.toggle("cant-afford", !purchased && state.ore < cost);
+      var costEl = el.querySelector(".cost");
+      var ownedEl = el.querySelector(".owned");
+      if(costEl) costEl.textContent = purchased ? "✓ تم الامتلاك" : (formatNum(cost) + " خام");
+      if(ownedEl) ownedEl.textContent = purchased ? "" : ("تملك: " + state.ownedClick[tier.key]);
+    });
+  }
+
+  function buyClick(tier){
+    if(state.ownedClick[tier.key] >= 1) return; // القفاز يُشترى مرة وحدة بس، ما ينطور
+    var cost = costForClick(tier);
+    if(state.ore < cost) return;
+    state.ore -= cost;
+    state.ownedClick[tier.key] += 1;
+    updateStats();
+    refreshShopAffordability();
+    refreshShopClickAffordability();
+    maybeRevealNextClick();
+    save();
+  }
+  
+
+  function maybeRevealNextClick(){
+    var needsRebuild = false;
+    CLICK_TIERS.forEach(function(tier, idx){
+      var el = shopPanelClick.querySelector('[data-key="'+tier.key+'"]');
+      if(!el) return;
+      var unlocked = idx === 0 || state.ownedClick[CLICK_TIERS[idx-1].key] > 0 || state.ownedClick[tier.key] > 0;
+      if(unlocked && el.classList.contains("locked")) needsRebuild = true;
+    });
+    if(needsRebuild) buildShopClick();
+  }
+
+  function refreshShopAffordability(){
+    TIERS.forEach(function(tier, idx){
+      var el = shopPanel.querySelector('[data-key="'+tier.key+'"]');
+      if(!el) return;
+      var unlocked = idx === 0 || state.owned[TIERS[idx-1].key] > 0 || state.owned[tier.key] > 0;
+      el.classList.toggle("locked", !unlocked);
+      var cost = costFor(tier);
+      el.classList.toggle("cant-afford", state.ore < cost);
+      var costEl = el.querySelector(".cost");
+      var ownedEl = el.querySelector(".owned");
+      if(costEl) costEl.textContent = formatNum(cost) + " خام";
+      if(ownedEl) ownedEl.textContent = "تملك: " + state.owned[tier.key];
+    });
+  }
+
+  function buy(tier){
+    var cost = costFor(tier);
+    if(state.ore < cost) return;
+    state.ore -= cost;
+    state.owned[tier.key] += 1;
+    renderOreBlock();
+    renderOrbits();
+    updateStats();
+    refreshShopAffordability();
+    refreshShopClickAffordability();
+    maybeRevealNext();
+    save();
+  }
+
+  function maybeRevealNext(){
+    // لو صار عندنا بيكاكس جديد مفتوح لأول مرة، نعيد بناء المتجر عشان يوقف يكون locked
+    var needsRebuild = false;
+    TIERS.forEach(function(tier, idx){
+      var el = shopPanel.querySelector('[data-key="'+tier.key+'"]');
+      if(!el) return;
+      var unlocked = idx === 0 || state.owned[TIERS[idx-1].key] > 0 || state.owned[tier.key] > 0;
+      if(unlocked && el.classList.contains("locked")) needsRebuild = true;
+    });
+    if(needsRebuild) buildShop();
+  }
+
+  function updateStats(){
+    oreAmountEl.textContent = formatNum(state.ore);
+    oreRateEl.textContent = formatNum(totalRate());
+    clickPowerLabel.textContent = formatNum(clickPower());
+  }
+
+  // مدار البيكاكسات حوالين الكوكيز — كل بيكاكس ملوّن حسب نوعه الحقيقي
+  // (مثلاً لو عندك 5 خشب و10 حجر، تظهر 5 أيقونات خشبية و10 حجرية، مو كلها بلون واحد)
+  function renderOrbits(){
+    var icons = [];
+    TIERS.forEach(function(t){
+      var owned = state.owned[t.key];
+      for(var i=0;i<owned;i++){ icons.push({head:t.head, shade:t.shade}); }
+    });
+
+    var MAX_ICONS = 24;
+    if(icons.length > MAX_ICONS){
+      // نأخذ عينة متناسبة عبر كل الأنواع عشان نحافظ على التنوع بدل ما ناخذ آخر نوع بس
+      var total = icons.length;
+      var sampled = [];
+      for(var i=0;i<MAX_ICONS;i++){
+        sampled.push(icons[Math.floor(i * total / MAX_ICONS)]);
+      }
+      icons = sampled;
+    }
+
+    orbitLayer.innerHTML = "";
+    var count = icons.length;
+    for(var i=0;i<count;i++){
+      var d = document.createElement("div");
+      d.className = "orbit-icon";
+      d.innerHTML = '<svg viewBox="0 0 16 16" shape-rendering="crispEdges" width="100%" height="100%">' + pickaxeSVGInner(icons[i].head, icons[i].shade) + '</svg>';
+      var duration = 6 + (i % 5);
+      var delay = -(i * (duration / Math.max(count,1)));
+      d.style.animationDuration = duration + "s";
+      d.style.animationDelay = delay + "s";
+      orbitLayer.appendChild(d);
+    }
+  }
+
+  function floatPop(text, x, y){
+    var pop = document.createElement("div");
+    pop.className = "float-pop";
+    pop.textContent = text;
+    pop.style.left = x + "px";
+    pop.style.top = y + "px";
+    oreStage.appendChild(pop);
+    setTimeout(function(){ pop.remove(); }, 850);
+  }
+
+  document.getElementById("oreBlock").addEventListener("click", function(e){
+    var gain = clickPower();
+    state.ore += gain;
+    updateStats();
+    refreshShopAffordability();
+    refreshShopClickAffordability();
+    var rect = oreStage.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = e.clientY - rect.top;
+    floatPop("+"+formatNum(gain), x, y);
+    save();
+  });
+
+  // ===================== حلقة اللعبة =====================
+  var TICK_MS = 200;
+  setInterval(function(){
+    var gain = totalRate() * (TICK_MS/1000);
+    if(gain > 0){
+      state.ore += gain;
+      updateStats();
+      refreshShopAffordability();
+      refreshShopClickAffordability();
+    }
+  }, TICK_MS);
+
+  var AUTOSAVE_MS = 5000;
+  setInterval(save, AUTOSAVE_MS);
+
+  // ===================== بداية التشغيل =====================
+  load();
+  renderOreBlock();
+  buildShop();
+  buildShopClick();
+  renderOrbits();
+  updateStats();
+  refreshShopAffordability();
+  refreshShopClickAffordability();
+
+})();
+</script>
+<script>
+  // ===== قوائم الأقسام تفتح بمجرد ما يقرب الماوس (هوفر)، وتختفي بس بعد مهلة بسيطة =====
+  // (المهلة عشان لو الماوس يعدي بفجوة صغيرة بين الرابط والقائمة، ما تسكر القائمة قبل ما توصلها)
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    let closeTimer = null;
+    item.addEventListener("mouseenter", function(){
+      clearTimeout(closeTimer);
+      item.classList.add("open");
+    });
+    item.addEventListener("mouseleave", function(){
+      closeTimer = setTimeout(function(){
+        item.classList.remove("open");
+      }, 300);
+    });
+  });
+</script>
+</body>
+</html>

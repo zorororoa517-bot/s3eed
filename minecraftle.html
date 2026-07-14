@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ماينكرافتل — S3aS3 Games</title>
+<link rel="icon" href="assets/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tan:#e4d0b4; --tan-deep:#cbb08a; --walnut:#403022; --charcoal:#2e2216; --cream:#FBF6EE;
+    --paper:#37291d; --ink:#292118; --ink-soft:#6e5d4d; --clay:#6F4E37;
+    --line: rgba(228,208,180,.16); --shadow: 0 10px 28px rgba(0,0,0,.45);
+    --bg:#403022; --surface:#37291d; --text:#e4d0b4; --text-soft:#cbb08a; --header-bg: var(--walnut);
+    --ok:#5b8c3a; --ok-deep:#496f2e; --bad:#a34c3a; --bad-deep:#833a2c;
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:'Tajawal', sans-serif;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  .topbar{
+    position:relative;
+    background: var(--header-bg); border-bottom: 1px solid var(--line);
+    padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .brand .mark{
+    width:34px; height:34px; border-radius:3px; background: var(--charcoal); color:var(--tan);
+    display:flex; align-items:center; justify-content:center; font-family:'Cairo', sans-serif; font-weight:700;
+    font-size:18px; transform: rotate(-3deg); overflow:hidden; position:relative;
+  }
+
+  /* ===== مؤثرات ماين كرافت على صورة البروفايل: توهج مشعل + لمعان إنشانتمنت ===== */
+  .brand .mark{ animation: mcTorchGlow 2.4s ease-in-out infinite; }
+  .brand .mark::before{
+    content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); z-index:2;
+  }
+  .brand .mark::after{
+    content:""; position:absolute; inset:-60% -160%; pointer-events:none; z-index:1;
+    background: linear-gradient(75deg, transparent 42%, rgba(255,255,255,.65) 50%, transparent 58%);
+    transform: translateX(-130%);
+    animation: mcEnchantSweep 4.5s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  .brand .mark img{ position:relative; z-index:0; }
+  @keyframes mcTorchGlow{
+    0%,100%{ box-shadow: 0 0 5px 1px rgba(255,170,60,.35); }
+    50%{ box-shadow: 0 0 14px 4px rgba(255,170,60,.6); }
+  }
+  @keyframes mcEnchantSweep{
+    0%, 62%{ transform: translateX(-130%); }
+    82%{ transform: translateX(130%); }
+    100%{ transform: translateX(130%); }
+  }
+  .brand .mark img{ width:100%; height:100%; object-fit:cover; }
+  .brand-name{ font-weight:800; font-size:19px; color:var(--charcoal); font-family:'Cairo', sans-serif; }
+  html[data-theme="dark"] .brand-name{ color:var(--tan); }
+
+  nav.main-nav{ display:flex; align-items:center; gap:60px; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .nav-link{ padding:9px 14px; border-radius:18px; font-size:13.5px; font-weight:700; color:var(--charcoal); opacity:.75; }
+  .nav-link:hover{ opacity:1; background:rgba(43,36,32,.08); }
+  .nav-link.active{ background:var(--charcoal); color:var(--tan); opacity:1; }
+
+  .nav-item{ position:relative; display:flex; align-items:center; }
+  .nav-dropdown{
+    position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+  }
+  .nav-item.open .nav-dropdown{ display:flex; }
+  .nav-dropdown a{
+    display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px;
+    font-size:13px; font-weight:700; color:var(--tan); opacity:.9; white-space:nowrap;
+  }
+  .nav-dropdown a:hover{ opacity:1; background:rgba(241,233,220,.08); }
+  html[data-theme="dark"] .nav-link{ color:var(--tan); }
+  @media(max-width:900px){ nav.main-nav{ display:none; } }
+
+  .controls{ margin-inline-start:auto; display:flex; align-items:center; gap:10px; flex-shrink:0;}
+
+  .game-wrap{ flex:1; width:100%; max-width:920px; margin:0 auto; padding:22px 16px 50px; display:flex; flex-direction:column; gap:16px; }
+  .head-row{ text-align:center; }
+  .eyebrow{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); font-weight:700; display:block; margin-bottom:6px;}
+  .head-row h1{ font-family:'Cairo', sans-serif; font-size:26px; margin:0; color:var(--tan); }
+  .puzzle-no{ font-size:12px; color:var(--text-soft); margin-top:6px; }
+  .hint{ font-size:12.5px; color:var(--text-soft); text-align:center; max-width:560px; margin:0 auto; line-height:1.7; }
+
+  /* ===== أزرار تبديل الأقسام ===== */
+  .mode-tabs{ display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+  .mode-tab{
+    background:var(--paper); border:1px solid var(--line); color:var(--text-soft); border-radius:14px;
+    padding:9px 18px; font-size:13.5px; font-weight:800; cursor:pointer; font-family:inherit;
+    display:flex; align-items:center; gap:7px;
+  }
+  .mode-tab .dot{ width:7px; height:7px; border-radius:50%; background:var(--text-soft); }
+  .mode-tab.active{ background:var(--clay); color:#fff; border-color:transparent; }
+  .mode-tab.active .dot{ background:#fff; }
+  .mode-tab.solved:not(.active){ border-color: var(--ok); color:var(--tan); }
+  .mode-tab.solved:not(.active) .dot{ background:var(--ok); }
+
+  .search-box{
+    position:relative; max-width:420px; width:100%; margin:0 auto; display:flex; gap:8px;
+  }
+  #guessInput{
+    flex:1; font-size:15px; padding:12px 16px; border-radius:14px; border:1px solid var(--line);
+    background:var(--paper); color:var(--text); font-family:inherit; text-align:right;
+  }
+  #guessInput:focus{ outline:2px solid var(--clay); }
+  #guessBtn{
+    background:var(--clay); color:#fff; border:none; border-radius:14px; padding:0 20px; font-weight:800;
+    font-size:14px; cursor:pointer; font-family:inherit; white-space:nowrap;
+  }
+  #guessBtn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .suggest-list{
+    position:absolute; top:100%; right:0; left:0; margin-top:6px; background:var(--surface);
+    border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); z-index:30;
+    max-height:230px; overflow-y:auto; display:none;
+  }
+  .suggest-list.show{ display:block; }
+  .suggest-item{
+    padding:9px 14px; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:8px;
+  }
+  .suggest-item:hover, .suggest-item.active{ background:rgba(241,233,220,.08); }
+
+  .top-actions{ display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+  .ghost-btn{
+    background:transparent; border:1px solid var(--line); color:var(--text-soft); border-radius:12px;
+    padding:8px 14px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;
+  }
+  .ghost-btn:disabled{ opacity:.35; cursor:not-allowed; }
+
+  .board-wrap{ overflow-x:auto; border-radius:16px; }
+  .board{ width:100%; border-collapse:separate; border-spacing:6px; min-width:600px; }
+  .board thead th{
+    font-size:11.5px; color:var(--text-soft); font-weight:700; padding:0 4px 2px; text-align:center;
+  }
+  .cell{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 8px;
+    text-align:center; font-size:13px; font-weight:700; color:var(--tan); vertical-align:middle;
+    animation: flip-in .35s ease both;
+  }
+  .cell.name-cell{ display:flex; flex-direction:column; align-items:center; gap:2px; font-size:12.5px; }
+  .cell.name-cell .emoji{ font-size:22px; }
+  .cell.ok{ background:linear-gradient(180deg, var(--ok), var(--ok-deep)); color:#fff; border-color:transparent; }
+  .cell.bad{ background:linear-gradient(180deg, var(--bad), var(--bad-deep)); color:#fff; border-color:transparent; }
+  .arrow{ display:block; font-size:11px; margin-top:2px; opacity:.9; }
+  @keyframes flip-in{ 0%{ transform:scale(.85); opacity:0; } 100%{ transform:scale(1); opacity:1; } }
+
+  .empty-board{ text-align:center; color:var(--text-soft); font-size:13px; padding:18px 0; }
+
+  .win-banner{
+    display:none; text-align:center; background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; box-shadow:var(--shadow); padding:20px; gap:10px; flex-direction:column; align-items:center;
+  }
+  .win-banner.show{ display:flex; }
+  .win-banner .big-emoji{ font-size:42px; }
+  .win-banner h2{ margin:0; font-family:'Cairo', sans-serif; color:var(--tan); font-size:19px; }
+  .win-banner p{ margin:0; color:var(--text-soft); font-size:13px; }
+  .win-actions{ display:flex; gap:10px; margin-top:6px; flex-wrap:wrap; justify-content:center; }
+  .primary-btn{
+    background:var(--clay); color:#fff; border:none; border-radius:12px; padding:10px 18px; font-weight:800;
+    font-size:13.5px; cursor:pointer; font-family:inherit;
+  }
+  .toast{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0;
+    background:var(--charcoal); color:var(--tan); border:1px solid var(--line); padding:10px 18px;
+    border-radius:14px; font-size:13px; font-weight:700; box-shadow:var(--shadow); z-index:200; pointer-events:none;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .legend{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--text-soft); }
+  .legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .legend i{ width:11px; height:11px; border-radius:4px; display:inline-block; }
+  .legend .lg-ok{ background:var(--ok); }
+  .legend .lg-bad{ background:var(--bad); }
+
+  /* ===== جلو + تكبير عند تمرير الماوس (كل أزرار الموقع والصورة) ===== */
+  .nav-link, button, [class*="btn"], .watch{
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .nav-link:hover, button:hover, [class*="btn"]:hover, .watch:hover{
+    transform: scale(1.06);
+    box-shadow: 0 0 16px 3px rgba(203,176,138,.55);
+    filter: brightness(1.08);
+  }
+  .brand .mark{ transition: transform .18s ease, box-shadow .18s ease; }
+  .brand:hover .mark{
+    animation: none;
+    transform: rotate(-3deg) scale(1.1);
+    box-shadow: 0 0 18px 4px rgba(203,176,138,.6), 0 0 26px 8px rgba(255,170,60,.35);
+  }
+  .brand:hover .mark::after{ animation-play-state: paused; }
+
+  /* ===== سكرول بلون بني فاتح متناسق مع خلفية الموقع ===== */
+  html{ scrollbar-width: thin; scrollbar-color: var(--tan) var(--bg); }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background: var(--bg); }
+  ::-webkit-scrollbar-thumb{ background: var(--tan); border-radius:8px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--tan-deep); }
+
+  footer{ text-align:center; padding:16px; color:var(--text-soft); font-size:12px; flex-shrink:0; }
+</style>
+  <style>
+  .ico{ display:inline-block; }
+  .ico-notif{ filter: brightness(0) saturate(100%) invert(66%) sepia(83%) saturate(195%) hue-rotate(-17deg) brightness(39%) contrast(144%); }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"><img src="assets/avatar.png" alt="S3eeD"></div>
+  </div>
+  <nav class="main-nav">
+    <div class="nav-item">
+      <a class="nav-link active" href="games.html">S3aS3 Games</a>
+      <div class="nav-dropdown">
+        <a href="creeper.html">كريبر شات</a>
+        <a href="miners.html">ماينر شات</a>
+        <a href="minshow.html">ماين شو</a>
+        <a href="quiz.html">أسئلة ماين كرافت</a>
+        <a href="toolminer.html">كوكيز كليكر</a>
+        <a href="minecraftle.html">ماينكرافتل</a>
+        <a href="runner.html">ستيف رنر</a>
+        <a href="puzzle.html">بازل</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="index.html">S3eeD</a>
+      <div class="nav-dropdown">
+        <a href="index.html#video">آخر فيديو</a>
+        <a href="index.html#twitch">آخر بث</a>
+        <a href="index.html#gamesRating">تقييم الألعاب</a>
+        <a href="index.html#archive">الأرشيف</a>
+        <a href="index.html#suggest" class="js-suggest-link">الاقتراحات</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="fanart.html">FAN ART</a>
+      <div class="nav-dropdown">
+        <a href="fanart.html#home">آخر الرسمات</a>
+        <a href="fanart.html#topart">الأعلى تفاعلاً</a>
+        <a href="fanart.html#badges">البادجات</a>
+        <a href="fanart.html#create">نشر رسمة</a>
+      </div>
+    </div>
+  </nav>
+  <div class="controls"></div>
+</header>
+
+<div class="game-wrap">
+  <div class="head-row">
+    <span class="eyebrow">S3aS3 Games</span>
+    <h1>ماينكرافتل</h1>
+    <div class="puzzle-no" id="puzzleNo">لغز اليوم #—</div>
+  </div>
+
+  <div class="mode-tabs" id="modeTabs"></div>
+
+  <p class="hint" id="modeHint">في كل يوم في عنصر سري من عالم ماين كرافت. خمّنه عن طريق كتابة اسمه، وبنقارن لك صفاته بصفات العنصر السري. الأخضر يعني تطابق، والأحمر يعني مب مطابق، والسهم يعني القيمة أعلى أو أقل من اللي تحتاجه.</p>
+
+  <div class="search-box">
+    <button id="guessBtn">تخمين</button>
+    <input id="guessInput" type="text" placeholder="اكتب اسم..." autocomplete="off">
+    <div class="suggest-list" id="suggestList"></div>
+  </div>
+
+  <div class="top-actions">
+    <button class="ghost-btn" id="giveUpBtn">أنا مستسلم — وريني الحل</button>
+    <button class="ghost-btn" id="resetBtn">؟ كيف ألعب</button>
+  </div>
+
+  <div class="legend">
+    <span><i class="lg-ok"></i> مطابق</span>
+    <span><i class="lg-bad"></i> غير مطابق</span>
+    <span>⬆️ / ⬇️ القيمة الصحيحة أعلى أو أقل</span>
+  </div>
+
+  <div class="win-banner" id="winBanner">
+    <div class="big-emoji" id="winEmoji"></div>
+    <h2 id="winTitle">عاش! خمّنتها صح</h2>
+    <p id="winSub">—</p>
+    <div class="win-actions">
+      <button class="primary-btn" id="shareBtn">شارك نتيجتك</button>
+    </div>
+  </div>
+
+  <div class="board-wrap">
+    <table class="board" id="board">
+      <thead>
+        <tr id="boardHeadRow"></tr>
+      </thead>
+      <tbody id="boardBody"></tbody>
+    </table>
+    <div class="empty-board" id="emptyBoard">لسا ما خمّنت شي — جرّب أول تخمينة!</div>
+  </div>
+</div>
+
+<div class="toast" id="toast">تم النسخ!</div>
+
+<footer>S3eeD — S3aS3 Games © 2026</footer>
+
+<script>
+(function(){
+  // ===================== قواعد البيانات =====================
+  // النوع لكل قسم فيه أعمدة مختلفة (kind: cat=فئة نصية / bool=نعم لا / num=رقم بسهم / version=إصدار بسهم)
+
+  var MOBS = [
+    {name:"Zombie", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Any dark place", health:20, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Skeleton", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Caves and at night", health:20, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Spider", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Caves", health:16, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Creeper", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Any dark place", health:20, flies:false, order:2, ver:"Early Version"},
+    {name:"Enderman", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Deserts and plains", health:40, flies:false, order:5, ver:"Beta 1.8"},
+    {name:"Villager", emoji:"", type:"Passive", dim:"Overworld", habitat:"Villages", health:20, flies:false, order:5, ver:"Beta 1.8"},
+    {name:"Iron Golem", emoji:"", type:"Passive", dim:"Overworld", habitat:"Villages", health:100, flies:false, order:5, ver:"Beta 1.8"},
+    {name:"Blaze", emoji:"", type:"Hostile", dim:"Nether", habitat:"Nether fortresses", health:20, flies:true, order:6, ver:"Beta 1.9"},
+    {name:"Ghast", emoji:"", type:"Hostile", dim:"Nether", habitat:"Open Nether", health:10, flies:true, order:6, ver:"Beta 1.9"},
+    {name:"Magma Cube", emoji:"", type:"Hostile", dim:"Nether", habitat:"Nether fortresses", health:16, flies:false, order:6, ver:"Beta 1.9"},
+    {name:"Wither Skeleton", emoji:"", type:"Hostile", dim:"Nether", habitat:"Nether fortresses", health:20, flies:false, order:6, ver:"Beta 1.9"},
+    {name:"Snow Golem", emoji:"", type:"Passive", dim:"Overworld", habitat:"Built by the player", health:4, flies:false, order:6, ver:"Beta 1.9"},
+    {name:"Ender Dragon", emoji:"", type:"Boss", dim:"The End", habitat:"The End island", health:200, flies:true, order:6, ver:"Beta 1.9"},
+    {name:"Wither", emoji:"", type:"Boss", dim:"Overworld", habitat:"Summoned by the player", health:300, flies:true, order:9, ver:"1.4"},
+    {name:"Witch", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Swamp huts", health:26, flies:false, order:9, ver:"1.4"},
+    {name:"Bat", emoji:"", type:"Passive", dim:"Overworld", habitat:"Caves", health:6, flies:true, order:9, ver:"1.4"},
+    {name:"Guardian", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Ocean monuments", health:30, flies:false, order:13, ver:"1.8"},
+    {name:"Elder Guardian", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Ocean monuments", health:80, flies:false, order:13, ver:"1.8"},
+    {name:"Shulker", emoji:"", type:"Hostile", dim:"The End", habitat:"End cities", health:30, flies:true, order:14, ver:"1.9"},
+    {name:"Polar Bear", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Snowy tundra", health:30, flies:false, order:15, ver:"1.10"},
+    {name:"Husk", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Deserts", health:20, flies:false, order:15, ver:"1.10"},
+    {name:"Stray", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Snowy tundra", health:20, flies:false, order:15, ver:"1.10"},
+    {name:"Llama", emoji:"", type:"Passive", dim:"Overworld", habitat:"Mountains and savanna", health:25, flies:false, order:16, ver:"1.11"},
+    {name:"Vindicator", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Woodland mansions", health:24, flies:false, order:16, ver:"1.11"},
+    {name:"Evoker", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Woodland mansions", health:24, flies:false, order:16, ver:"1.11"},
+    {name:"Vex", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Woodland mansions", health:14, flies:true, order:16, ver:"1.11"},
+    {name:"Parrot", emoji:"", type:"Passive", dim:"Overworld", habitat:"Jungles", health:6, flies:true, order:17, ver:"1.12"},
+    {name:"Turtle", emoji:"", type:"Passive", dim:"Overworld", habitat:"Beaches", health:30, flies:false, order:18, ver:"1.13"},
+    {name:"Phantom", emoji:"", type:"Hostile", dim:"Overworld", habitat:"The sky at night", health:20, flies:true, order:19, ver:"1.14"},
+    {name:"Cat", emoji:"", type:"Passive", dim:"Overworld", habitat:"Villages", health:10, flies:false, order:19, ver:"1.14"},
+    {name:"Fox", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Taiga forests", health:10, flies:false, order:19, ver:"1.14"},
+    {name:"Panda", emoji:"", type:"Passive", dim:"Overworld", habitat:"Bamboo forests", health:20, flies:false, order:19, ver:"1.14"},
+    {name:"Pillager", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Pillager outposts", health:24, flies:false, order:19, ver:"1.14"},
+    {name:"Ravager", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Pillager outposts", health:100, flies:false, order:19, ver:"1.14"},
+    {name:"Wandering Trader", emoji:"", type:"Passive", dim:"Overworld", habitat:"Wanders randomly", health:20, flies:false, order:19, ver:"1.14"},
+    {name:"Bee", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Plains and flower fields", health:10, flies:true, order:20, ver:"1.15"},
+    {name:"Hoglin", emoji:"", type:"Hostile", dim:"Nether", habitat:"Crimson forests", health:40, flies:false, order:21, ver:"1.16"},
+    {name:"Piglin", emoji:"", type:"Neutral", dim:"Nether", habitat:"Nether wastes", health:16, flies:false, order:21, ver:"1.16"},
+    {name:"Piglin Brute", emoji:"", type:"Hostile", dim:"Nether", habitat:"Nether bastions", health:50, flies:false, order:21, ver:"1.16"},
+    {name:"Strider", emoji:"", type:"Passive", dim:"Nether", habitat:"Lava lakes", health:20, flies:false, order:21, ver:"1.16"},
+    {name:"Axolotl", emoji:"", type:"Passive", dim:"Overworld", habitat:"Underwater caves", health:14, flies:false, order:22, ver:"1.17"},
+    {name:"Goat", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Mountain peaks", health:10, flies:false, order:22, ver:"1.17"},
+    {name:"Warden", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Ancient cities", health:500, flies:false, order:23, ver:"1.19"},
+    {name:"Allay", emoji:"", type:"Passive", dim:"Overworld", habitat:"Woodland structures", health:20, flies:true, order:23, ver:"1.19"},
+    {name:"Frog", emoji:"", type:"Passive", dim:"Overworld", habitat:"Swamps", health:10, flies:false, order:23, ver:"1.19"},
+    {name:"Camel", emoji:"", type:"Passive", dim:"Overworld", habitat:"Desert villages", health:32, flies:false, order:24, ver:"1.20"},
+    {name:"Sniffer", emoji:"", type:"Passive", dim:"Overworld", habitat:"Hatched from an ancient egg", health:14, flies:false, order:24, ver:"1.20"},
+    {name:"Armadillo", emoji:"", type:"Passive", dim:"Overworld", habitat:"Savanna", health:12, flies:false, order:25, ver:"1.21"},
+    {name:"Breeze", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Trial chambers", health:30, flies:true, order:25, ver:"1.21"},
+    {name:"Bogged", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Mangrove swamps", health:16, flies:false, order:25, ver:"1.21"},
+    {name:"Chicken", emoji:"", type:"Passive", dim:"Overworld", habitat:"Plains and grasslands", health:4, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Cow", emoji:"", type:"Passive", dim:"Overworld", habitat:"Plains and grasslands", health:10, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Pig", emoji:"", type:"Passive", dim:"Overworld", habitat:"Plains and grasslands", health:10, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Sheep", emoji:"", type:"Passive", dim:"Overworld", habitat:"Plains and grasslands", health:8, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Squid", emoji:"", type:"Passive", dim:"Overworld", habitat:"Oceans and rivers", health:10, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Slime", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Swamps and underground", health:16, flies:false, order:2, ver:"Early Version"},
+    {name:"Wolf", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Forests and taiga", health:8, flies:false, order:2, ver:"Early Version"},
+    {name:"Silverfish", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Stone monster eggs", health:8, flies:false, order:3, ver:"Beta 1.5"},
+    {name:"Cave Spider", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Abandoned mineshafts", health:12, flies:false, order:4, ver:"Beta 1.7"},
+    {name:"Ocelot", emoji:"", type:"Passive", dim:"Overworld", habitat:"Jungles", health:10, flies:false, order:7, ver:"1.2"},
+    {name:"Zombie Villager", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Any dark place, or converted from a Villager", health:20, flies:false, order:9, ver:"1.4"},
+    {name:"Mooshroom", emoji:"", type:"Passive", dim:"Overworld", habitat:"Mushroom fields", health:10, flies:false, order:6, ver:"Beta 1.9"},
+    {name:"Zombified Piglin", emoji:"", type:"Neutral", dim:"Nether", habitat:"Nether wastes and portals", health:20, flies:false, order:6, ver:"Beta 1.9"},
+    {name:"Rabbit", emoji:"", type:"Passive", dim:"Overworld", habitat:"Plains and deserts", health:3, flies:false, order:13, ver:"1.8"},
+    {name:"Endermite", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Rarely spawns from ender pearl use", health:8, flies:false, order:13, ver:"1.8"},
+    {name:"Horse", emoji:"", type:"Passive", dim:"Overworld", habitat:"Plains and savanna", health:30, flies:false, order:11, ver:"1.6"},
+    {name:"Donkey", emoji:"", type:"Passive", dim:"Overworld", habitat:"Plains and savanna", health:30, flies:false, order:11, ver:"1.6"},
+    {name:"Mule", emoji:"", type:"Passive", dim:"Overworld", habitat:"Plains and savanna", health:30, flies:false, order:11, ver:"1.6"},
+    {name:"Skeleton Horse", emoji:"", type:"Passive", dim:"Overworld", habitat:"Summoned during thunderstorms", health:15, flies:false, order:11, ver:"1.6"},
+    {name:"Zombie Horse", emoji:"", type:"Passive", dim:"Overworld", habitat:"Obtained only via spawn egg", health:15, flies:false, order:11, ver:"1.6"},
+    {name:"Dolphin", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Oceans", health:10, flies:false, order:18, ver:"1.13"},
+    {name:"Cod", emoji:"", type:"Passive", dim:"Overworld", habitat:"Oceans", health:3, flies:false, order:18, ver:"1.13"},
+    {name:"Salmon", emoji:"", type:"Passive", dim:"Overworld", habitat:"Cold oceans and rivers", health:3, flies:false, order:18, ver:"1.13"},
+    {name:"Pufferfish", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Oceans", health:3, flies:false, order:18, ver:"1.13"},
+    {name:"Tropical Fish", emoji:"", type:"Passive", dim:"Overworld", habitat:"Warm oceans", health:3, flies:false, order:18, ver:"1.13"},
+    {name:"Drowned", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Oceans and rivers", health:20, flies:false, order:18, ver:"1.13"},
+    {name:"Glow Squid", emoji:"", type:"Passive", dim:"Overworld", habitat:"Dark underwater caves", health:10, flies:false, order:22, ver:"1.17"},
+    {name:"Zoglin", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Anywhere (converted Hoglin)", health:40, flies:false, order:21, ver:"1.16"},
+    {name:"Tadpole", emoji:"", type:"Passive", dim:"Overworld", habitat:"Swamps (hatches from frogspawn)", health:6, flies:false, order:23, ver:"1.19"},
+    {name:"Giant", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Unused, spawned only via commands", health:100, flies:false, order:1, ver:"Very Old Version"},
+    {name:"Illusioner", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Woodland mansions (rare)", health:32, flies:false, order:17, ver:"1.12"},
+    {name:"Creaking", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Pale Garden, spawned by a Creaking Heart", health:2, flies:false, order:26, ver:"1.21.4"},
+    {name:"Copper Golem", emoji:"", type:"Passive", dim:"Overworld", habitat:"Built by the player (copper block + carved pumpkin)", health:12, flies:false, order:27, ver:"1.21.9"},
+    {name:"Sulfur Cube", emoji:"", type:"Passive", dim:"Overworld", habitat:"Sulfur caves", health:8, flies:false, order:28, ver:"26.2"},
+    {name:"Trader Llama", emoji:"", type:"Neutral", dim:"Overworld", habitat:"Spawns alongside Wandering Traders", health:25, flies:false, order:19, ver:"1.14"},
+    {name:"The Killer Bunny", emoji:"", type:"Hostile", dim:"Overworld", habitat:"Summoned only via commands (rare rabbit variant)", health:3, flies:false, order:13, ver:"1.8"}
+  ];
+
+  var BLOCKS = [
+    {name:"Dirt", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.5, order:1, ver:"Very Old Version"},
+    {name:"Stone", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:1, ver:"Very Old Version"},
+    {name:"Oak Log", emoji:"", type:"Natural", flammable:true, tool:"Axe", hardness:2, order:1, ver:"Very Old Version"},
+    {name:"Oak Planks", emoji:"", type:"Building", flammable:true, tool:"Axe", hardness:2, order:1, ver:"Very Old Version"},
+    {name:"Sand", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.5, order:1, ver:"Very Old Version"},
+    {name:"Gravel", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.6, order:1, ver:"Very Old Version"},
+    {name:"Glass", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0.3, order:1, ver:"Very Old Version"},
+    {name:"TNT", emoji:"", type:"Redstone", flammable:true, tool:"No Tool Required", hardness:0, order:1, ver:"Very Old Version"},
+    {name:"Obsidian", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:50, order:1, ver:"Very Old Version"},
+    {name:"Iron Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:5, order:1, ver:"Very Old Version"},
+    {name:"Gold Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:3, order:1, ver:"Very Old Version"},
+    {name:"Diamond Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:5, order:1, ver:"Very Old Version"},
+    {name:"Wool", emoji:"", type:"Decoration", flammable:true, tool:"No Tool Required", hardness:0.8, order:1, ver:"Very Old Version"},
+    {name:"Clay", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.6, order:1, ver:"Very Old Version"},
+    {name:"Bricks", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:2, order:1, ver:"Very Old Version"},
+    {name:"Chest", emoji:"", type:"Storage", flammable:true, tool:"Axe", hardness:2.5, order:1, ver:"Very Old Version"},
+    {name:"Redstone Block", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:5, order:3, ver:"Beta 1.5"},
+    {name:"Netherrack", emoji:"🟥", type:"Natural", flammable:true, tool:"Pickaxe", hardness:0.4, order:6, ver:"Beta 1.9"},
+    {name:"Emerald Block", emoji:"🟩", type:"Building", flammable:false, tool:"Pickaxe", hardness:5, order:8, ver:"1.3"},
+    {name:"Beacon", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:3, order:9, ver:"1.4"},
+    {name:"Quartz Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:0.8, order:10, ver:"1.5"},
+    {name:"Sea Lantern", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0.3, order:13, ver:"1.8"},
+    {name:"Shulker Box", emoji:"", type:"Storage", flammable:false, tool:"Pickaxe", hardness:2, order:16, ver:"1.11"},
+    {name:"Blue Ice", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:2.8, order:18, ver:"1.13"},
+    {name:"Bee Nest", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0.3, order:20, ver:"1.15"},
+    {name:"Ancient Debris", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:30, order:21, ver:"1.16"},
+    {name:"Moss Block", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0.1, order:22, ver:"1.17"},
+    {name:"Deepslate", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:3, order:22, ver:"1.17"},
+    {name:"Sculk", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0.2, order:23, ver:"1.19"},
+    {name:"Mud Bricks", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:1.5, order:23, ver:"1.19"},
+    {name:"Crafter", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:1.5, order:25, ver:"1.21"},
+    {name:"Bedrock", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:-1, order:1, ver:"Very Old Version"},
+    {name:"Bookshelf", emoji:"", type:"Decoration", flammable:true, tool:"Axe", hardness:1.5, order:1, ver:"Very Old Version"},
+    {name:"Crafting Table", emoji:"", type:"Building", flammable:true, tool:"Axe", hardness:2.5, order:1, ver:"Very Old Version"},
+    {name:"Furnace", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:3.5, order:1, ver:"Very Old Version"},
+    {name:"Torch", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:1, ver:"Very Old Version"},
+    {name:"Ladder", emoji:"", type:"Decoration", flammable:true, tool:"No Tool Required", hardness:0.4, order:1, ver:"Very Old Version"},
+    {name:"Cobweb", emoji:"", type:"Decoration", flammable:true, tool:"Sword", hardness:4, order:1, ver:"Very Old Version"},
+    {name:"Ice", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:0.5, order:1, ver:"Very Old Version"},
+    {name:"Snow Block", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.2, order:1, ver:"Very Old Version"},
+    {name:"Cactus", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0.4, order:1, ver:"Very Old Version"},
+    {name:"Pumpkin", emoji:"", type:"Natural", flammable:false, tool:"Axe", hardness:1, order:1, ver:"Very Old Version"},
+    {name:"Melon", emoji:"", type:"Natural", flammable:false, tool:"Axe", hardness:1, order:1, ver:"Very Old Version"},
+    {name:"Sponge", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0.6, order:1, ver:"Very Old Version"},
+    {name:"Note Block", emoji:"", type:"Redstone", flammable:true, tool:"Axe", hardness:0.8, order:1, ver:"Very Old Version"},
+    {name:"Jukebox", emoji:"", type:"Decoration", flammable:true, tool:"Axe", hardness:2, order:1, ver:"Very Old Version"},
+    {name:"Lapis Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:3, order:1, ver:"Very Old Version"},
+    {name:"Grass Block", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.6, order:1, ver:"Very Old Version"},
+    {name:"Farmland", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.6, order:1, ver:"Very Old Version"},
+    {name:"Coal Block", emoji:"", type:"Building", flammable:true, tool:"Pickaxe", hardness:5, order:1, ver:"Very Old Version"},
+    {name:"Piston", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:1.5, order:1, ver:"Very Old Version"},
+    {name:"Sticky Piston", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:1.5, order:1, ver:"Very Old Version"},
+    {name:"Lever", emoji:"", type:"Redstone", flammable:false, tool:"No Tool Required", hardness:0.5, order:1, ver:"Very Old Version"},
+    {name:"Redstone Lamp", emoji:"", type:"Redstone", flammable:false, tool:"No Tool Required", hardness:0.3, order:1, ver:"Very Old Version"},
+    {name:"Spawner", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:5, order:1, ver:"Very Old Version"},
+    {name:"Enchanting Table", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:5, order:1, ver:"Very Old Version"},
+    {name:"Dispenser", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:3.5, order:3, ver:"Beta 1.5"},
+    {name:"Mycelium", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.6, order:6, ver:"Beta 1.9"},
+    {name:"Glowstone", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0.3, order:6, ver:"Beta 1.9"},
+    {name:"Soul Sand", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.5, order:6, ver:"Beta 1.9"},
+    {name:"Anvil", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:5, order:9, ver:"1.4"},
+    {name:"Hay Bale", emoji:"", type:"Building", flammable:true, tool:"No Tool Required", hardness:0.5, order:9, ver:"1.4"},
+    {name:"Hopper", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:3, order:10, ver:"1.5"},
+    {name:"Dropper", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:3.5, order:10, ver:"1.5"},
+    {name:"Daylight Detector", emoji:"", type:"Redstone", flammable:true, tool:"Axe", hardness:0.2, order:10, ver:"1.5"},
+    {name:"Podzol", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.5, order:12, ver:"1.7"},
+    {name:"Packed Ice", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:0.5, order:12, ver:"1.7"},
+    {name:"Coarse Dirt", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.5, order:12, ver:"1.7"},
+    {name:"Prismarine", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:1.5, order:13, ver:"1.8"},
+    {name:"Prismarine Bricks", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:1.5, order:13, ver:"1.8"},
+    {name:"Dark Prismarine", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:1.5, order:13, ver:"1.8"},
+    {name:"Slime Block", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0, order:13, ver:"1.8"},
+    {name:"End Rod", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:14, ver:"1.9"},
+    {name:"End Stone", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:3, order:14, ver:"1.9"},
+    {name:"Purpur Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:1.5, order:14, ver:"1.9"},
+    {name:"Chorus Plant", emoji:"", type:"Natural", flammable:false, tool:"Axe", hardness:0.4, order:14, ver:"1.9"},
+    {name:"Chorus Flower", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0.4, order:14, ver:"1.9"},
+    {name:"Dirt Path", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.65, order:14, ver:"1.9"},
+    {name:"Bone Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:2, order:15, ver:"1.10"},
+    {name:"Observer", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:3.5, order:16, ver:"1.11"},
+    {name:"Conduit", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:3, order:18, ver:"1.13"},
+    {name:"Sea Pickle", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:18, ver:"1.13"},
+    {name:"Dried Kelp Block", emoji:"", type:"Building", flammable:true, tool:"No Tool Required", hardness:0.5, order:18, ver:"1.13"},
+    {name:"Barrel", emoji:"", type:"Storage", flammable:true, tool:"Axe", hardness:2.5, order:19, ver:"1.14"},
+    {name:"Smoker", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:3.5, order:19, ver:"1.14"},
+    {name:"Blast Furnace", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:3.5, order:19, ver:"1.14"},
+    {name:"Cartography Table", emoji:"", type:"Building", flammable:true, tool:"Axe", hardness:2.5, order:19, ver:"1.14"},
+    {name:"Fletching Table", emoji:"", type:"Building", flammable:true, tool:"Axe", hardness:2, order:19, ver:"1.14"},
+    {name:"Smithing Table", emoji:"", type:"Building", flammable:true, tool:"Axe", hardness:2.5, order:19, ver:"1.14"},
+    {name:"Loom", emoji:"", type:"Building", flammable:true, tool:"Axe", hardness:2.5, order:19, ver:"1.14"},
+    {name:"Stonecutter", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:3.5, order:19, ver:"1.14"},
+    {name:"Grindstone", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:2, order:19, ver:"1.14"},
+    {name:"Lantern", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:3.5, order:19, ver:"1.14"},
+    {name:"Campfire", emoji:"", type:"Decoration", flammable:true, tool:"Axe", hardness:2, order:19, ver:"1.14"},
+    {name:"Composter", emoji:"", type:"Building", flammable:true, tool:"Axe", hardness:0.6, order:19, ver:"1.14"},
+    {name:"Scaffolding", emoji:"", type:"Building", flammable:true, tool:"No Tool Required", hardness:0, order:19, ver:"1.14"},
+    {name:"Honeycomb Block", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0.6, order:20, ver:"1.15"},
+    {name:"Honey Block", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0, order:20, ver:"1.15"},
+    {name:"Basalt", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.25, order:21, ver:"1.16"},
+    {name:"Crying Obsidian", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:50, order:21, ver:"1.16"},
+    {name:"Respawn Anchor", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:50, order:21, ver:"1.16"},
+    {name:"Soul Soil", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.5, order:21, ver:"1.16"},
+    {name:"Shroomlight", emoji:"", type:"Decoration", flammable:false, tool:"Hoe", hardness:1, order:21, ver:"1.16"},
+    {name:"Nether Wart Block", emoji:"", type:"Building", flammable:false, tool:"Hoe", hardness:1, order:21, ver:"1.16"},
+    {name:"Netherite Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:50, order:21, ver:"1.16"},
+    {name:"Lodestone", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:3.5, order:21, ver:"1.16"},
+    {name:"Target Block", emoji:"", type:"Redstone", flammable:false, tool:"Hoe", hardness:0.5, order:21, ver:"1.16"},
+    {name:"Chain", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:5, order:21, ver:"1.16"},
+    {name:"Copper Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:3, order:22, ver:"1.17"},
+    {name:"Raw Copper Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:5, order:22, ver:"1.17"},
+    {name:"Raw Iron Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:5, order:22, ver:"1.17"},
+    {name:"Raw Gold Block", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:5, order:22, ver:"1.17"},
+    {name:"Amethyst Block", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:22, ver:"1.17"},
+    {name:"Budding Amethyst", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:22, ver:"1.17"},
+    {name:"Tuff", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:22, ver:"1.17"},
+    {name:"Calcite", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:0.75, order:22, ver:"1.17"},
+    {name:"Dripstone Block", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:22, ver:"1.17"},
+    {name:"Pointed Dripstone", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:22, ver:"1.17"},
+    {name:"Glow Lichen", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0.2, order:22, ver:"1.17"},
+    {name:"Spore Blossom", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0, order:22, ver:"1.17"},
+    {name:"Mud", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.5, order:23, ver:"1.19"},
+    {name:"Muddy Mangrove Roots", emoji:"", type:"Natural", flammable:false, tool:"Axe", hardness:0.7, order:23, ver:"1.19"},
+    {name:"Sculk Catalyst", emoji:"", type:"Natural", flammable:false, tool:"Hoe", hardness:3, order:23, ver:"1.19"},
+    {name:"Sculk Sensor", emoji:"", type:"Redstone", flammable:false, tool:"Hoe", hardness:1.5, order:23, ver:"1.19"},
+    {name:"Sculk Shrieker", emoji:"", type:"Redstone", flammable:false, tool:"Hoe", hardness:3, order:23, ver:"1.19"},
+    {name:"Reinforced Deepslate", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:-1, order:23, ver:"1.19"},
+    {name:"Froglight", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0.3, order:23, ver:"1.19"},
+    {name:"Chiseled Bookshelf", emoji:"", type:"Decoration", flammable:true, tool:"Axe", hardness:1.5, order:24, ver:"1.20"},
+    {name:"Decorated Pot", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:24, ver:"1.20"},
+    {name:"Calibrated Sculk Sensor", emoji:"", type:"Redstone", flammable:false, tool:"Hoe", hardness:1.5, order:24, ver:"1.20"},
+    {name:"Trial Spawner", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:50, order:25, ver:"1.21"},
+    {name:"Vault", emoji:"", type:"Storage", flammable:false, tool:"Pickaxe", hardness:50, order:25, ver:"1.21"},
+    {name:"Heavy Core", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:10, order:25, ver:"1.21"},
+    {name:"Copper Bulb", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:3, order:25, ver:"1.21"},
+    {name:"Copper Grate", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:3, order:25, ver:"1.21"},
+    {name:"Cobblestone", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:2, order:1, ver:"Very Old Version"},
+    {name:"Sandstone", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:0.8, order:1, ver:"Very Old Version"},
+    {name:"Red Sandstone", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:0.8, order:13, ver:"1.8"},
+    {name:"Granite", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:1, ver:"Very Old Version"},
+    {name:"Diorite", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:1, ver:"Very Old Version"},
+    {name:"Andesite", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:1.5, order:1, ver:"Very Old Version"},
+    {name:"Mossy Cobblestone", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:2, order:1, ver:"Very Old Version"},
+    {name:"Stone Bricks", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:1.5, order:1, ver:"Very Old Version"},
+    {name:"Nether Bricks", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:2, order:6, ver:"Beta 1.9"},
+    {name:"Iron Bars", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:5, order:1, ver:"Very Old Version"},
+    {name:"Iron Door", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:5, order:1, ver:"Very Old Version"},
+    {name:"Rail", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:0.7, order:1, ver:"Very Old Version"},
+    {name:"Powered Rail", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:0.7, order:1, ver:"Very Old Version"},
+    {name:"Detector Rail", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:0.7, order:1, ver:"Very Old Version"},
+    {name:"Activator Rail", emoji:"", type:"Redstone", flammable:false, tool:"Pickaxe", hardness:0.7, order:3, ver:"Beta 1.5"},
+    {name:"Redstone Torch", emoji:"", type:"Redstone", flammable:false, tool:"No Tool Required", hardness:0, order:1, ver:"Very Old Version"},
+    {name:"Repeater", emoji:"", type:"Redstone", flammable:false, tool:"No Tool Required", hardness:0, order:3, ver:"Beta 1.5"},
+    {name:"Comparator", emoji:"", type:"Redstone", flammable:false, tool:"No Tool Required", hardness:0, order:3, ver:"Beta 1.5"},
+    {name:"Cauldron", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:2, order:1, ver:"Very Old Version"},
+    {name:"Brewing Stand", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:0.5, order:6, ver:"Beta 1.9"},
+    {name:"Ender Chest", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:22.5, order:6, ver:"Beta 1.9"},
+    {name:"Trapped Chest", emoji:"", type:"Storage", flammable:true, tool:"Axe", hardness:2.5, order:13, ver:"1.8"},
+    {name:"Lily Pad", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:1, ver:"Very Old Version"},
+    {name:"Vine", emoji:"", type:"Decoration", flammable:true, tool:"Axe", hardness:0.2, order:1, ver:"Very Old Version"},
+    {name:"Turtle Egg", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0.5, order:18, ver:"1.13"},
+    {name:"Bamboo", emoji:"", type:"Natural", flammable:true, tool:"No Tool Required", hardness:1, order:19, ver:"1.14"},
+    {name:"Flower Pot", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:1, ver:"Very Old Version"},
+    {name:"Item Frame", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:5, ver:"Beta 1.8"},
+    {name:"Painting", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:1, ver:"Very Old Version"},
+    {name:"Armor Stand", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0, order:13, ver:"1.8"},
+    {name:"Lectern", emoji:"", type:"Building", flammable:true, tool:"Axe", hardness:2.5, order:19, ver:"1.14"},
+    {name:"Beehive", emoji:"", type:"Natural", flammable:true, tool:"Axe", hardness:0.6, order:20, ver:"1.15"},
+    {name:"Bell", emoji:"", type:"Decoration", flammable:false, tool:"Pickaxe", hardness:5, order:19, ver:"1.14"},
+    {name:"Nether Gold Ore", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:3, order:21, ver:"1.16"},
+    {name:"Nether Quartz Ore", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:3, order:10, ver:"1.5"},
+    {name:"Magma Block", emoji:"", type:"Natural", flammable:false, tool:"Pickaxe", hardness:0.5, order:21, ver:"1.16"},
+    {name:"Terracotta", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:1.25, order:12, ver:"1.7"},
+    {name:"Concrete", emoji:"", type:"Building", flammable:false, tool:"Pickaxe", hardness:1.8, order:17, ver:"1.12"},
+    {name:"Concrete Powder", emoji:"", type:"Natural", flammable:false, tool:"Shovel", hardness:0.5, order:17, ver:"1.12"},
+    {name:"Stained Glass", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:0.3, order:12, ver:"1.7"},
+    {name:"Powder Snow", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0.5, order:22, ver:"1.17"},
+    {name:"Kelp", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0, order:18, ver:"1.13"},
+    {name:"Seagrass", emoji:"", type:"Natural", flammable:false, tool:"No Tool Required", hardness:0, order:18, ver:"1.13"},
+    {name:"Structure Block", emoji:"", type:"Building", flammable:false, tool:"No Tool Required", hardness:-1, order:17, ver:"1.12"},
+    {name:"Command Block", emoji:"", type:"Redstone", flammable:false, tool:"No Tool Required", hardness:-1, order:9, ver:"1.4"},
+    {name:"Barrier", emoji:"", type:"Decoration", flammable:false, tool:"No Tool Required", hardness:-1, order:13, ver:"1.8"},
+    {name:"Jigsaw Block", emoji:"", type:"Building", flammable:false, tool:"No Tool Required", hardness:-1, order:19, ver:"1.14"}
+  ];
+
+  var ITEMS = [
+    {name:"Apple", emoji:"", type:"Food", stack:64, source:"Natural", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Bread", emoji:"", type:"Food", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Iron Sword", emoji:"", type:"Weapon", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Iron Pickaxe", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Iron Chestplate", emoji:"", type:"Armor", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Stick", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Coal", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Iron Ingot", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Diamond", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Rare", order:1, ver:"Very Old Version"},
+    {name:"Bow", emoji:"", type:"Weapon", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Arrow", emoji:"", type:"Weapon", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Music Disc", emoji:"", type:"Decoration", stack:1, source:"Looting", rarity:"Rare", order:1, ver:"Very Old Version"},
+    {name:"Fishing Rod", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Clock", emoji:"", type:"Tool", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Compass", emoji:"", type:"Tool", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Enchanted Golden Apple", emoji:"", type:"Food", stack:64, source:"Exploration", rarity:"Legendary", order:2, ver:"Early Version"},
+    {name:"Ender Pearl", emoji:"", type:"Magic", stack:16, source:"Mob Kill", rarity:"Uncommon", order:5, ver:"Beta 1.8"},
+    {name:"Eye of Ender", emoji:"", type:"Magic", stack:64, source:"Crafting", rarity:"Uncommon", order:5, ver:"Beta 1.8"},
+    {name:"Dragon Egg", emoji:"", type:"Decoration", stack:64, source:"Boss Kill", rarity:"Legendary", order:6, ver:"Beta 1.9"},
+    {name:"Enchanted Book", emoji:"", type:"Magic", stack:1, source:"Looting", rarity:"Rare", order:6, ver:"Beta 1.9"},
+    {name:"Nether Star", emoji:"", type:"Magic", stack:64, source:"Boss Kill", rarity:"Legendary", order:6, ver:"Beta 1.9"},
+    {name:"Blaze Rod", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Uncommon", order:6, ver:"Beta 1.9"},
+    {name:"Potion of Healing", emoji:"", type:"Magic", stack:1, source:"Crafting", rarity:"Uncommon", order:6, ver:"Beta 1.9"},
+    {name:"Emerald", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Rare", order:8, ver:"1.3"},
+    {name:"Trident", emoji:"", type:"Weapon", stack:1, source:"Mob Kill", rarity:"Rare", order:18, ver:"1.13"},
+    {name:"Totem of Undying", emoji:"", type:"Magic", stack:1, source:"Mob Kill", rarity:"Legendary", order:16, ver:"1.11"},
+    {name:"Netherite Ingot", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Legendary", order:21, ver:"1.16"},
+    {name:"Glow Ink Sac", emoji:"", type:"Decoration", stack:64, source:"Mob Kill", rarity:"Common", order:22, ver:"1.17"},
+    {name:"Goat Horn", emoji:"", type:"Decoration", stack:64, source:"Mob Drop", rarity:"Uncommon", order:22, ver:"1.17"},
+    {name:"Spyglass", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:23, ver:"1.19"},
+    {name:"Wooden Sword", emoji:"", type:"Weapon", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Diamond Sword", emoji:"", type:"Weapon", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Diamond Pickaxe", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Golden Apple", emoji:"", type:"Food", stack:64, source:"Crafting", rarity:"Uncommon", order:1, ver:"Very Old Version"},
+    {name:"Steak", emoji:"", type:"Food", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Porkchop", emoji:"", type:"Food", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Leather", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Leather Boots", emoji:"", type:"Armor", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Saddle", emoji:"", type:"Tool", stack:1, source:"Looting", rarity:"Uncommon", order:1, ver:"Very Old Version"},
+    {name:"Map", emoji:"", type:"Tool", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Bucket", emoji:"", type:"Tool", stack:16, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Water Bucket", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Lava Bucket", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Milk Bucket", emoji:"", type:"Food", stack:1, source:"Natural", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Flint and Steel", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Shears", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:9, ver:"1.4"},
+    {name:"Bone", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Bone Meal", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"String", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Feather", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Gunpowder", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Spider Eye", emoji:"", type:"Food", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Rotten Flesh", emoji:"", type:"Food", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Name Tag", emoji:"", type:"Tool", stack:64, source:"Looting", rarity:"Uncommon", order:11, ver:"1.6"},
+    {name:"Lead", emoji:"", type:"Tool", stack:64, source:"Crafting", rarity:"Common", order:11, ver:"1.6"},
+    {name:"Book", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Paper", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Sugar", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Cake", emoji:"", type:"Food", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Cookie", emoji:"", type:"Food", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Written Book", emoji:"", type:"Decoration", stack:16, source:"Crafting", rarity:"Common", order:8, ver:"1.3"},
+    {name:"Shield", emoji:"", type:"Weapon", stack:1, source:"Crafting", rarity:"Common", order:14, ver:"1.9"},
+    {name:"Elytra", emoji:"", type:"Armor", stack:1, source:"Exploration", rarity:"Legendary", order:14, ver:"1.9"},
+    {name:"Firework Rocket", emoji:"", type:"Decoration", stack:64, source:"Crafting", rarity:"Common", order:14, ver:"1.9"},
+    {name:"Chorus Fruit", emoji:"", type:"Food", stack:64, source:"Natural", rarity:"Uncommon", order:14, ver:"1.9"},
+    {name:"Cocoa Beans", emoji:"", type:"Raw Material", stack:64, source:"Natural", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Golden Carrot", emoji:"", type:"Food", stack:64, source:"Crafting", rarity:"Uncommon", order:9, ver:"1.4"},
+    {name:"Pumpkin Pie", emoji:"", type:"Food", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Splash Potion", emoji:"", type:"Magic", stack:1, source:"Crafting", rarity:"Uncommon", order:6, ver:"Beta 1.9"},
+    {name:"Lingering Potion", emoji:"", type:"Magic", stack:1, source:"Crafting", rarity:"Uncommon", order:14, ver:"1.9"},
+    {name:"Experience Bottle", emoji:"", type:"Magic", stack:64, source:"Crafting", rarity:"Uncommon", order:8, ver:"1.3"},
+    {name:"Suspicious Stew", emoji:"", type:"Food", stack:1, source:"Crafting", rarity:"Uncommon", order:19, ver:"1.14"},
+    {name:"Crossbow", emoji:"", type:"Weapon", stack:1, source:"Crafting", rarity:"Common", order:19, ver:"1.14"},
+    {name:"Honeycomb", emoji:"", type:"Raw Material", stack:64, source:"Natural", rarity:"Common", order:20, ver:"1.15"},
+    {name:"Honey Bottle", emoji:"", type:"Food", stack:16, source:"Natural", rarity:"Common", order:20, ver:"1.15"},
+    {name:"Shulker Shell", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Rare", order:16, ver:"1.11"},
+    {name:"Phantom Membrane", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Uncommon", order:19, ver:"1.14"},
+    {name:"Nautilus Shell", emoji:"", type:"Raw Material", stack:64, source:"Looting", rarity:"Rare", order:18, ver:"1.13"},
+    {name:"Heart of the Sea", emoji:"", type:"Magic", stack:64, source:"Exploration", rarity:"Legendary", order:18, ver:"1.13"},
+    {name:"Turtle Scute", emoji:"", type:"Raw Material", stack:64, source:"Natural", rarity:"Uncommon", order:18, ver:"1.13"},
+    {name:"Copper Ingot", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:22, ver:"1.17"},
+    {name:"Amethyst Shard", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:22, ver:"1.17"},
+    {name:"Netherite Scrap", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Rare", order:21, ver:"1.16"},
+    {name:"Echo Shard", emoji:"", type:"Raw Material", stack:64, source:"Exploration", rarity:"Rare", order:23, ver:"1.19"},
+    {name:"Recovery Compass", emoji:"", type:"Tool", stack:64, source:"Crafting", rarity:"Rare", order:23, ver:"1.19"},
+    {name:"Disc Fragment", emoji:"", type:"Decoration", stack:64, source:"Exploration", rarity:"Rare", order:23, ver:"1.19"},
+    {name:"Wind Charge", emoji:"", type:"Weapon", stack:64, source:"Mob Drop", rarity:"Common", order:25, ver:"1.21"},
+    {name:"Mace", emoji:"", type:"Weapon", stack:1, source:"Crafting", rarity:"Rare", order:25, ver:"1.21"},
+    {name:"Breeze Rod", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Uncommon", order:25, ver:"1.21"},
+    {name:"Ominous Bottle", emoji:"", type:"Magic", stack:64, source:"Exploration", rarity:"Rare", order:25, ver:"1.21"},
+    {name:"Trial Key", emoji:"", type:"Tool", stack:64, source:"Exploration", rarity:"Uncommon", order:25, ver:"1.21"},
+    {name:"Wheat", emoji:"", type:"Raw Material", stack:64, source:"Natural", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Carrot", emoji:"", type:"Food", stack:64, source:"Natural", rarity:"Common", order:9, ver:"1.4"},
+    {name:"Potato", emoji:"", type:"Food", stack:64, source:"Natural", rarity:"Common", order:9, ver:"1.4"},
+    {name:"Beetroot", emoji:"", type:"Food", stack:64, source:"Natural", rarity:"Common", order:14, ver:"1.9"},
+    {name:"Melon Slice", emoji:"", type:"Food", stack:64, source:"Natural", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Egg", emoji:"", type:"Raw Material", stack:16, source:"Natural", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Wheat Seeds", emoji:"", type:"Raw Material", stack:64, source:"Natural", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Flint", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Redstone Dust", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Lapis Lazuli", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Glowstone Dust", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:6, ver:"Beta 1.9"},
+    {name:"Slimeball", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:2, ver:"Early Version"},
+    {name:"Ghast Tear", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Uncommon", order:6, ver:"Beta 1.9"},
+    {name:"Magma Cream", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:6, ver:"Beta 1.9"},
+    {name:"Blaze Powder", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:6, ver:"Beta 1.9"},
+    {name:"Fermented Spider Eye", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:6, ver:"Beta 1.9"},
+    {name:"Nether Wart", emoji:"", type:"Raw Material", stack:64, source:"Natural", rarity:"Common", order:6, ver:"Beta 1.9"},
+    {name:"Prismarine Shard", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:13, ver:"1.8"},
+    {name:"Prismarine Crystals", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:13, ver:"1.8"},
+    {name:"Rabbit's Foot", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Uncommon", order:13, ver:"1.8"},
+    {name:"Rabbit Hide", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:13, ver:"1.8"},
+    {name:"Popped Chorus Fruit", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:14, ver:"1.9"},
+    {name:"Iron Nugget", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:16, ver:"1.11"},
+    {name:"Gold Nugget", emoji:"", type:"Raw Material", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Gold Ingot", emoji:"", type:"Raw Material", stack:64, source:"Mining", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Ink Sac", emoji:"", type:"Raw Material", stack:64, source:"Mob Kill", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Firework Star", emoji:"", type:"Decoration", stack:64, source:"Crafting", rarity:"Uncommon", order:14, ver:"1.9"},
+    {name:"Banner", emoji:"", type:"Decoration", stack:16, source:"Crafting", rarity:"Common", order:13, ver:"1.8"},
+    {name:"Brush", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:24, ver:"1.20"},
+    {name:"Pottery Shard", emoji:"", type:"Decoration", stack:64, source:"Exploration", rarity:"Uncommon", order:24, ver:"1.20"},
+    {name:"Snowball", emoji:"", type:"Weapon", stack:16, source:"Natural", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Glass Bottle", emoji:"", type:"Tool", stack:64, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Bed", emoji:"", type:"Decoration", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Boat", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Minecart", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Chest Minecart", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:1, ver:"Very Old Version"},
+    {name:"Hopper Minecart", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:10, ver:"1.5"},
+    {name:"Horse Armor", emoji:"", type:"Armor", stack:1, source:"Looting", rarity:"Uncommon", order:11, ver:"1.6"},
+    {name:"Turtle Helmet", emoji:"", type:"Armor", stack:1, source:"Crafting", rarity:"Uncommon", order:18, ver:"1.13"},
+    {name:"Powder Snow Bucket", emoji:"", type:"Tool", stack:1, source:"Crafting", rarity:"Common", order:22, ver:"1.17"},
+    {name:"Axolotl Bucket", emoji:"", type:"Tool", stack:1, source:"Mob Kill", rarity:"Common", order:22, ver:"1.17"}
+  ];
+
+  // ===================== تعريف الأقسام =====================
+  var MODES = {
+    mobs: {
+      key:"mobs", label:"الكائنات", icon:"",
+      items: MOBS,
+      hint:"في كل يوم في مخلوق سري من عالم ماين كرافت. خمّنه عن طريق كتابة اسمه، وبنقارن لك صفاته بصفات المخلوق السري.",
+      columns:[
+        {key:"type", label:"النوع", kind:"cat"},
+        {key:"dim", label:"البُعد", kind:"cat"},
+        {key:"habitat", label:"الموطن", kind:"cat"},
+        {key:"health", label:"الصحة", kind:"num", up:"أعلى", down:"أقل"},
+        {key:"flies", label:"يطير؟", kind:"bool"},
+        {key:"ver", label:"أول ظهور", kind:"version"}
+      ]
+    },
+    blocks: {
+      key:"blocks", label:"البلوكس", icon:"",
+      items: BLOCKS,
+      hint:"في كل يوم في بلوك سري من عالم ماين كرافت. خمّنه عن طريق كتابة اسمه، وبنقارن لك صفاته بصفات البلوك السري.",
+      columns:[
+        {key:"type", label:"النوع", kind:"cat"},
+        {key:"flammable", label:"يشتعل؟", kind:"bool"},
+        {key:"tool", label:"الأداة", kind:"cat"},
+        {key:"hardness", label:"الصلابة", kind:"num", up:"أعلى", down:"أقل"},
+        {key:"ver", label:"أول ظهور", kind:"version"}
+      ]
+    },
+    items: {
+      key:"items", label:"الآيتمز", icon:"",
+      items: ITEMS,
+      hint:"في كل يوم في آيتم سري من عالم ماين كرافت. خمّنه عن طريق كتابة اسمه، وبنقارن لك صفاته بصفات الآيتم السري.",
+      columns:[
+        {key:"type", label:"النوع", kind:"cat"},
+        {key:"stack", label:"التكديس", kind:"num", up:"أعلى", down:"أقل"},
+        {key:"source", label:"طريقة الحصول", kind:"cat"},
+        {key:"rarity", label:"الندرة", kind:"cat"},
+        {key:"ver", label:"أول ظهور", kind:"version"}
+      ]
+    }
+  };
+  var MODE_ORDER = ["mobs","blocks","items"];
+
+  // ===================== أدوات مشتركة =====================
+  function todayKey(){
+    var d = new Date();
+    return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+  }
+  function hashStr(s){
+    var h = 0;
+    for(var i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) >>> 0; }
+    return h;
+  }
+  var START = new Date(2026,0,1);
+  function puzzleNumber(){
+    var now = new Date();
+    var diff = Math.floor((new Date(now.getFullYear(),now.getMonth(),now.getDate()) - START) / 86400000);
+    return Math.max(1, diff + 1);
+  }
+  function normalize(s){
+    return (s||"").trim().toLowerCase()
+      .replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")
+      .replace(/\s+/g,"").replace(/^ال/,"");
+  }
+  var dateKey = todayKey();
+  var puzzleNo = puzzleNumber();
+
+  // تجهيز كل قسم: يحدد السر، ويجهز مفتاح التخزين، ويحمّل الحالة المحفوظة
+  MODE_ORDER.forEach(function(k){
+    var mode = MODES[k];
+    var secretIndex = hashStr(dateKey + "_" + k) % mode.items.length;
+    mode.secret = mode.items[secretIndex];
+    mode.storageKey = "s3as3_minecraftle_" + k + "_" + dateKey;
+    mode.state = { guesses: [], solved: false, gaveUp: false };
+    try{
+      var saved = JSON.parse(localStorage.getItem(mode.storageKey) || "null");
+      if(saved) mode.state = saved;
+    }catch(e){}
+  });
+  function saveMode(mode){
+    try{ localStorage.setItem(mode.storageKey, JSON.stringify(mode.state)); }catch(e){}
+  }
+
+  var currentKey = "mobs";
+
+  // ===================== عناصر DOM =====================
+  var input = document.getElementById("guessInput");
+  var btn = document.getElementById("guessBtn");
+  var boardHeadRow = document.getElementById("boardHeadRow");
+  var boardBody = document.getElementById("boardBody");
+  var emptyBoard = document.getElementById("emptyBoard");
+  var winBanner = document.getElementById("winBanner");
+  var winTitle = document.getElementById("winTitle");
+  var winSub = document.getElementById("winSub");
+  var winEmoji = document.getElementById("winEmoji");
+  var suggestList = document.getElementById("suggestList");
+  var toast = document.getElementById("toast");
+  var puzzleNoEl = document.getElementById("puzzleNo");
+  var modeHintEl = document.getElementById("modeHint");
+  var modeTabsEl = document.getElementById("modeTabs");
+  var giveUpBtn = document.getElementById("giveUpBtn");
+
+  puzzleNoEl.textContent = "لغز اليوم #" + puzzleNo;
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(function(){ toast.classList.remove("show"); }, 1800);
+  }
+
+  // ===================== بناء أزرار الأقسام =====================
+  function buildTabs(){
+    modeTabsEl.innerHTML = "";
+    MODE_ORDER.forEach(function(k){
+      var mode = MODES[k];
+      var b = document.createElement("button");
+      b.className = "mode-tab" + (k === currentKey ? " active" : "") + (mode.state.solved ? " solved" : "");
+      b.innerHTML = '<span class="dot"></span><span>'+mode.icon+' '+mode.label+'</span>';
+      b.addEventListener("click", function(){
+        if(k === currentKey) return;
+        currentKey = k;
+        renderMode();
+      });
+      modeTabsEl.appendChild(b);
+    });
+  }
+
+  // ===================== بناء رأس الجدول حسب القسم =====================
+  function buildHead(mode){
+    boardHeadRow.innerHTML = "";
+    var thName = document.createElement("th");
+    thName.textContent = "العنصر";
+    boardHeadRow.appendChild(thName);
+    mode.columns.forEach(function(col){
+      var th = document.createElement("th");
+      th.textContent = col.label;
+      boardHeadRow.appendChild(th);
+    });
+  }
+
+  // ===================== منطق المقارنة =====================
+  function compareGuess(mode, entry){
+    var secret = mode.secret;
+    var res = { exact: normalize(entry.name) === normalize(secret.name) };
+    mode.columns.forEach(function(col){
+      if(col.kind === "cat" || col.kind === "bool"){
+        res[col.key] = entry[col.key] === secret[col.key];
+      } else if(col.kind === "num"){
+        res[col.key] = entry[col.key] === secret[col.key] ? "eq" : (secret[col.key] > entry[col.key] ? "up" : "down");
+      } else if(col.kind === "version"){
+        res.order = entry.order === secret.order ? "eq" : (secret.order > entry.order ? "up" : "down");
+      }
+    });
+    return res;
+  }
+
+  function renderRow(mode, entry, res){
+    emptyBoard.style.display = "none";
+    var tr = document.createElement("tr");
+
+    var tdName = document.createElement("td");
+    tdName.className = "cell name-cell" + (res.exact ? " ok" : "");
+    tdName.innerHTML = '<span class="emoji">'+entry.emoji+'</span><span>'+entry.name+'</span>';
+    tr.appendChild(tdName);
+
+    mode.columns.forEach(function(col){
+      var td = document.createElement("td");
+      if(col.kind === "cat" || col.kind === "bool"){
+        td.className = "cell " + (res[col.key] ? "ok" : "bad");
+        if(col.kind === "bool"){
+          td.textContent = entry[col.key] ? "نعم" : "لا";
+        } else {
+          td.textContent = entry[col.key];
+        }
+      } else if(col.kind === "num"){
+        var st = res[col.key];
+        td.className = "cell " + (st === "eq" ? "ok" : "bad");
+        td.innerHTML = entry[col.key] + (st === "up" ? '<span class="arrow">⬆️ '+col.up+'</span>' : st === "down" ? '<span class="arrow">⬇️ '+col.down+'</span>' : "");
+      } else if(col.kind === "version"){
+        var stv = res.order;
+        td.className = "cell " + (stv === "eq" ? "ok" : "bad");
+        td.innerHTML = entry.ver + (stv === "up" ? '<span class="arrow">⬆️ أحدث</span>' : stv === "down" ? '<span class="arrow">⬇️ أقدم</span>' : "");
+      }
+      tr.appendChild(td);
+    });
+
+    boardBody.insertBefore(tr, boardBody.firstChild);
+  }
+
+  function endGame(mode, won, gaveUp){
+    input.disabled = true;
+    btn.disabled = true;
+    giveUpBtn.disabled = true;
+    winBanner.classList.add("show");
+    if(won){
+      winEmoji.textContent = "";
+      winTitle.textContent = "عاش! خمّنتها صح";
+      winSub.textContent = "العنصر السري كان: " + mode.secret.name + " — بـ " + mode.state.guesses.length + " تخمينة.";
+    } else if(gaveUp){
+      winEmoji.textContent = "";
+      winTitle.textContent = "ولا يهمك، بكرة تظبطها";
+      winSub.textContent = "العنصر السري كان: " + mode.secret.name;
+    }
+  }
+
+  // ===================== الاقتراحات (autocomplete) =====================
+  function buildSuggestions(mode, query){
+    suggestList.innerHTML = "";
+    if(!query){ suggestList.classList.remove("show"); return; }
+    var q = normalize(query);
+    var already = mode.state.guesses.map(function(g){ return g.name; });
+    var matches = mode.items.filter(function(m){
+      return normalize(m.name).indexOf(q) !== -1 && already.indexOf(m.name) === -1 && m.name !== mode.secret.name;
+    }).slice(0, 8);
+    if(matches.length === 0){ suggestList.classList.remove("show"); return; }
+    matches.forEach(function(m){
+      var el = document.createElement("div");
+      el.className = "suggest-item";
+      el.innerHTML = "<span>"+m.emoji+"</span><span>"+m.name+"</span>";
+      el.addEventListener("mousedown", function(e){
+        e.preventDefault();
+        input.value = m.name;
+        suggestList.classList.remove("show");
+        submitGuess();
+      });
+      suggestList.appendChild(el);
+    });
+    suggestList.classList.add("show");
+  }
+
+  function submitGuess(){
+    var mode = MODES[currentKey];
+    if(mode.state.solved || mode.state.gaveUp) return;
+    var raw = input.value;
+    if(!raw.trim()) return;
+    var q = normalize(raw);
+    var entry = mode.items.find(function(m){ return normalize(m.name) === q; });
+    if(!entry){
+      showToast("ما لقيت هالاسم، جرّب من قائمة الاقتراحات");
+      return;
+    }
+    if(mode.state.guesses.some(function(g){ return g.name === entry.name; })){
+      showToast("خمّنت هذا العنصر قبل كذا");
+      input.value = "";
+      return;
+    }
+    var res = compareGuess(mode, entry);
+    mode.state.guesses.push({name: entry.name});
+    renderRow(mode, entry, res);
+    input.value = "";
+    suggestList.classList.remove("show");
+    if(res.exact){
+      mode.state.solved = true;
+      saveMode(mode);
+      buildTabs();
+      endGame(mode, true, false);
+    } else {
+      saveMode(mode);
+    }
+  }
+
+  input.addEventListener("input", function(){ buildSuggestions(MODES[currentKey], input.value); });
+  input.addEventListener("blur", function(){ setTimeout(function(){ suggestList.classList.remove("show"); }, 150); });
+  input.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); submitGuess(); } });
+  btn.addEventListener("click", submitGuess);
+
+  giveUpBtn.addEventListener("click", function(){
+    var mode = MODES[currentKey];
+    if(mode.state.solved || mode.state.gaveUp) return;
+    mode.state.gaveUp = true;
+    saveMode(mode);
+    endGame(mode, false, true);
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function(){
+    showToast("خمّن أي عنصر، وقارن صفاته: أخضر = مطابق، أحمر = غير مطابق — لغز جديد كل يوم لكل قسم!");
+  });
+
+  document.getElementById("shareBtn").addEventListener("click", function(){
+    var mode = MODES[currentKey];
+    var lines = mode.state.guesses.map(function(g){
+      var entry = mode.items.find(function(mm){ return mm.name === g.name; });
+      var res = compareGuess(mode, entry);
+      var boxes = mode.columns.map(function(col){
+        var ok = col.kind === "version" ? res.order === "eq" : (col.kind === "num" ? res[col.key] === "eq" : res[col.key]);
+        return ok ? "🟩" : "🟥";
+      }).join("");
+      return boxes;
+    });
+    var text = "ماينكرافتل " + mode.icon + " " + mode.label + " #" + puzzleNo + " — " + (mode.state.solved ? mode.state.guesses.length + "/∞" : "استسلمت") + "\n" + lines.join("\n") + "\nS3aS3 Games";
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ showToast("تم نسخ النتيجة!"); }).catch(function(){ showToast("ما قدرت أنسخ، جرّب يدويًا"); });
+    } else {
+      showToast("النسخ التلقائي مو مدعوم بهذا المتصفح");
+    }
+  });
+
+  // ===================== عرض القسم الحالي بالكامل =====================
+  function renderMode(){
+    var mode = MODES[currentKey];
+    buildTabs();
+    buildHead(mode);
+    modeHintEl.textContent = mode.hint + " الأخضر يعني تطابق، والأحمر يعني مب مطابق، والسهم يعني القيمة أعلى أو أقل من اللي تحتاجه.";
+    input.placeholder = "اكتب اسم " + (currentKey === "mobs" ? "مخلوق... مثلاً: زومبي" : currentKey === "blocks" ? "بلوك... مثلاً: ستون" : "آيتم... مثلاً: بو");
+
+    boardBody.innerHTML = "";
+    emptyBoard.style.display = "block";
+    winBanner.classList.remove("show");
+    input.value = "";
+    input.disabled = false;
+    btn.disabled = false;
+    giveUpBtn.disabled = false;
+
+    mode.state.guesses.forEach(function(g){
+      var entry = mode.items.find(function(mm){ return mm.name === g.name; });
+      if(entry){ renderRow(mode, entry, compareGuess(mode, entry)); }
+    });
+    if(mode.state.solved) endGame(mode, true, false);
+    else if(mode.state.gaveUp) endGame(mode, false, true);
+  }
+
+  renderMode();
+})();
+</script>
+<script>
+  // ===== قوائم الأقسام تفتح بمجرد ما يقرب الماوس (هوفر)، وتختفي بس بعد مهلة بسيطة =====
+  // (المهلة عشان لو الماوس يعدي بفجوة صغيرة بين الرابط والقائمة، ما تسكر القائمة قبل ما توصلها)
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    let closeTimer = null;
+    item.addEventListener("mouseenter", function(){
+      clearTimeout(closeTimer);
+      item.classList.add("open");
+    });
+    item.addEventListener("mouseleave", function(){
+      closeTimer = setTimeout(function(){
+        item.classList.remove("open");
+      }, 300);
+    });
+  });
+</script>
+</body>
+</html>

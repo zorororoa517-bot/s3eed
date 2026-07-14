@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كريبر الشات — S3aS3 Games</title>
+<link rel="icon" href="assets/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  /* نفس متغيرات ألوان الموقع الرئيسي وفان آرت بالضبط */
+  :root{
+    --tan:#e4d0b4; --tan-deep:#cbb08a; --walnut:#403022; --charcoal:#2e2216; --cream:#FBF6EE;
+    --paper:#37291d; --ink:#292118; --ink-soft:#6e5d4d; --clay:#6F4E37;
+    --line: rgba(228,208,180,.16); --shadow: 0 10px 28px rgba(0,0,0,.45);
+    --bg:#403022; --surface:#37291d; --text:#e4d0b4; --text-soft:#cbb08a; --header-bg: var(--walnut);
+    --creeper-light:#8FCB6B; --creeper-dark:#4C8C3F; --creeper-face:#0d0d0d;
+  }
+  *{box-sizing:border-box;}
+  img{ border:0; } /* يمنع المربع الفارغ اللي يبينه المتصفح افتراضيًا لما صورة تفشل بالتحميل */
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:'Tajawal', sans-serif;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  .topbar{
+    position:relative;
+    background: var(--header-bg); border-bottom: 1px solid var(--line);
+    padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .brand .mark{
+    width:34px; height:34px; border-radius:3px; background: var(--charcoal); color:var(--tan);
+    display:flex; align-items:center; justify-content:center; font-family:'Cairo', sans-serif; font-weight:700;
+    font-size:18px; transform: rotate(-3deg); overflow:hidden; position:relative;
+  }
+
+  /* ===== مؤثرات ماين كرافت على صورة البروفايل: توهج مشعل + لمعان إنشانتمنت ===== */
+  .brand .mark{ animation: mcTorchGlow 2.4s ease-in-out infinite; }
+  .brand .mark::before{
+    content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); z-index:2;
+  }
+  .brand .mark::after{
+    content:""; position:absolute; inset:-60% -160%; pointer-events:none; z-index:1;
+    background: linear-gradient(75deg, transparent 42%, rgba(255,255,255,.65) 50%, transparent 58%);
+    transform: translateX(-130%);
+    animation: mcEnchantSweep 4.5s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  .brand .mark img{ position:relative; z-index:0; }
+  @keyframes mcTorchGlow{
+    0%,100%{ box-shadow: 0 0 5px 1px rgba(255,170,60,.35); }
+    50%{ box-shadow: 0 0 14px 4px rgba(255,170,60,.6); }
+  }
+  @keyframes mcEnchantSweep{
+    0%, 62%{ transform: translateX(-130%); }
+    82%{ transform: translateX(130%); }
+    100%{ transform: translateX(130%); }
+  }
+  .brand .mark img{ width:100%; height:100%; object-fit:cover; }
+  .brand-name{ font-weight:800; font-size:19px; color:var(--charcoal); font-family:'Cairo', sans-serif; }
+  html[data-theme="dark"] .brand-name{ color:var(--tan); }
+
+  nav.main-nav{ display:flex; align-items:center; gap:60px; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .nav-link{ padding:9px 14px; border-radius:18px; font-size:13.5px; font-weight:700; color:var(--charcoal); opacity:.75; }
+  .nav-link:hover{ opacity:1; background:rgba(43,36,32,.08); }
+  .nav-link.active{ background:var(--charcoal); color:var(--tan); opacity:1; }
+
+  .nav-item{ position:relative; display:flex; align-items:center; }
+  .nav-dropdown{
+    position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+  }
+  .nav-item.open .nav-dropdown{ display:flex; }
+  .nav-dropdown a{
+    display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px;
+    font-size:13px; font-weight:700; color:var(--tan); opacity:.9; white-space:nowrap;
+  }
+  .nav-dropdown a:hover{ opacity:1; background:rgba(241,233,220,.08); }
+  html[data-theme="dark"] .nav-link{ color:var(--tan); }
+  @media(max-width:900px){ nav.main-nav{ display:none; } }
+
+  .controls{ margin-inline-start:auto; display:flex; align-items:center; gap:10px; flex-shrink:0;}
+
+  .wrap{ flex:1; max-width:900px; width:100%; margin:0 auto; padding:22px 16px 40px; }
+  .head{ text-align:center; margin-bottom:18px; }
+  .eyebrow{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); font-weight:700; display:block; margin-bottom:6px;}
+  .head h1{ font-family:'Cairo', sans-serif; font-size:26px; margin:0; color:var(--tan); }
+
+  .card{
+    background:transparent; border:none; box-shadow:none;
+    padding:22px 0; position:relative; overflow:visible;
+  }
+
+  .status-pill{
+    position:absolute; top:14px; inset-inline-start:14px; font-size:11px; font-weight:700; padding:4px 10px;
+    border-radius:20px; display:none; align-items:center; gap:6px; background:rgba(0,0,0,.25);
+  }
+  .status-dot{ width:8px; height:8px; border-radius:50%; background:#7a7a7a; }
+  .status-dot.on{ background:#6FAE5A; box-shadow:0 0 6px #6FAE5A; }
+  .status-dot.off{ background:#6F4E37; }
+  .status-pill button{
+    background:transparent; border:none; color:var(--text-soft); cursor:pointer; font-size:12px; padding:0 0 0 4px;
+  }
+  .channel-switch-box{
+    position:absolute; top:44px; inset-inline-start:14px; background:var(--paper); border:1px solid var(--line);
+    border-radius:12px; padding:10px; display:flex; gap:6px; z-index:5; box-shadow:var(--shadow);
+  }
+  .channel-switch-box input{
+    font-size:12.5px; padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--surface);
+    color:var(--text); width:140px;
+  }
+  .channel-switch-box button{
+    background:var(--clay); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:700;
+    font-size:12px; cursor:pointer;
+  }
+
+  /* ==== لوبي الانضمام ==== */
+  .lobby-instructions{ text-align:center; margin-bottom:18px; }
+  .lobby-instructions .cmd{
+    display:inline-block; background:var(--charcoal); color:var(--tan); font-weight:900; font-size:20px;
+    padding:8px 22px; border-radius:12px; margin-top:8px; letter-spacing:1px; border:2px solid var(--clay);
+  }
+  .players-grid{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:center; min-height:70px; margin:16px 0;
+    padding:14px; background:rgba(0,0,0,.18); border-radius:14px; border:1px solid var(--line);
+  }
+  .player-chip{
+    display:flex; align-items:center; gap:6px; background:var(--paper); border:1px solid var(--line);
+    border-radius:20px; padding:5px 12px 5px 5px; font-size:12.5px; font-weight:700;
+  }
+  .player-chip img{ width:24px; height:24px; border-radius:50%; object-fit:cover; background:var(--walnut); }
+  .empty-note{ color:var(--text-soft); font-size:13px; margin:auto; }
+
+  .btn-main{
+    display:block; width:100%; text-align:center; background:var(--clay); color:#fff; font-weight:800;
+    font-size:16px; padding:13px; border-radius:14px; border:none; cursor:pointer; box-shadow:0 6px 16px rgba(0,0,0,.3);
+    font-family:'Tajawal', sans-serif;
+  }
+  .btn-main:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn-secondary{
+    display:inline-block; background:transparent; color:var(--tan); font-weight:700; font-size:13px;
+    padding:8px 16px; border-radius:12px; border:1px solid var(--line); cursor:pointer; font-family:'Tajawal', sans-serif;
+  }
+
+  /* ==== منطقة اللعب ==== */
+  .arena{ text-align:center; }
+  .hits-bar-wrap{ margin:6px 0 22px; }
+  .hits-label{ font-size:12.5px; color:var(--text-soft); font-weight:700; margin-bottom:6px; }
+  .hits-track{ height:14px; border-radius:8px; background:rgba(0,0,0,.3); border:1px solid var(--line); overflow:hidden; }
+  .hits-fill{ height:100%; background:linear-gradient(90deg, var(--clay), #A47C50); transition:width .5s ease; }
+
+  .creeper-stage{ position:relative; display:flex; justify-content:center; margin:10px 0 20px; }
+  .creeper-face{
+    position:relative; width:190px; height:220px;
+    transition:transform .15s ease;
+  }
+  .head-img{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
+    filter:drop-shadow(0 10px 22px rgba(0,0,0,.5));
+  }
+  .head-green{ opacity:1; }
+  .head-red{ opacity:0; }
+
+  .creeper-stage.shake .creeper-face{ animation: shakeAnim .5s ease; }
+  @keyframes shakeAnim{
+    0%,100%{ transform:translateX(0); } 20%{ transform:translateX(-8px) rotate(-2deg); }
+    40%{ transform:translateX(8px) rotate(2deg); } 60%{ transform:translateX(-6px); } 80%{ transform:translateX(6px); }
+  }
+
+  /* أحمر بومضة قبل الانفجار، ثم انفجار على طراز ماين كرافت الأصلي (فلاش + موجة صدمة + جزيئات دخان) */
+  .creeper-stage.exploding .head-green{ animation: headGreenFade .45s ease forwards; }
+  @keyframes headGreenFade{
+    0%{ opacity:1; } 100%{ opacity:0; }
+  }
+  .creeper-stage.exploding .head-red{ animation: headRedFlicker .45s steps(1,end) forwards; }
+  @keyframes headRedFlicker{
+    0%{ opacity:0; }
+    15%{ opacity:.9; }
+    30%{ opacity:.25; }
+    45%{ opacity:.9; }
+    60%{ opacity:.35; }
+    75%{ opacity:1; }
+    100%{ opacity:1; }
+  }
+  .creeper-stage.exploding .creeper-face{ animation: softExplode .55s ease .45s forwards; }
+  @keyframes softExplode{
+    0%{ transform:scale(1); opacity:1; }
+    55%{ transform:scale(1.12); opacity:.85; }
+    100%{ transform:scale(1.55); opacity:0; }
+  }
+
+  /* اهتزاز خفيف للمرحلة كاملة لحظة الانفجار (نفس إحساس ماين كرافت) */
+  .creeper-stage.exploding{ animation: stageShake .5s ease .45s; }
+  @keyframes stageShake{
+    0%,100%{ transform:translate(0,0); }
+    15%{ transform:translate(-6px,3px); }
+    30%{ transform:translate(6px,-4px); }
+    45%{ transform:translate(-5px,-2px); }
+    60%{ transform:translate(5px,3px); }
+    75%{ transform:translate(-3px,2px); }
+    88%{ transform:translate(2px,-2px); }
+  }
+
+  /* طبقة تأثيرات الانفجار: عنصر شقيق مستقل عن creeper-face، عشان لما وجه الكريبر يخفى ما تختفي معاه
+     (هاد كان سبب المشكلة القديمة: المربع كان يبين فارغ لأن تأثير الانفجار كان جوّا creeper-face
+     فكان يورث منها opacity:0 قبل ما يخلص هو من الأنيميشن تاعو) */
+  .explosion-fx{ position:absolute; inset:0; pointer-events:none; z-index:3; }
+
+  .blast-flash{
+    position:absolute; inset:0; margin:auto; width:46px; height:46px; border-radius:50%;
+    background: radial-gradient(circle,
+      rgba(255,255,255,.95) 0%, rgba(255,232,170,.9) 30%,
+      rgba(255,170,60,.55) 58%, transparent 76%);
+    opacity:0; transform:scale(.2);
+  }
+  .creeper-stage.exploding .blast-flash{ animation: blastFlash .3s ease .45s forwards; }
+  @keyframes blastFlash{
+    0%{ opacity:0; transform:scale(.2); }
+    30%{ opacity:1; transform:scale(1.5); }
+    100%{ opacity:0; transform:scale(2.3); }
+  }
+
+  .blast-ring{
+    position:absolute; inset:0; margin:auto; width:54px; height:54px; border-radius:50%;
+    border:5px solid rgba(215,215,208,.85); opacity:0; transform:scale(.3);
+  }
+  .creeper-stage.exploding .blast-ring{ animation: blastRing .7s cubic-bezier(.15,.7,.3,1) .45s forwards; }
+  .creeper-stage.exploding .blast-ring.ring2{ animation-delay:.52s; border-color:rgba(140,140,132,.6); border-width:3px; }
+  @keyframes blastRing{
+    0%{ opacity:.9; transform:scale(.3); }
+    55%{ opacity:.55; }
+    100%{ opacity:0; transform:scale(4.4); }
+  }
+
+  /* جزيئات دخان بكسلية (مربعة، مش دائرية) بتتطاير بكل الاتجاهات — نفس طريقة جزيئات ماين كرافت */
+  .particle{
+    position:absolute; top:50%; inset-inline-start:50%; width:11px; height:11px;
+    background:#8f8f89; box-shadow: inset -2px -2px 0 rgba(0,0,0,.28), inset 2px 2px 0 rgba(255,255,255,.14);
+    opacity:0; transform:translate(-50%,-50%) translate(0,0) rotate(0deg) scale(1);
+    animation-timing-function: ease-out;
+  }
+  .particle.dark{ background:#5c5c56; }
+  .particle.light{ background:#c9c9c0; }
+  .particle.ember{ background:#e08a3c; box-shadow: inset -2px -2px 0 rgba(0,0,0,.2), 0 0 6px rgba(255,150,60,.7); }
+  .creeper-stage.exploding .particle{ animation-name: particleFly; animation-duration:.7s; animation-delay:.45s; animation-fill-mode:forwards; }
+  @keyframes particleFly{
+    0%{ opacity:0; transform:translate(-50%,-50%) translate(0,0) rotate(0deg) scale(1); }
+    12%{ opacity:1; }
+    100%{ opacity:0; transform:translate(-50%,-50%) translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(.35); }
+  }
+  .p1{ --tx:78px; --ty:-8px; --rot:140deg; }
+  .p2{ --tx:60px; --ty:-52px; --rot:-90deg; }
+  .p3{ --tx:22px; --ty:-76px; --rot:210deg; }
+  .p4{ --tx:-26px; --ty:-74px; --rot:-160deg; }
+  .p5{ --tx:-62px; --ty:-42px; --rot:100deg; }
+  .p6{ --tx:-80px; --ty:6px; --rot:-120deg; }
+  .p7{ --tx:-55px; --ty:54px; --rot:180deg; }
+  .p8{ --tx:-16px; --ty:78px; --rot:-70deg; }
+  .p9{ --tx:33px; --ty:72px; --rot:130deg; }
+  .p10{ --tx:72px; --ty:36px; --rot:-200deg; }
+  .timer-ring-wrap{ position:absolute; top:-10px; inset-inline-end:calc(50% - 130px); }
+  .target-box{
+    background:var(--paper); border:2px solid var(--clay); border-radius:16px; padding:14px 20px; margin:0 auto 14px;
+    max-width:340px;
+  }
+  .target-box .lbl{ font-size:11px; color:var(--text-soft); font-weight:700; margin-bottom:4px; }
+  .target-name{ font-size:22px; font-weight:900; color:var(--tan); display:flex; align-items:center; justify-content:center; gap:8px; }
+  .target-name img{ width:32px; height:32px; border-radius:50%; object-fit:cover; background:var(--walnut); }
+  .countdown{ font-size:15px; font-weight:800; margin-top:6px; }
+  .countdown.warn{ color:#E0574C; animation:pulse .5s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.4;} }
+
+  .hit-cmd{
+    display:inline-block; background:var(--charcoal); color:#8CE06A; font-weight:900; font-size:19px;
+    padding:6px 20px; border-radius:10px; margin-top:6px; border:2px solid #8CE06A;
+  }
+
+  .log-box{
+    margin-top:18px; max-height:130px; overflow-y:auto; text-align:start; font-size:12px; background:rgba(0,0,0,.18);
+    border-radius:10px; padding:8px; border:1px solid var(--line);
+  }
+  .log-box div{ padding:3px 6px; border-bottom:1px dashed var(--line); }
+  .log-box div:last-child{ border-bottom:none; }
+
+  /* ==== شاشة النتيجة ==== */
+  .overlay-result{
+    position:fixed; inset:0; background:rgba(10,7,5,.85); display:flex; align-items:center; justify-content:center;
+    z-index:60; padding:16px;
+  }
+  .result-card{
+    background:var(--surface); border:2px solid var(--clay); border-radius:20px; padding:28px; max-width:420px; width:100%;
+    text-align:center; box-shadow:var(--shadow);
+  }
+  .result-card h2{ margin:0 0 6px; font-family:'Cairo', sans-serif; font-size:24px; color:var(--tan); }
+  .result-card .sub{ color:var(--text-soft); font-size:13.5px; margin-bottom:16px; }
+  .podium-row{
+    display:flex; align-items:center; gap:10px; background:var(--paper); border:1px solid var(--line);
+    border-radius:12px; padding:8px 12px; margin-bottom:8px; text-align:start;
+  }
+  .podium-rank{ font-weight:900; width:22px; text-align:center; }
+  .podium-name{ flex:1; font-weight:700; font-size:13.5px; }
+  .podium-score{ font-weight:900; font-size:13.5px; color:var(--tan); }
+
+  .manual-box{ margin-top:16px; font-size:12px; }
+  .manual-box summary{ cursor:pointer; font-weight:700; color:var(--text-soft); }
+  .manual-row{ display:flex; gap:6px; margin-top:8px; }
+  .manual-row input{
+    font-size:12px; padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:var(--paper);
+    color:var(--text); font-family:inherit;
+  }
+  .manual-row input:first-child{ width:100px; flex-shrink:0; }
+  .manual-row input:nth-child(2){ flex:1; }
+  .manual-row button{
+    background:var(--clay); color:#fff; border:none; border-radius:8px; padding:6px 12px; font-weight:700; font-size:12px;
+    cursor:pointer; font-family:inherit;
+  }
+
+  /* ===== جلو + تكبير عند تمرير الماوس (كل أزرار الموقع والصورة) ===== */
+  .nav-link, button, [class*="btn"], .watch{
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .nav-link:hover, button:hover, [class*="btn"]:hover, .watch:hover{
+    transform: scale(1.06);
+    box-shadow: 0 0 16px 3px rgba(203,176,138,.55);
+    filter: brightness(1.08);
+  }
+  .brand .mark{ transition: transform .18s ease, box-shadow .18s ease; }
+  .brand:hover .mark{
+    animation: none;
+    transform: rotate(-3deg) scale(1.1);
+    box-shadow: 0 0 18px 4px rgba(203,176,138,.6), 0 0 26px 8px rgba(255,170,60,.35);
+  }
+  .brand:hover .mark::after{ animation-play-state: paused; }
+
+  /* ===== سكرول بلون بني فاتح متناسق مع خلفية الموقع ===== */
+  html{ scrollbar-width: thin; scrollbar-color: var(--tan) var(--bg); }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background: var(--bg); }
+  ::-webkit-scrollbar-thumb{ background: var(--tan); border-radius:8px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--tan-deep); }
+
+  footer{ text-align:center; padding:16px; color:var(--text-soft); font-size:12px; flex-shrink:0; }
+</style>
+  <style>
+  .ico{ display:inline-block; }
+  .ico-notif{ filter: brightness(0) saturate(100%) invert(66%) sepia(83%) saturate(195%) hue-rotate(-17deg) brightness(39%) contrast(144%); }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"><img src="assets/avatar.png" alt="S3eeD"></div>
+  </div>
+  <nav class="main-nav">
+    <div class="nav-item">
+      <a class="nav-link active" href="games.html">S3aS3 Games</a>
+      <div class="nav-dropdown">
+        <a href="creeper.html">كريبر شات</a>
+        <a href="miners.html">ماينر شات</a>
+        <a href="minshow.html">ماين شو</a>
+        <a href="quiz.html">أسئلة ماين كرافت</a>
+        <a href="toolminer.html">فأس التعدين</a>
+        <a href="minecraftle.html">ماينكرافتل</a>
+
+        <a href="runner.html">ستيف رنر</a>
+        <a href="puzzle.html">بازل</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="index.html">S3eeD</a>
+      <div class="nav-dropdown">
+        <a href="index.html#video">آخر فيديو</a>
+        <a href="index.html#twitch">آخر بث</a>
+        <a href="index.html#gamesRating">تقييم الألعاب</a>
+        <a href="index.html#archive">الأرشيف</a>
+        <a href="index.html#suggest" class="js-suggest-link">الاقتراحات</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="fanart.html">FAN ART</a>
+      <div class="nav-dropdown">
+        <a href="fanart.html#home">آخر الرسمات</a>
+        <a href="fanart.html#topart">الأعلى تفاعلاً</a>
+        <a href="fanart.html#badges">البادجات</a>
+        <a href="fanart.html#create">نشر رسمة</a>
+      </div>
+    </div>
+  </nav>
+  <div class="controls"></div>
+</header>
+
+<div class="wrap">
+  <div class="head" style="position:relative;">
+    <a href="games.html" style="position:fixed;left:14px;top:14px;z-index:50;background:var(--surface); border:1px solid var(--line);color:var(--tan);padding:8px 16px;border-radius:20px;font-size:12.5px;font-weight:700;box-shadow:0 6px 16px rgba(0,0,0,.3);">رجوع</a>
+    <span class="eyebrow">لعبة الشات</span>
+    <h1>كريبر الشات</h1>
+  </div>
+
+  <div class="card">
+    <div class="status-pill" id="statusPill">
+      <span class="status-dot off" id="statusDot"></span>
+      <button id="switchChannelBtn" title="بدّل القناة"></button>
+    </div>
+    <div class="channel-switch-box" id="channelSwitchBox" style="display:none;">
+      <input id="channelSwitchInput" placeholder="اسم قناة تويتش">
+      <button id="channelSwitchSaveBtn">ربط</button>
+    </div>
+
+    <!-- لوبي -->
+    <div id="lobbyView">
+      <div class="lobby-instructions">
+        <div style="font-weight:800;font-size:16px;">اكتبوا هذا الأمر بالشات عشان تدخلوا اللعبة</div>
+        <div class="cmd">!دخول</div>
+      </div>
+      <div class="players-grid" id="playersGrid">
+        <span class="empty-note">ولا لاعب دخل لسا... يلا اكتبوا !دخول </span>
+      </div>
+      <button class="btn-main" id="startBtn" disabled>▶ ابدأ اللعبة (0 لاعب)</button>
+    </div>
+
+    <!-- منطقة اللعب -->
+    <div id="arenaView" class="arena" style="display:none;">
+      <div class="hits-bar-wrap">
+        <div class="hits-label">اللاعبين المتبقين: <span id="hitsCount">0</span> / <span id="hitsMax">0</span></div>
+        <div class="hits-track"><div class="hits-fill" id="hitsFill" style="width:0%"></div></div>
+      </div>
+
+      <div class="target-box" id="targetBox">
+        <div class="lbl">دورك يا</div>
+        <div class="target-name" id="targetName"><img id="targetAvatar" src="" alt=""><span id="targetLabel">—</span></div>
+        <div class="countdown" id="countdownText">⏱ 3</div>
+      </div>
+
+      <div class="creeper-stage" id="creeperStage">
+        <div class="creeper-face" id="creeperFace">
+          <img class="head-img head-green" src="assets/creeper-target.jpeg" alt="" onerror="this.style.display='none'">
+          <img class="head-img head-red" src="assets/head-red.png" alt="" onerror="this.style.display='none'">
+        </div>
+        <div class="explosion-fx" id="explosionFx">
+          <div class="blast-flash"></div>
+          <div class="blast-ring"></div>
+          <div class="blast-ring ring2"></div>
+          <span class="particle p1"></span>
+          <span class="particle p2 dark"></span>
+          <span class="particle p3"></span>
+          <span class="particle p4 light"></span>
+          <span class="particle p5"></span>
+          <span class="particle p6 dark"></span>
+          <span class="particle p7 ember"></span>
+          <span class="particle p8"></span>
+          <span class="particle p9 light"></span>
+          <span class="particle p10 ember"></span>
+        </div>
+      </div>
+
+      <div class="hit-cmd">اضرب</div>
+
+      <div class="log-box" id="logBox"></div>
+    </div>
+  </div>
+
+  <details class="manual-box">
+    <summary>محاكاة رسالة شات (للتجربة بدون بث فعلي)</summary>
+    <div class="manual-row">
+      <input id="simUser" value="TestUser" placeholder="اسم المستخدم">
+      <input id="simMsg" value="!دخول" placeholder="الرسالة...">
+      <button id="simSendBtn">إرسال</button>
+    </div>
+  </details>
+</div>
+
+<footer>S3eeD — S3aS3 Games © 2026</footer>
+
+<div class="overlay-result" id="resultOverlay" style="display:none;">
+  <div class="result-card">
+    <h2 id="resultTitle">قتلتوا الكريبر!</h2>
+    <div class="sub" id="resultSub"></div>
+    <div id="podiumList"></div>
+    <button class="btn-secondary" id="playAgainBtn" style="margin-top:10px;width:100%;">لعبة جديدة</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ===================== إعدادات اللعبة ===================== */
+  // اسم القناة بيجي من صفحة الألعاب (games.html) — لو ما في قناة محفوظة بيرجع لقناة سعيد كافتراضي
+  const CHANNEL_KEY = "s3as3_twitch_channel";
+  let TWITCH_CHANNEL = localStorage.getItem(CHANNEL_KEY) || "s3eedxx";
+  const ROUND_SECONDS = 10;
+
+  /* ===================== الحالة ===================== */
+  let players = {};          // username -> { username, displayName, avatar } (اللاعبين الباقين فعليًا)
+  let allPlayersInfo = {};   // نسخة ثابتة من كل من دخل اللعبة، ما بتنحذف حتى لو انطرد اللاعب
+  let eliminationOrder = []; // ترتيب من طلع من اللعبة (الأول اللي طلع أول واحد بالمصفوفة)
+  let totalPlayersCount = 0;
+  let phase = "lobby";       // lobby | playing | won | exploded
+  let currentTargetUsername = null;
+  let timeLeft = ROUND_SECONDS;
+  let countdownTimer = null;
+  const logEntries = [];
+
+  /* ===================== أدوات مساعدة ===================== */
+  function avatarUrl(username){
+    return `https://decapi.me/twitch/avatar/${encodeURIComponent(username)}`;
+  }
+  // مصدر احتياطي: لو decapi ما قدرش يجيب صورة تويتش الحقيقية (تعطل مؤقت/تحديد معدل)
+  // نجرب مصدر ثاني قبل ما نستسلم لإخفاء الصورة
+  function avatarUrlBackup(username){
+    return `https://unavatar.io/twitch/${encodeURIComponent(username)}?fallback=false`;
+  }
+  // صورة افتراضية مرسومة مباشرة (SVG) بدل ملف خارجي (assets/avatar.png) —
+  // هذا يضمن إنها تظهر دايمًا حتى لو الملف مو موجود على السيرفر أو المسار غلط،
+  // وهذا كان سبب اختفاء صور اللاعبين (خصوصًا بشاشة "آخر ناجي")
+  const DEFAULT_AVATAR = "data:image/svg+xml;utf8," + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" fill="#403022"/>
+      <circle cx="32" cy="24" r="13" fill="#cbb08a"/>
+      <path d="M8 58c0-13 10.7-22 24-22s24 9 24 22" fill="#cbb08a"/>
+    </svg>`
+  );
+  function onAvatarErr(img){
+    if(!img.dataset.triedBackup){
+      img.dataset.triedBackup = "1";
+      const m = (img.src||"").match(/twitch\/avatar\/([^/?]+)/);
+      const uname = m ? decodeURIComponent(m[1]) : null;
+      if(uname){ img.src = avatarUrlBackup(uname); return; }
+    }
+    if(!img.dataset.triedDefault){
+      img.dataset.triedDefault = "1";
+      img.onerror = () => { img.style.visibility = "hidden"; }; // شبكة أمان بس، ما لازم توصله أبدًا
+      img.style.visibility = "visible";
+      img.src = DEFAULT_AVATAR;
+      return;
+    }
+    img.style.visibility = "hidden";
+  }
+  function pushLog(text){
+    logEntries.unshift(text);
+    if(logEntries.length > 30) logEntries.pop();
+    const box = document.getElementById("logBox");
+    box.innerHTML = logEntries.map(t => `<div>${t}</div>`).join("");
+  }
+  // نشيل رموز الاتجاه (bidi) والرموز الخفية اللي تنحط تلقائيًا وسط نص عربي جنب علامة "!"
+  // (هالرموز مو مسافات فـ trim() وحدها ما تشيلها، وهذا كان يخلي مقارنة الأمر تفشل بصمت)
+  function normalize(s){
+    return (s||"")
+      .replace(/[\u200B-\u200F\u202A-\u202E\u2060\uFEFF\u061C]/g, "")
+      .trim();
+  }
+  function isJoinCommand(msg){ return normalize(msg).replace(/\s+/g,"") === "!دخول"; }
+  function isHitCommand(msg){
+    const t = normalize(msg).replace(/\s+/g,"");
+    return t === "اضرب" || t === "اضرب؟";
+  }
+  function pickRandomPlayer(){
+    const usernames = Object.keys(players);
+    if(!usernames.length) return null;
+    return usernames[Math.floor(Math.random()*usernames.length)];
+  }
+
+  /* ===================== تصفير وجه الشخصية للجولة الجديدة (رجوع للأخضر) ===================== */
+  function renderCreeperFace(){
+    const stage = document.getElementById("creeperStage");
+    const face = document.getElementById("creeperFace");
+    const fx = document.getElementById("explosionFx");
+    const resetEls = [stage, face, ...face.querySelectorAll(".head-img"), ...fx.querySelectorAll("*")];
+    resetEls.forEach(el => { el.style.animation = "none"; });
+    void fx.offsetWidth; // إعادة تشغيل قسري عشان الأنيميشن يشتغل صح بالجولة الجاية
+    resetEls.forEach(el => { el.style.animation = ""; });
+  }
+  renderCreeperFace();
+
+  /* ===================== عرض اللوبي ===================== */
+  function renderLobby(){
+    const grid = document.getElementById("playersGrid");
+    const list = Object.values(players);
+    if(!list.length){
+      grid.innerHTML = `<span class="empty-note">ولا لاعب دخل لسا... يلا اكتبوا !دخول 👇</span>`;
+    } else {
+      grid.innerHTML = list.map(p => `
+        <span class="player-chip">
+          ${escapeHtml(p.displayName)}
+        </span>`).join("");
+    }
+    const btn = document.getElementById("startBtn");
+    btn.textContent = `▶ ابدأ اللعبة (${list.length} لاعب)`;
+    btn.disabled = list.length < 1;
+  }
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  /* ===================== منطق اللعبة ===================== */
+  function startGame(){
+    if(Object.keys(players).length < 1) return;
+    phase = "playing";
+    eliminationOrder = [];
+    allPlayersInfo = {...players};
+    totalPlayersCount = Object.keys(players).length;
+    document.getElementById("lobbyView").style.display = "none";
+    document.getElementById("arenaView").style.display = "block";
+    updateHitsBar();
+    pushLog("🎮 بدأت اللعبة! كل واحد بدوره لازم يضرب الكريبر وإلا يخسر ويطلع من اللعبة!");
+    nextRound();
+  }
+
+  function updateHitsBar(){
+    const remaining = Object.keys(players).length;
+    document.getElementById("hitsCount").textContent = remaining;
+    document.getElementById("hitsMax").textContent = totalPlayersCount;
+    const eliminated = totalPlayersCount - remaining;
+    const denom = Math.max(1, totalPlayersCount - 1);
+    document.getElementById("hitsFill").style.width = Math.min(100, (eliminated/denom)*100) + "%";
+  }
+
+  function nextRound(){
+    if(phase !== "playing") return;
+    const usernames = Object.keys(players);
+    if(!usernames.length){ explode(null, "ما في لاعبين"); return; }
+    if(usernames.length === 1){ winGame(usernames[0]); return; }
+    currentTargetUsername = pickRandomPlayer();
+    const p = players[currentTargetUsername];
+    document.getElementById("targetLabel").textContent = p.displayName;
+    const targetAvatarEl = document.getElementById("targetAvatar");
+    delete targetAvatarEl.dataset.triedBackup;
+    delete targetAvatarEl.dataset.triedDefault;
+    targetAvatarEl.style.visibility = "visible";
+    targetAvatarEl.onerror = () => onAvatarErr(targetAvatarEl);
+    targetAvatarEl.src = avatarUrl(p.username);
+    timeLeft = ROUND_SECONDS;
+    renderCountdown();
+    clearInterval(countdownTimer);
+    countdownTimer = setInterval(()=>{
+      timeLeft -= 1;
+      renderCountdown();
+      if(timeLeft <= 0){
+        clearInterval(countdownTimer);
+        explode(currentTargetUsername, p.displayName);
+      }
+    }, 1000);
+  }
+
+  function renderCountdown(){
+    const el = document.getElementById("countdownText");
+    el.textContent = "⏱ " + timeLeft;
+    el.className = "countdown" + (timeLeft <= 3 ? " warn" : "");
+  }
+
+  function registerHit(username){
+    if(phase !== "playing" || username !== currentTargetUsername || !players[username]) return;
+    clearInterval(countdownTimer);
+    currentTargetUsername = null;
+    pushLog(`💥 ${escapeHtml(players[username].displayName)} ضرب الكريبر ونجا هالدور!`);
+    shakeCreeper();
+    setTimeout(()=> nextRound(), 700);
+  }
+
+  function shakeCreeper(){
+    const stage = document.getElementById("creeperStage");
+    stage.classList.remove("shake"); void stage.offsetWidth; stage.classList.add("shake");
+    setTimeout(()=> stage.classList.remove("shake"), 500);
+  }
+
+  function explode(username, missedName){
+    if(phase !== "playing") return;
+    clearInterval(countdownTimer);
+    currentTargetUsername = null;
+    pushLog(`💥💀 ${escapeHtml(missedName)} ما ضرب بالوقت... خسر وطلع من اللعبة!`);
+    const stage = document.getElementById("creeperStage");
+    stage.classList.add("exploding");
+
+    if(username){
+      eliminationOrder.push(username);
+      delete players[username];
+    }
+    updateHitsBar();
+
+    setTimeout(()=>{
+      stage.classList.remove("exploding");
+      renderCreeperFace();
+      const remaining = Object.keys(players);
+      if(remaining.length === 0){
+        phase = "exploded";
+        showResult(false, null);
+      } else if(remaining.length === 1){
+        winGame(remaining[0]);
+      } else {
+        nextRound();
+      }
+    }, 1150);
+  }
+
+  function winGame(username){
+    phase = "won";
+    const info = allPlayersInfo[username];
+    pushLog(`🎉 ${escapeHtml(info ? info.displayName : username)} آخر ناجي وفاز باللعبة!`);
+    showResult(true, username);
+  }
+
+  function showResult(won, winnerUsername){
+    const overlay = document.getElementById("resultOverlay");
+    const winnerInfo = winnerUsername ? allPlayersInfo[winnerUsername] : null;
+    const winnerName = winnerInfo ? winnerInfo.displayName : (winnerUsername || "");
+    document.getElementById("resultTitle").textContent = won ? "🎉 آخر ناجي!" : "💥 خسر الكل!";
+    document.getElementById("resultSub").textContent = won
+      ? `${escapeHtml(winnerName)} صمد لآخر لحظة وفاز باللعبة 🏆`
+      : `الكل انفجر ولا حد صمد للنهاية 😅`;
+    const ranking = [];
+    if(winnerUsername) ranking.push(winnerUsername);
+    for(let i = eliminationOrder.length - 1; i >= 0; i--) ranking.push(eliminationOrder[i]);
+    const top = ranking.slice(0, 5);
+    document.getElementById("podiumList").innerHTML = top.length ? top.map((username, i) => `
+      <div class="podium-row">
+        <span class="podium-rank">${i+1}</span>
+        <span class="podium-name">${escapeHtml(allPlayersInfo[username]?.displayName || username)}</span>
+      </div>`).join("") : `<div class="sub">ما في نتائج 😅</div>`;
+    overlay.style.display = "flex";
+  }
+
+  function resetGame(){
+    phase = "lobby";
+    players = {}; allPlayersInfo = {}; eliminationOrder = []; currentTargetUsername = null; totalPlayersCount = 0;
+    clearInterval(countdownTimer);
+    document.getElementById("resultOverlay").style.display = "none";
+    document.getElementById("creeperStage").classList.remove("exploding");
+    document.getElementById("arenaView").style.display = "none";
+    document.getElementById("lobbyView").style.display = "block";
+    logEntries.length = 0;
+    document.getElementById("logBox").innerHTML = "";
+    renderLobby();
+  }
+
+  /* ===================== معالجة رسائل الشات ===================== */
+  function handleChatMessage({ username, displayName, message }){
+    if(!username) return;
+    if(phase === "lobby"){
+      if(isJoinCommand(message) && !players[username]){
+        players[username] = { username, displayName: displayName || username };
+        renderLobby();
+        pushLog(`✅ ${escapeHtml(displayName||username)} دخل اللعبة`);
+      }
+      return;
+    }
+    if(phase === "playing" && username === currentTargetUsername && isHitCommand(message)){
+      registerHit(username);
+    }
+  }
+
+  /* ===================== الاتصال الحقيقي بشات تويتش (بدون تسجيل دخول) ===================== */
+  let ws = null;
+  function setStatus(connected){
+    document.getElementById("statusDot").className = "status-dot " + (connected ? "on" : "off");
+    document.getElementById("statusDot").title = connected ? `متصل بشات ${TWITCH_CHANNEL}` : "منقطع، ..جاري إعادة الاتصال";
+  }
+  function connectTwitchChat(){
+    try{
+      ws = new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+    }catch(e){ setTimeout(connectTwitchChat, 4000); return; }
+
+    ws.onopen = () => {
+      ws.send("CAP REQ :twitch.tv/tags twitch.tv/commands");
+      const nick = "justinfan" + Math.floor(10000 + Math.random()*89999);
+      ws.send(`NICK ${nick}`);
+      ws.send(`JOIN #${TWITCH_CHANNEL}`);
+      setStatus(true);
+    };
+    ws.onmessage = (evt) => {
+      const lines = String(evt.data).split("\r\n").filter(Boolean);
+      for(const line of lines){
+        if(line.startsWith("PING")){ ws.send("PONG :tmi.twitch.tv"); continue; }
+        if(line.indexOf("PRIVMSG") === -1) continue;
+        let tagsPart = "", rest = line;
+        if(line.startsWith("@")){
+          const sp = line.indexOf(" ");
+          tagsPart = line.slice(1, sp);
+          rest = line.slice(sp+1);
+        }
+        const tags = {};
+        tagsPart.split(";").forEach(kv=>{
+          const idx = kv.indexOf("=");
+          if(idx>-1) tags[kv.slice(0,idx)] = kv.slice(idx+1);
+        });
+        const m = rest.match(/^:([^!]+)![^ ]* PRIVMSG #[^ ]+ :(.*)$/);
+        if(m){
+          const username = m[1].toLowerCase();
+          const message = m[2];
+          const displayName = tags["display-name"] || username;
+          handleChatMessage({ username, displayName, message });
+        }
+      }
+    };
+    ws.onclose = () => { setStatus(false); setTimeout(connectTwitchChat, 4000); };
+    ws.onerror = () => { try{ ws.close(); }catch(e){} };
+  }
+  connectTwitchChat();
+
+  /* ===================== تبديل القناة يدويًا من نفس الصفحة ===================== */
+  function switchChannel(newChannel){
+    const clean = (newChannel||"").trim().replace(/^#/, "").toLowerCase();
+    if(!clean) return;
+    TWITCH_CHANNEL = clean;
+    localStorage.setItem(CHANNEL_KEY, clean);
+    localStorage.setItem("s3as3_saved_channel", clean); // نفس مفتاح لعبة الماينر/الأسئلة، عشان تنمزامن معها كمان
+    if(ws){ ws.onclose = null; try{ ws.close(); }catch(e){} } // منع محاولة إعادة اتصال قديمة بالقناة السابقة
+    setStatus(false);
+    document.getElementById("statusDot").title = `يتصل بشات ${TWITCH_CHANNEL}...`;
+    resetGame();
+    connectTwitchChat();
+  }
+
+  const switchBox = document.getElementById("channelSwitchBox");
+  document.getElementById("switchChannelBtn").addEventListener("click", ()=>{
+    const showing = switchBox.style.display !== "none";
+    switchBox.style.display = showing ? "none" : "flex";
+    if(!showing) document.getElementById("channelSwitchInput").focus();
+  });
+  document.getElementById("channelSwitchSaveBtn").addEventListener("click", ()=>{
+    switchChannel(document.getElementById("channelSwitchInput").value);
+    switchBox.style.display = "none";
+  });
+  document.getElementById("channelSwitchInput").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter"){ switchChannel(e.target.value); switchBox.style.display = "none"; }
+  });
+
+  /* ===================== أدوات التجربة اليدوية ===================== */
+  document.getElementById("simSendBtn").addEventListener("click", () => {
+    const u = document.getElementById("simUser").value.trim() || "TestUser";
+    const msg = document.getElementById("simMsg").value;
+    handleChatMessage({ username: u.toLowerCase(), displayName: u, message: msg });
+  });
+
+  /* ===================== أزرار التحكم ===================== */
+  document.getElementById("startBtn").addEventListener("click", startGame);
+  document.getElementById("playAgainBtn").addEventListener("click", resetGame);
+
+  renderLobby();
+})();
+</script>
+<script>
+  // ===== قوائم الأقسام تفتح بمجرد ما يقرب الماوس (هوفر)، وتختفي بس بعد مهلة بسيطة =====
+  // (المهلة عشان لو الماوس يعدي بفجوة صغيرة بين الرابط والقائمة، ما تسكر القائمة قبل ما توصلها)
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    let closeTimer = null;
+    item.addEventListener("mouseenter", function(){
+      clearTimeout(closeTimer);
+      item.classList.add("open");
+    });
+    item.addEventListener("mouseleave", function(){
+      closeTimer = setTimeout(function(){
+        item.classList.remove("open");
+      }, 300);
+    });
+  });
+</script>
+</body>
+</html>

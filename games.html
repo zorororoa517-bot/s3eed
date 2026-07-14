@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S3aS3 Games — سعاسع</title>
+<link rel="icon" href="assets/avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tan:#e4d0b4; --tan-deep:#cbb08a; --walnut:#403022; --charcoal:#2e2216; --cream:#FBF6EE;
+    --paper:#37291d; --ink:#292118; --ink-soft:#6e5d4d; --clay:#6F4E37;
+    --line: rgba(228,208,180,.16); --shadow: 0 10px 28px rgba(0,0,0,.45);
+    --bg:#403022; --surface:#37291d; --text:#e4d0b4; --text-soft:#cbb08a; --header-bg: var(--walnut);
+  }
+  *{box-sizing:border-box;}
+  html,body{ height:100%; }
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:'Tajawal', sans-serif;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  .topbar{
+    position:relative;
+    background: var(--header-bg); border-bottom: 1px solid var(--line);
+    padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
+  }
+  .brand{ display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .brand .mark{
+    width:34px; height:34px; border-radius:3px; background: var(--charcoal); color:var(--tan);
+    display:flex; align-items:center; justify-content:center; font-family:'Cairo', sans-serif; font-weight:700;
+    font-size:18px; transform: rotate(-3deg); overflow:hidden; position:relative;
+  }
+
+  /* ===== مؤثرات ماين كرافت على صورة البروفايل: توهج مشعل + لمعان إنشانتمنت ===== */
+  .brand .mark{ animation: mcTorchGlow 2.4s ease-in-out infinite; }
+  .brand .mark::before{
+    content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); z-index:2;
+  }
+  .brand .mark::after{
+    content:""; position:absolute; inset:-60% -160%; pointer-events:none; z-index:1;
+    background: linear-gradient(75deg, transparent 42%, rgba(255,255,255,.65) 50%, transparent 58%);
+    transform: translateX(-130%);
+    animation: mcEnchantSweep 4.5s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+  .brand .mark img{ position:relative; z-index:0; }
+  @keyframes mcTorchGlow{
+    0%,100%{ box-shadow: 0 0 5px 1px rgba(255,170,60,.35); }
+    50%{ box-shadow: 0 0 14px 4px rgba(255,170,60,.6); }
+  }
+  @keyframes mcEnchantSweep{
+    0%, 62%{ transform: translateX(-130%); }
+    82%{ transform: translateX(130%); }
+    100%{ transform: translateX(130%); }
+  }
+  .brand .mark img{ width:100%; height:100%; object-fit:cover; }
+  .brand-name{ font-weight:800; font-size:19px; color:var(--charcoal); font-family:'Cairo', sans-serif; }
+  html[data-theme="dark"] .brand-name{ color:var(--tan); }
+
+  nav.main-nav{ display:flex; align-items:center; gap:60px; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .nav-link{ padding:9px 14px; border-radius:18px; font-size:13.5px; font-weight:700; color:var(--charcoal); opacity:.75; }
+  .nav-link:hover{ opacity:1; background:rgba(43,36,32,.08); }
+  .nav-link.active{ background:var(--charcoal); color:var(--tan); opacity:1; }
+
+  .nav-item{ position:relative; display:flex; align-items:center; }
+  .nav-dropdown{
+    position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
+    background:var(--surface); border:1px solid var(--line); border-radius:12px;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+  }
+  .nav-item.open .nav-dropdown{ display:flex; }
+  .nav-dropdown a{
+    display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px;
+    font-size:13px; font-weight:700; color:var(--tan); opacity:.9; white-space:nowrap;
+  }
+  .nav-dropdown a:hover{ opacity:1; background:rgba(241,233,220,.08); }
+  html[data-theme="dark"] .nav-link{ color:var(--tan); }
+  @media(max-width:900px){ nav.main-nav{ display:none; } }
+
+  .controls{ margin-inline-start:auto; display:flex; align-items:center; gap:10px; flex-shrink:0;}
+
+  .hub-wrap{ flex:1; width:100%; max-width:1000px; margin:0 auto; padding:26px 16px 50px; }
+  .hub-head{ text-align:center; margin-bottom:22px; }
+  .eyebrow{ font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text-soft); font-weight:700; display:block; margin-bottom:6px;}
+  .hub-head h1{ font-family:'Cairo', sans-serif; font-size:26px; margin:0; color:var(--tan); }
+
+  /* ===== ربط الشات بقناة تويتش ===== */
+  .channel-box{
+    max-width:520px; margin:0 auto 30px; background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; box-shadow:var(--shadow); padding:16px 18px; text-align:center;
+  }
+  .channel-box .lbl{ font-size:12.5px; color:var(--text-soft); font-weight:700; margin-bottom:10px; }
+  .channel-row{ display:flex; gap:8px; }
+  .channel-row input{
+    flex:1; font-size:14px; padding:10px 12px; border-radius:12px; border:1px solid var(--line);
+    background:var(--paper); color:var(--text); font-family:inherit; text-align:center;
+  }
+  .channel-row button{
+    background:var(--clay); color:#fff; border:none; border-radius:12px; padding:10px 18px; font-weight:800;
+    font-size:13.5px; cursor:pointer; font-family:inherit; white-space:nowrap;
+  }
+  .channel-current{ margin-top:10px; font-size:12px; color:var(--text-soft); }
+  .channel-current b{ color:var(--tan); }
+
+  /* ===== كروت الألعاب ===== */
+  .games-title{ text-align:center; font-family:'Cairo', sans-serif; font-size:19px; color:var(--tan); margin:0 0 16px; }
+  .games-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:16px; }
+  .game-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow);
+    padding:22px 18px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .game-card .emoji{ font-size:40px; line-height:1; }
+  .game-card h3{ margin:0; font-family:'Cairo', sans-serif; font-size:17px; color:var(--tan); }
+  .game-card p{ margin:0; font-size:12.5px; color:var(--text-soft); line-height:1.6; min-height:38px; }
+  .game-card .enter-btn{
+    display:block; width:100%; margin-top:auto; background:var(--clay); color:#fff; font-weight:800;
+    font-size:14px; padding:11px; border-radius:12px; border:none; cursor:pointer; font-family:'Tajawal', sans-serif;
+  }
+  .game-card .enter-btn:hover{ filter:brightness(1.08); }
+
+  /* ===== جلو + تكبير عند تمرير الماوس (كل أزرار الموقع والصورة) ===== */
+  .nav-link, button, [class*="btn"], .watch{
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  }
+  .nav-link:hover, button:hover, [class*="btn"]:hover, .watch:hover{
+    transform: scale(1.06);
+    box-shadow: 0 0 16px 3px rgba(203,176,138,.55);
+    filter: brightness(1.08);
+  }
+  .brand .mark{ transition: transform .18s ease, box-shadow .18s ease; }
+  .brand:hover .mark{
+    animation: none;
+    transform: rotate(-3deg) scale(1.1);
+    box-shadow: 0 0 18px 4px rgba(203,176,138,.6), 0 0 26px 8px rgba(255,170,60,.35);
+  }
+  .brand:hover .mark::after{ animation-play-state: paused; }
+
+  /* ===== سكرول بلون بني فاتح متناسق مع خلفية الموقع ===== */
+  html{ scrollbar-width: thin; scrollbar-color: var(--tan) var(--bg); }
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-track{ background: var(--bg); }
+  ::-webkit-scrollbar-thumb{ background: var(--tan); border-radius:8px; border:2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover{ background: var(--tan-deep); }
+
+  footer{ text-align:center; padding:16px; color:var(--text-soft); font-size:12px; flex-shrink:0; }
+</style>
+
+<style>
+  html, body, button, a{
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><defs><radialGradient id="g" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="white" stop-opacity="1"/><stop offset="55%" stop-color="white" stop-opacity="0.9"/><stop offset="100%" stop-color="white" stop-opacity="0"/></radialGradient></defs><circle cx="8" cy="8" r="7" fill="url(%23g)"/><circle cx="8" cy="8" r="2.3" fill="white"/></svg>') 8 8, auto;
+  }
+</style>
+  <style>
+  .ico{ display:inline-block; }
+  .ico-notif{ filter: brightness(0) saturate(100%) invert(66%) sepia(83%) saturate(195%) hue-rotate(-17deg) brightness(39%) contrast(144%); }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="mark"><img src="assets/avatar.png" alt="S3eeD"></div>
+  </div>
+  <nav class="main-nav">
+    <div class="nav-item">
+      <a class="nav-link active" href="games.html">S3aS3 Games</a>
+      <div class="nav-dropdown">
+        <a href="creeper.html">كريبر شات</a>
+        <a href="miners.html">ماينر شات</a>
+        <a href="minshow.html">ماين شو</a>
+        <a href="quiz.html">أسئلة ماين كرافت</a>
+        <a href="toolminer.html">كوكيز كليكر</a>
+        <a href="minecraftle.html">ماينكرافتل</a>
+
+        <a href="runner.html">ستيف رنر</a>
+        <a href="puzzle.html">بازل</a>
+        <a href="memorycraft.html">ميموري كرافت</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="index.html">S3eeD</a>
+      <div class="nav-dropdown">
+        <a href="index.html#video">آخر فيديو</a>
+        <a href="index.html#twitch">آخر بث</a>
+        <a href="index.html#gamesRating">تقييم الألعاب</a>
+        <a href="index.html#archive">الأرشيف</a>
+        <a href="index.html#suggest" class="js-suggest-link">الاقتراحات</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a class="nav-link" href="fanart.html">FAN ART</a>
+      <div class="nav-dropdown">
+        <a href="fanart.html#home">آخر الرسمات</a>
+        <a href="fanart.html#topart">الأعلى تفاعلاً</a>
+        <a href="fanart.html#badges">البادجات</a>
+        <a href="fanart.html#create">نشر رسمة</a>
+      </div>
+    </div>
+  </nav>
+  <div class="controls"></div>
+</header>
+
+<div class="hub-wrap">
+  <div class="hub-head">
+    <span class="eyebrow">العب الآن</span>
+    <h1>S3aS3 Games </h1>
+  </div>
+
+  <!-- ربط الشات بأي قناة تويتش (مو مقفولة على قناة وحدة) -->
+  <div class="channel-box">
+    <div class="lbl">اربط ألعاب الشات بقناة تويتش</div>
+    <div class="channel-row">
+      <input id="channelInput" placeholder="اسم قناة تويتش (مثلاً: s3eedxx)">
+      <button id="channelSaveBtn">ربط</button>
+    </div>
+    <div class="channel-current">القناة الحالية: <b id="channelCurrent">—</b></div>
+  </div>
+
+  <h2 class="games-title">الألعاب المتوفرة — اختر لعبة وادخل</h2>
+  <div class="games-grid">
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>كريبر الشات</h3>
+      <p>اسمك بيطلع عشوائي وعندك ثواني تضرب الكريبر قبل ما ينفجر عليكم!</p>
+      <button class="enter-btn" onclick="location.href='creeper.html'">▶ دخول</button>
+    </div>
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>كوكيز كليكر</h3>
+      <p>اضغط على الكوكيز عشان تجمع خام، واشترِ بيكاكسات تشتغل بدالك أوتوماتيك.</p>
+      <button class="enter-btn" onclick="location.href='toolminer.html'">▶ دخول</button>
+    </div>
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>ستيف رنر</h3>
+      <p>اقفز وانحنِ تتفادى الصبار والفانتوم وانت عابر بايومات ماين كرافت المختلفة.</p>
+      <button class="enter-btn" onclick="location.href='runner.html'">▶ دخول</button>
+    </div>
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>ماينكرافتل</h3>
+      <p>مخلوق سري كل يوم — خمّنه وشوف صفاته تتطابق وياه أو لا، بأسلوب Wordle.</p>
+      <button class="enter-btn" onclick="location.href='minecraftle.html'">▶ دخول</button>
+    </div>
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>ماينر شات</h3>
+      <p>احفر خط الدايموند بدورك وحاذر اللافا المخبّية! أول وحد يجمع 40 نقطة يفوز.</p>
+      <button class="enter-btn" onclick="location.href='miners.html'">▶ دخول</button>
+    </div>
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>أسئلة ماين كرافت</h3>
+      <p>اختر الصعوبة وجاوب أسرع من الكل على 20 سؤال عن عالم ماين كرافت.</p>
+      <button class="enter-btn" onclick="location.href='quiz.html'">▶ دخول</button>
+    </div>
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>ماين شو</h3>
+      <p>ارسم آيتم أو بلوك أو موب من ماين كرافت، وخلي المتابعين يتسابقون بالشات على تخمين الاسم.</p>
+      <button class="enter-btn" onclick="location.href='minshow.html'">▶ دخول</button>
+    </div>
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>بازل</h3>
+      <p>ارفع أي صورة من جهازك وحوّلها لبازل، وشارك الرابط عشان أصحابك يحلونها وياك لحظيًا.</p>
+      <button class="enter-btn" onclick="location.href='puzzle.html'">▶ دخول</button>
+    </div>
+    <div class="game-card">
+      <div class="emoji"></div>
+      <h3>ميموري كرافت</h3>
+      <p>اقلب البطاقات ولاقي أزواج بلوكات وآيتمز ماين كرافت المتطابقة قبل الكل.</p>
+      <button class="enter-btn" onclick="location.href='memorycraft.html'">▶ دخول</button>
+    </div>
+  </div>
+</div>
+
+<footer>S3eeD — S3aS3 Games © 2026</footer>
+
+<script>
+  const CHANNEL_KEY = "s3as3_twitch_channel";
+  // ملاحظة مهمة: لعبة "أسئلة ماين كرافت" و"ماينر شات" (تشتغل جوه game.html) تقرأ اسم
+  // القناة من مفتاح مختلف داخليًا. لازم نحفظ بالمفتاحين مع بعض عشان الشات يوصل لكل الألعاب.
+  const GAME_APP_CHANNEL_KEY = "s3as3_saved_channel";
+  const DEFAULT_CHANNEL = "s3eedxx";
+  const currentEl = document.getElementById("channelCurrent");
+  const inputEl = document.getElementById("channelInput");
+
+  // ترحيل: لو المستخدم سبق وحفظ قناة قبل هالتحديث، ننسخها للمفتاح الثاني تلقائيًا
+  (function migrateChannelKey(){
+    const legacy = localStorage.getItem(CHANNEL_KEY);
+    if(legacy && !localStorage.getItem(GAME_APP_CHANNEL_KEY)){
+      localStorage.setItem(GAME_APP_CHANNEL_KEY, legacy);
+    }
+  })();
+
+  function getSavedChannel(){
+    return localStorage.getItem(CHANNEL_KEY) || DEFAULT_CHANNEL;
+  }
+  function refreshChannelDisplay(){
+    const ch = getSavedChannel();
+    currentEl.textContent = ch;
+    inputEl.value = ch === DEFAULT_CHANNEL ? "" : ch;
+    inputEl.placeholder = `اسم قناة تويتش (الافتراضي: ${DEFAULT_CHANNEL})`;
+  }
+  document.getElementById("channelSaveBtn").addEventListener("click", ()=>{
+    const val = inputEl.value.trim().replace(/^@/, "").toLowerCase();
+    if(val){
+      localStorage.setItem(CHANNEL_KEY, val);
+      localStorage.setItem(GAME_APP_CHANNEL_KEY, val);
+    } else {
+      localStorage.removeItem(CHANNEL_KEY);
+      localStorage.removeItem(GAME_APP_CHANNEL_KEY);
+    }
+    refreshChannelDisplay();
+  });
+  refreshChannelDisplay();
+</script>
+<script>
+  // ===== قوائم الأقسام تفتح بمجرد ما يقرب الماوس (هوفر)، وتختفي بس بعد مهلة بسيطة =====
+  // (المهلة عشان لو الماوس يعدي بفجوة صغيرة بين الرابط والقائمة، ما تسكر القائمة قبل ما توصلها)
+  document.querySelectorAll(".nav-item").forEach(function(item){
+    let closeTimer = null;
+    item.addEventListener("mouseenter", function(){
+      clearTimeout(closeTimer);
+      item.classList.add("open");
+    });
+    item.addEventListener("mouseleave", function(){
+      closeTimer = setTimeout(function(){
+        item.classList.remove("open");
+      }, 300);
+    });
+  });
+</script>
+</body>
+</html>
