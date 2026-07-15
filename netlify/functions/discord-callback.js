@@ -21,7 +21,12 @@ function getAdminApp() {
 }
 
 exports.handler = async (event) => {
-  const siteUrl = process.env.SITE_URL; // مثال: https://s3eed.netlify.app
+  // نحاول ناخذ SITE_URL من متغيرات البيئة، ولو ما كانت موجودة أو فاضية،
+  // نبنيها تلقائياً من الدومين اللي جاء منه الطلب نفسه (أضمن، ما يعتمد على إعداد يدوي)
+  const requestHost = event.headers && (event.headers["x-forwarded-host"] || event.headers.host);
+  const siteUrl = (process.env.SITE_URL && process.env.SITE_URL.trim())
+    ? process.env.SITE_URL.trim().replace(/\/$/, "")
+    : (requestHost ? `https://${requestHost}` : "");
   const code = event.queryStringParameters && event.queryStringParameters.code;
 
   if (!code) {
