@@ -174,6 +174,13 @@
     background:var(--charcoal); color:var(--tan); padding:9px 18px; border-radius:20px; border:none;
     font-weight:600; font-size:13px;
   }
+  .login-icon-btn{
+    width:36px; height:36px; border-radius:50%; border:2px solid var(--charcoal); background:var(--tan);
+    display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  html[data-theme="dark"] .login-icon-btn{ border-color:var(--tan); background:var(--charcoal); }
+  .login-icon-btn svg{ width:19px; height:19px; color:var(--charcoal); }
+  html[data-theme="dark"] .login-icon-btn svg{ color:var(--tan); }
   .avatar-btn{ width:38px; height:38px; border-radius:50%; overflow:hidden; border:2px solid var(--charcoal); padding:0; background:none;}
   .avatar-btn img{ width:100%; height:100%; object-fit:cover;}
 
@@ -341,7 +348,9 @@
   .modal-close{
     position:absolute; top:12px; inset-inline-end:12px; width:32px; height:32px; border-radius:50%;
     background:rgba(0,0,0,.5); color:#fff; border:none; font-size:16px; z-index:5;
+    display:flex; align-items:center; justify-content:center;
   }
+  .modal-close::after{ content:"\2715"; line-height:1; }
   /* art modal */
   .art-modal{ display:flex; max-width:1160px; position:relative; }
   .art-modal img.full{ width:64%; max-height:88vh; object-fit:contain; background:var(--paper); }
@@ -851,9 +860,9 @@
       <div id="ticketMessagesList" style="flex:1;overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;"></div>
       <div id="ticketInputArea" style="padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;">
         <input type="file" id="ticketImageInput" accept="image/*" style="display:none;" onchange="sendTicketImage(this)">
-        <button onclick="document.getElementById('ticketImageInput').click()" style="width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--paper);flex-shrink:0;"></button>
+        <button onclick="document.getElementById('ticketImageInput').click()" style="width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--paper);flex-shrink:0;font-size:16px;">📎</button>
         <input type="text" id="ticketTextInput" placeholder="اكتب رسالة..." style="flex:1;min-width:0;width:100%;padding:10px 14px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;caret-color:var(--text);" onkeydown="if(event.key==='Enter') sendTicketText();">
-        <button onclick="sendTicketText()" style="width:38px;height:38px;border-radius:50%;border:none;background:var(--clay);color:#fff;flex-shrink:0;"></button>
+        <button onclick="sendTicketText()" style="width:38px;height:38px;border-radius:50%;border:none;background:var(--clay);color:#fff;flex-shrink:0;font-size:15px;">➤</button>
       </div>
       <div id="ticketClosedNotice" style="display:none;padding:12px 18px;text-align:center;color:var(--text-soft);font-size:12.5px;border-top:1px solid var(--line);">هذي التذكرة مقفولة</div>
     </div>
@@ -1355,7 +1364,9 @@ function renderAuthArea(){
   const area = document.getElementById("authArea");
   const d = translations[lang];
   if(!currentUser || !myProfile){
-    area.innerHTML = `<a class="auth-btn" href="index.html#login" style="display:inline-flex;align-items:center;text-decoration:none;">${lang==="ar" ? "سجّل الدخول من الموقع الرئيسي" : "Sign in from main site"}</a>`;
+    area.innerHTML = `<a class="login-icon-btn" href="index.html#login" aria-label="${lang==="ar" ? "تسجيل الدخول" : "Sign in"}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+    </a>`;
     return;
   }
   area.innerHTML = `

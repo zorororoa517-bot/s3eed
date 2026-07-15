@@ -146,6 +146,26 @@
     background:var(--charcoal); color:var(--tan); padding:9px 18px; border-radius:20px; border:none;
     font-weight:700; font-size:13px;
   }
+  .login-icon-wrap{ position:relative; }
+  .login-icon-btn{
+    width:36px; height:36px; border-radius:50%; border:2px solid var(--charcoal); background:var(--tan);
+    display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  html[data-theme="dark"] .login-icon-btn{ border-color:var(--tan); background:var(--charcoal); }
+  .login-icon-btn svg{ width:19px; height:19px; color:var(--charcoal); }
+  html[data-theme="dark"] .login-icon-btn svg{ color:var(--tan); }
+  .login-icon-dropdown{
+    position:absolute; top:44px; inset-inline-end:0; min-width:200px; background:var(--surface);
+    border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:8px;
+    display:none; flex-direction:column; gap:4px; z-index:90;
+  }
+  .login-icon-wrap:hover .login-icon-dropdown{ display:flex; }
+  .login-icon-dropdown button{
+    display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:8px; border:none;
+    background:transparent; color:var(--text); font-size:13px; font-weight:600; text-align:start;
+  }
+  .login-icon-dropdown button:hover{ background:var(--paper); }
+  .login-icon-dropdown button svg{ width:17px; height:17px; flex-shrink:0; }
   .avatar-btn{ width:38px; height:38px; border-radius:50%; overflow:hidden; border:2px solid var(--charcoal); padding:0; background:none; cursor:pointer;}
   .avatar-caret-btn{ width:20px; height:20px; border-radius:50%; border:1px solid var(--charcoal); background:none; color:var(--charcoal); font-size:11px; line-height:1; padding:0; cursor:pointer; opacity:.75; }
   .avatar-caret-btn:hover{ opacity:1; }
@@ -198,6 +218,12 @@
   @media (prefers-reduced-motion: reduce){
     .avatar-img, .avatar-ring, .avatar-glow{ animation:none; }
   }
+  .scroll-arrow{
+    position:relative; margin:6px auto 0; width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--tan-deep);
+    animation: scrollArrowBounce 1.6s ease-in-out infinite; transition:opacity .3s ease;
+  }
+  @keyframes scrollArrowBounce{ 0%,100%{ transform:translateY(0); opacity:.55;} 50%{ transform:translateY(7px); opacity:1;} }
 
   .hero-eyebrow{
     font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--tan); font-weight:800; margin-bottom:8px;
@@ -323,7 +349,9 @@
   .modal-close{
     position:absolute; top:12px; inset-inline-end:12px; width:32px; height:32px; border-radius:50%;
     background:rgba(0,0,0,.5); color:#fff; border:none; font-size:16px; z-index:5;
+    display:flex; align-items:center; justify-content:center;
   }
+  .modal-close::after{ content:"\2715"; line-height:1; }
   .modal h2{ margin:6px 0 4px; font-size:22px;}
   .modal p{ color:var(--text-soft); font-size:13px; margin-bottom:20px;}
   .field{ text-align:start; margin-bottom:12px;}
@@ -805,8 +833,8 @@
       <div class="avatar-glow"></div>
       <div class="avatar-img"><img src="assets/avatar.png" alt="صورة قناة S3eeD"></div>
     </div>
-    <div class="hero-eyebrow" data-i18n="heroEyebrow">صانع محتوى</div>
-    <p data-i18n="heroDesc">ماين كرافت هاردكور، سلاسل جديدة، وترندات — محتوى يومي جديد كل ما توفر وقت. انضم لعائلة القناة وتابع كل جديد أول بأول.</p>
+    <div class="hero-eyebrow" data-i18n="heroEyebrow">سعيد</div>
+    <p data-i18n="heroDesc">صانع محتوى في اليوتيوب و ستريمر في منصة تويتش على لعبة ماين كرافت والعاب مختلفة. الموقع عبارة عن مساحة واسعة جدًا للمتابعين بالاضافة إلى محتواي الشخصي وحساباتي.</p>
     <div class="hero-cta">
       <a class="btn-primary" data-i18n="watchYoutube" href="https://www.youtube.com/@S3eeD" target="_blank" rel="noopener">
         شاهد على يوتيوب
@@ -816,6 +844,7 @@
       </a>
     </div>
   </div>
+  <div class="scroll-arrow" id="scrollArrow">⌄</div>
 </section>
 
 <div class="wrap">
@@ -899,6 +928,7 @@
       <h2 data-i18n="archiveTitle">الأرشيف </h2>
     </div>
     <div class="archive-grid" id="archiveGrid"></div>
+    <button class="see-all-comments-btn" id="archiveShowMoreBtn" style="max-width:820px;margin:16px auto 0;display:none;" onclick="toggleArchiveShowMore()">عرض المزيد</button>
   </section>
 
   <!-- ============ GAMES RATING ============ -->
@@ -908,6 +938,17 @@
       <h2 data-i18n="ratingTitle">الألعاب </h2>
     </div>
     <div class="games-list" id="ratingGamesList"></div>
+    <button class="see-all-comments-btn" id="ratingShowMoreBtn" style="max-width:820px;margin:16px auto 0;display:none;" onclick="toggleRatingShowMore()">عرض المزيد</button>
+  </section>
+
+  <!-- ============ BADGES PREVIEW ============ -->
+  <section class="block" id="badgesPreview">
+    <div class="block-head">
+      <span class="eyebrow">إنجازات المجتمع</span>
+      <h2>البادجات</h2>
+    </div>
+    <div class="badges-grid" id="badgesPreviewGrid" style="max-width:1000px;margin:0 auto;"></div>
+    <button class="see-all-comments-btn" style="max-width:820px;margin:16px auto 0;" onclick="openOverlay('badgesOverlay')">عرض المزيد</button>
   </section>
 
   <!-- ============ SUGGESTION BOX ============ -->
@@ -1128,9 +1169,9 @@
     <div id="ticketMessagesList" style="flex:1;overflow:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;"></div>
     <div id="ticketInputArea" style="padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;">
       <input type="file" id="ticketImageInput" accept="image/*" style="display:none;" onchange="sendTicketImage(this)">
-      <button onclick="document.getElementById('ticketImageInput').click()" style="width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--paper);flex-shrink:0;"></button>
+      <button onclick="document.getElementById('ticketImageInput').click()" style="width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--paper);flex-shrink:0;font-size:16px;">📎</button>
       <input type="text" id="ticketTextInput" placeholder="اكتب رسالة..." style="flex:1;min-width:0;width:100%;padding:10px 14px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;caret-color:var(--text);" onkeydown="if(event.key==='Enter') sendTicketText();">
-      <button onclick="sendTicketText()" style="width:38px;height:38px;border-radius:50%;border:none;background:var(--clay);color:#fff;flex-shrink:0;"></button>
+      <button onclick="sendTicketText()" style="width:38px;height:38px;border-radius:50%;border:none;background:var(--clay);color:#fff;flex-shrink:0;font-size:15px;">➤</button>
     </div>
     <div id="ticketClosedNotice" style="display:none;padding:12px 18px;text-align:center;color:var(--text-soft);font-size:12.5px;border-top:1px solid var(--line);">هذي التذكرة مقفولة</div>
   </div>
@@ -1238,6 +1279,14 @@ function toast(msg){
   setTimeout(()=> el.classList.remove("show"), 2200);
 }
 
+/* السهم المتحرك تحت الصورة يختفي بمجرد ما ينزل المستخدم شوي */
+window.addEventListener("scroll", ()=>{
+  const arrow = document.getElementById("scrollArrow");
+  if(!arrow) return;
+  arrow.style.opacity = window.scrollY > 40 ? "0" : "1";
+  arrow.style.pointerEvents = window.scrollY > 40 ? "none" : "auto";
+}, { passive:true });
+
 /* Auto-open the login modal if navigated here with #login (e.g. from the FAN ART site) */
 if(window.location.hash === "#login"){ openOverlay("authOverlay"); }
 
@@ -1250,11 +1299,11 @@ const idxTranslations = {
     heroEyebrow:"صانع محتوى", heroTitle:"S3eeD — سعيد",
     heroDesc:"ماين كرافت هاردكور، سلاسل جديدة، وترندات — محتوى يومي جديد كل ما توفر وقت. انضم لعائلة القناة وتابع كل جديد أول بأول.",
     watchYoutube:"شاهد على يوتيوب", exploreFanart:"استكشف FAN ART",
-    videoEyebrow:"جديد على القناة", videoTitle:"آخر فيديو 🎬",
+    videoEyebrow:"جديد على القناة", videoTitle:"آخر فيديو",
     gamesEyebrow:"جديد كلياً", gamesTitle:"S3aS3 Games 🎮", gameDesc:"لعبة من إنتاج القناة، جربها الآن مباشرة من المتصفح بدون تحميل.", playNow:"▶ العب الآن",
-    twitchTitle:"تويتش", archiveEyebrow:"كليبات وبثوث", archiveTitle:"الأرشيف 📼",
+    twitchTitle:"تويتش", archiveEyebrow:"كليبات وبثوث", archiveTitle:"الأرشيف",
     streamsYearEyebrow:"إحصائيات الموسم", streamsYearTitle:"بثوث السنة الحالية 📊",
-    ratingEyebrow:"قيّم وشارك رأيك", ratingTitle:"الألعاب 🎮",
+    ratingEyebrow:"قيّم وشارك رأيك", ratingTitle:"الألعاب",
     suggestTitle:"عندك اقتراح؟ 💡", suggestDesc:"شاركنا رأيك، بيوصل لفريق الإدارة مباشرة", suggestBtn:"إرسال اقتراح",
     socialEyebrow:"تواصل معي", socialTitle:"منصات التواصل",
     footer:"S3eeD — الموقع الرسمي © 2026", searchPh:"ابحث عن قناة، لعبة، أرشيف...",
@@ -1267,11 +1316,11 @@ const idxTranslations = {
     heroEyebrow:"Content Creator", heroTitle:"S3eeD",
     heroDesc:"Hardcore Minecraft, new series, and trends — fresh content whenever there's time. Join the channel family and stay up to date.",
     watchYoutube:"Watch on YouTube", exploreFanart:"Explore FAN ART",
-    videoEyebrow:"New on the channel", videoTitle:"Latest video 🎬",
+    videoEyebrow:"New on the channel", videoTitle:"Latest video",
     gamesEyebrow:"Brand new", gamesTitle:"S3aS3 Games 🎮", gameDesc:"A game made by the channel, play it now directly in your browser, no download needed.", playNow:"▶ Play now",
-    twitchTitle:"Twitch", archiveEyebrow:"Clips and streams", archiveTitle:"Archive 📼",
+    twitchTitle:"Twitch", archiveEyebrow:"Clips and streams", archiveTitle:"Archive",
     streamsYearEyebrow:"Season stats", streamsYearTitle:"This year's streams 📊",
-    ratingEyebrow:"Rate and share your opinion", ratingTitle:"Games 🎮",
+    ratingEyebrow:"Rate and share your opinion", ratingTitle:"Games",
     suggestTitle:"Got a suggestion? 💡", suggestDesc:"Share your opinion, it reaches the team directly", suggestBtn:"Send suggestion",
     socialEyebrow:"Get in touch", socialTitle:"Social platforms",
     footer:"S3eeD — Official website © 2026", searchPh:"Search a channel, game, archive...",
@@ -1614,7 +1663,22 @@ async function ensureUserDoc(user, extra={}){
 function renderAuthArea(){
   const area = document.getElementById("authArea");
   if(!currentUser || !myProfile){
-    area.innerHTML = `<button class="auth-btn" onclick="window.openOverlay('authOverlay')">تسجيل الدخول</button>`;
+    area.innerHTML = `
+      <div class="login-icon-wrap">
+        <button class="login-icon-btn" aria-label="تسجيل الدخول">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+        </button>
+        <div class="login-icon-dropdown">
+          <button onclick="loginWithGoogle()">
+            <svg width="17" height="17" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.81.54-1.85.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.95v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.95A9 9 0 0 0 0 9c0 1.45.35 2.83.95 4.03l3-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .95 4.97l3 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+            <span>الدخول بـ Google</span>
+          </button>
+          <button onclick="loginWithDiscord()">
+            <svg viewBox="0 0 24 24" fill="#5865F2"><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.076.076 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.055c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.955 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.946 2.419-2.157 2.419z"/></svg>
+            <span>الدخول بـ Discord</span>
+          </button>
+        </div>
+      </div>`;
     return;
   }
   const isStaff = !!myProfile.role; // أي رتبة إدارية (owner/admin/assistant/rater/artist لا تحسب كـ staff هون بس نكتفي بالتحقق البسيط)
@@ -1857,6 +1921,13 @@ function renderBadgesGallery(){
   if(a) a.innerHTML = autoIds.map(badgeCardHTML).join("");
   if(m) m.innerHTML = manualIds.map(badgeCardHTML).join("");
 }
+function renderBadgesPreview(){
+  const grid = document.getElementById("badgesPreviewGrid");
+  if(!grid) return;
+  const ids = Object.keys(BADGE_DEFS).slice(0,6); // سطر واحد تقريباً، الباقي يظهر بضغطة "عرض المزيد"
+  grid.innerHTML = ids.map(badgeCardHTML).join("");
+}
+renderBadgesPreview();
 function tsToMillis(ts){
   if(!ts) return null;
   if(typeof ts.toMillis === "function") return ts.toMillis();
@@ -2559,12 +2630,23 @@ function archiveCardHTML(a){
     </div>
   </div>`;
 }
+let archiveShowAll = false;
+window.toggleArchiveShowMore = function(){
+  archiveShowAll = !archiveShowAll;
+  renderArchive();
+};
 function renderArchive(){
   const grid = document.getElementById("archiveGrid");
+  const moreBtn = document.getElementById("archiveShowMoreBtn");
   if(!grid) return;
+  const items = archiveShowAll ? allArchive : allArchive.slice(0,3);
   grid.innerHTML = allArchive.length
-    ? allArchive.map(archiveCardHTML).join("")
+    ? items.map(archiveCardHTML).join("")
     : `<div style="grid-column:1/-1;color:var(--text-soft);text-align:center;padding:20px 0;">لا يوجد محتوى بعد</div>`;
+  if(moreBtn){
+    moreBtn.style.display = allArchive.length > 3 ? "block" : "none";
+    moreBtn.textContent = archiveShowAll ? "عرض أقل ▲" : "عرض المزيد ▼";
+  }
 }
 window.openArchiveViewer = function(id){
   const a = allArchive.find(x=>x.id===id);
@@ -2670,12 +2752,23 @@ function ratingGameCardHTML(g){
     </div>
   </div>`;
 }
+let ratingShowAll = false;
+window.toggleRatingShowMore = function(){
+  ratingShowAll = !ratingShowAll;
+  renderRatingGames();
+};
 function renderRatingGames(){
   const list = document.getElementById("ratingGamesList");
+  const moreBtn = document.getElementById("ratingShowMoreBtn");
   if(!list) return;
+  const items = ratingShowAll ? allRatingGames : allRatingGames.slice(0,3);
   list.innerHTML = allRatingGames.length
-    ? allRatingGames.map(ratingGameCardHTML).join("")
+    ? items.map(ratingGameCardHTML).join("")
     : `<div style="grid-column:1/-1;color:var(--text-soft);text-align:center;padding:20px 0;">لا يوجد ألعاب بعد</div>`;
+  if(moreBtn){
+    moreBtn.style.display = allRatingGames.length > 3 ? "block" : "none";
+    moreBtn.textContent = ratingShowAll ? "عرض أقل ▲" : "عرض المزيد ▼";
+  }
 }
 window.rateGame = async function(gameId, stars){
   if(!requireLogin()) return;
