@@ -938,6 +938,7 @@
       <img id="archiveThumbPreview" style="display:none;max-width:180px;border-radius:8px;margin-top:8px;">
     </div>
     <div class="field"><label>وصف مختصر</label><input type="text" id="archiveDescInput" placeholder="اختياري"></div>
+    <div class="field"><label>اسم المجموعة (يتجمع معاه أي كليبات ثانية بنفس الاسم)</label><input type="text" id="archiveGroupInput" placeholder="مثال: البثوث المميزة"></div>
     <button class="btn-main" id="archiveSubmitBtn" onclick="submitArchiveItem()">نشر</button>
     <div id="archiveError" style="color:var(--tan);font-size:12.5px;margin-top:8px;display:none;"></div>
   </div>
@@ -972,6 +973,14 @@
     <div class="field"><label>العنوان اللي بيبان بالموقع</label><input type="text" id="gameTitleInput" placeholder="اسم اللعبة"></div>
     <div class="field"><label>رابط اللعب (اختياري)</label><input type="text" id="gamePlayInput" placeholder="https://..."></div>
     <div class="field"><label>وصف (اختياري)</label><input type="text" id="gameDescInput" placeholder="اختياري"></div>
+    <div class="field">
+      <label>حالة اللعبة</label>
+      <select id="gameCategoryInput" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-family:inherit;font-size:14px;">
+        <option value="current">🎮 قاعدين نلعبها حاليًا</option>
+        <option value="planned">🗓️ مخطط لها مستقبلاً</option>
+        <option value="completed" selected>✅ لعبناها من قبل</option>
+      </select>
+    </div>
     <div class="field" style="display:flex;align-items:center;gap:8px;">
       <input type="checkbox" id="gameLockRatingInput" style="width:auto;">
       <label for="gameLockRatingInput" style="margin:0;cursor:pointer;">امنع الجمهور من التقييم والتعليق على هذي اللعبة (بس أنت تقدر)</label>
@@ -2251,6 +2260,7 @@ function resetArchiveForm(){
   document.getElementById("archiveTitleInput").value = "";
   document.getElementById("archiveUrlInput").value = "";
   document.getElementById("archiveDescInput").value = "";
+  document.getElementById("archiveGroupInput").value = "";
   document.getElementById("archiveThumbFileInput").value = "";
   const previewEl = document.getElementById("archiveThumbPreview");
   if(previewEl){ previewEl.style.display = "none"; previewEl.src = ""; }
@@ -2265,6 +2275,7 @@ async function submitArchiveItem(){
   errEl.style.display = "none";
   const title = document.getElementById("archiveTitleInput").value.trim();
   const description = document.getElementById("archiveDescInput").value.trim();
+  const groupTitle = document.getElementById("archiveGroupInput").value.trim() || "مقاطع متنوعة";
 
   const url = document.getElementById("archiveUrlInput").value.trim();
   if(!title || !url){ errEl.textContent = translations[lang].fillFields; errEl.style.display = "block"; return; }
@@ -2273,7 +2284,7 @@ async function submitArchiveItem(){
   try{
     await addDoc(collection(db,"archive"), {
       title, url, thumbnail, isVideoFile: false, isYouTube: !!ytId,
-      description, createdBy: currentUser.uid, createdAt: serverTimestamp()
+      description, groupTitle, createdBy: currentUser.uid, createdAt: serverTimestamp()
     });
     resetArchiveForm();
     closeOverlay("addArchiveOverlay");
@@ -2424,12 +2435,14 @@ async function submitGame(){
   const coverUrl = selectedGameData ? selectedGameData.cover : "";
   const playUrl = document.getElementById("gamePlayInput").value.trim();
   const description = document.getElementById("gameDescInput").value.trim();
+  const category = document.getElementById("gameCategoryInput").value || "completed";
   const ratingLocked = document.getElementById("gameLockRatingInput").checked;
   if(!title){ errEl.textContent = translations[lang].fillFields; errEl.style.display="block"; return; }
-  await addDoc(collection(db,"games"), { title, coverUrl, playUrl, description, ratingLocked, createdBy: currentUser.uid, createdAt: serverTimestamp() });
+  await addDoc(collection(db,"games"), { title, coverUrl, playUrl, description, category, ratingLocked, createdBy: currentUser.uid, createdAt: serverTimestamp() });
   document.getElementById("gameTitleInput").value = "";
   document.getElementById("gamePlayInput").value = "";
   document.getElementById("gameDescInput").value = "";
+  document.getElementById("gameCategoryInput").value = "completed";
   document.getElementById("gameLockRatingInput").checked = false;
   clearSelectedGame();
   closeOverlay("addGameOverlay");
