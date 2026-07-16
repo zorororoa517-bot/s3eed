@@ -690,9 +690,6 @@
   <button class="side-btn" id="navRankRequest" onclick="showView('rankrequest')" title="طلب رتبة">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v11H7l-3 3V4Z"/><path d="M8 9h8M8 12h5"/></svg>
   </button>
-  <button class="side-btn" id="navBadges" onclick="showView('badges')" title="البادجات">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="m8.5 12.5-1.5 8 5-2.5 5 2.5-1.5-8"/></svg>
-  </button>
   <button class="side-btn" id="navAdmin" onclick="showView('admin')" title="لوحة الإدارة" style="display:none;">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
   </button>
@@ -735,7 +732,6 @@
       <div class="nav-dropdown">
         <a href="javascript:void(0)" onclick="showView('home')">آخر الرسمات</a>
         <a href="javascript:void(0)" onclick="showView('topart')">الأعلى تفاعلاً</a>
-        <a href="javascript:void(0)" onclick="showView('badges')">البادجات</a>
         <a href="javascript:void(0)" onclick="openCreateOverlay()">نشر رسمة</a>
       </div>
     </div>
@@ -758,7 +754,6 @@
   <button class="pill-btn" onclick="showView('home')"><span data-i18n="latestBtn">آخر الرسمات</span></button>
   <button class="pill-btn" onclick="showView('topart')"><span data-i18n="topBtn">الأعلى تفاعلاً</span></button>
   <button class="pill-btn" onclick="openCreateOverlay()"><span data-i18n="publishBtn">نشر رسمة</span></button>
-  <button class="pill-btn" onclick="showView('badges')"><span>البادجات</span></button>
 </div>
 
 <div class="wrap page" id="page-home">
@@ -829,20 +824,6 @@
       </div>
       <button class="btn-main" style="width:auto;padding:11px 26px;margin-bottom:20px;" onclick="openNewTicket()">+ فتح تذكرة جديدة</button>
       <div class="admin-user-list" id="myTicketsList"></div>
-    </section>
-  </div>
-
-  <!-- ============ BADGES GALLERY PAGE ============ -->
-  <div class="wrap page page-hidden" id="page-badges">
-    <section class="block" style="padding-top:18px;max-width:900px;margin:0 auto;">
-      <div class="block-head">
-        <h2>البادجات </h2>
-        <p style="color:var(--text-soft);font-size:13px;">كل البادجات المتوفرة بمجتمع فان آرت، وشو معنى كل وحدة فيهم</p>
-      </div>
-      <h3 style="font-size:14px;margin:0 0 12px;color:var(--text-soft);">بادجات إنجاز — بتنمنح لحالها حسب نشاطك</h3>
-      <div class="badges-grid" id="autoBadgesGrid"></div>
-      <h3 style="font-size:14px;margin:28px 0 12px;color:var(--text-soft);">بادجات الإدارة — الإدارة هي يلي بتمنحها</h3>
-      <div class="badges-grid" id="manualBadgesGrid"></div>
     </section>
   </div>
 
@@ -1555,9 +1536,6 @@ onAuthStateChanged(auth, async (user)=>{
   } else if(window.location.hash === "#topart"){
     showView("topart");
     history.replaceState(null, "", window.location.pathname);
-  } else if(window.location.hash === "#badges"){
-    showView("badges");
-    history.replaceState(null, "", window.location.pathname);
   } else if(window.location.hash === "#home"){
     showView("home");
     history.replaceState(null, "", window.location.pathname);
@@ -1751,13 +1729,6 @@ function badgeCardHTML(id){
     <p>${escapeHtml(desc)}</p>
   </div>`;
 }
-function renderBadgesPage(){
-  const autoIds = Object.keys(BADGE_DEFS).filter(id=>BADGE_DEFS[id].type==="auto");
-  const manualIds = Object.keys(BADGE_DEFS).filter(id=>BADGE_DEFS[id].type==="manual");
-  document.getElementById("autoBadgesGrid").innerHTML = autoIds.map(badgeCardHTML).join("");
-  document.getElementById("manualBadgesGrid").innerHTML = manualIds.map(badgeCardHTML).join("");
-}
-window.renderBadgesPage = renderBadgesPage;
 
 function tsToMillis(ts){
   if(!ts) return null;
@@ -2783,7 +2754,7 @@ function showView(view){
   const pageId = "page-" + (view==="top" ? "home" : view);
   document.querySelectorAll(".page").forEach(p=>p.classList.add("page-hidden"));
   document.getElementById(pageId).classList.remove("page-hidden");
-  const navMap = { home:"navHome", following:"navFollowing", topart:"navTopArt", reposts:"navReposts", rankrequest:"navRankRequest", admin:"navAdmin", badges:"navBadges" };
+  const navMap = { home:"navHome", following:"navFollowing", topart:"navTopArt", reposts:"navReposts", rankrequest:"navRankRequest", admin:"navAdmin" };
   document.querySelectorAll(".side-btn").forEach(b=>b.classList.remove("active"));
   const navBtnId = navMap[view];
   if(navBtnId) document.getElementById(navBtnId).classList.add("active");
@@ -2802,8 +2773,6 @@ function showView(view){
   } else if(view==="admin"){
     if(!isStaff()){ showView("home"); return; }
     renderAdminPanel();
-  } else if(view==="badges"){
-    renderBadgesPage();
   }
   window.scrollTo({top:0, behavior:"smooth"});
 }
