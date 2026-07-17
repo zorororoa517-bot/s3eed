@@ -26,7 +26,7 @@
   a{color:inherit; text-decoration:none;}
 
   .topbar{
-    position:relative;
+    position:sticky; top:0; z-index:100;
     background: var(--header-bg); border-bottom: 1px solid var(--line);
     padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
   }
@@ -73,7 +73,7 @@
   .nav-dropdown{
     position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
     background:var(--surface); border:1px solid var(--line); border-radius:12px;
-    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:9999;
   }
   .nav-item.open .nav-dropdown{ display:flex; }
   .nav-dropdown a{
@@ -85,6 +85,21 @@
   @media(max-width:900px){ nav.main-nav{ display:none; } }
 
   .controls{ margin-inline-start:auto; display:flex; align-items:center; gap:10px; flex-shrink:0;}
+  .mobile-menu-btn{ display:none; width:38px; height:38px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--tan); font-size:20px; align-items:center; justify-content:center; flex-shrink:0; }
+  .mobile-nav-panel{
+    display:none; position:fixed; inset:0; z-index:200; background:rgba(20,16,12,.75); backdrop-filter:blur(2px);
+  }
+  .mobile-nav-panel.open{ display:block; }
+  .mobile-nav-sheet{
+    position:absolute; top:0; inset-inline-end:0; width:78%; max-width:320px; height:100%; background:var(--surface);
+    border-inline-start:1px solid var(--line); padding:18px; overflow-y:auto; box-shadow:var(--shadow);
+  }
+  .mobile-nav-close{ width:32px; height:32px; border-radius:50%; border:none; background:rgba(0,0,0,.35); color:#fff; font-size:15px; margin-bottom:16px; }
+  .mobile-nav-group{ margin-bottom:18px; }
+  .mobile-nav-group h4{ font-size:12px; color:var(--text-soft); text-transform:uppercase; letter-spacing:1px; margin:0 0 8px; }
+  .mobile-nav-group a{ display:block; padding:11px 12px; border-radius:10px; color:var(--text); font-size:14.5px; font-weight:700; }
+  .mobile-nav-group a:active{ background:var(--paper); }
+  @media(max-width:900px){ .mobile-menu-btn{ display:flex; } }
 
   .wrap{ flex:1; max-width:900px; width:100%; margin:0 auto; padding:22px 16px 40px; }
   .head{ text-align:center; margin-bottom:18px; }
@@ -387,13 +402,46 @@
       <div class="nav-dropdown">
         <a href="fanart.html#home">آخر الرسمات</a>
         <a href="fanart.html#topart">الأعلى تفاعلاً</a>
-        <a href="fanart.html#badges">البادجات</a>
         <a href="fanart.html#create">نشر رسمة</a>
       </div>
     </div>
   </nav>
-  <div class="controls"></div>
+  <div class="controls">
+    <button class="mobile-menu-btn" onclick="document.getElementById('mobileNavPanel').classList.add('open')" aria-label="القائمة">☰</button>
+  </div>
 </header>
+
+<div class="mobile-nav-panel" id="mobileNavPanel">
+  <div class="mobile-nav-sheet">
+    <button class="mobile-nav-close" onclick="document.getElementById('mobileNavPanel').classList.remove('open')">✕</button>
+    <div class="mobile-nav-group">
+      <h4>S3aS3 Games</h4>
+      <a href="games.html">كل الألعاب</a>
+      <a href="creeper.html">كريبر شات</a>
+      <a href="miners.html">ماينر شات</a>
+      <a href="minshow.html">ماين شو</a>
+      <a href="quiz.html">أسئلة ماين كرافت</a>
+      <a href="toolminer.html">فأس التعدين</a>
+      <a href="minecraftle.html">ماينكرافتل</a>
+      <a href="runner.html">ستيف رنر</a>
+      <a href="puzzle.html">بازل</a>
+    </div>
+    <div class="mobile-nav-group">
+      <h4>S3eeD</h4>
+      <a href="index.html#video">آخر فيديو</a>
+      <a href="index.html#twitch">آخر بث</a>
+      <a href="index.html#gamesRating">تقييم الألعاب</a>
+      <a href="index.html#archive">الأرشيف</a>
+      <a href="index.html#suggest">الاقتراحات</a>
+    </div>
+    <div class="mobile-nav-group">
+      <h4>FAN ART</h4>
+      <a href="fanart.html#home">آخر الرسمات</a>
+      <a href="fanart.html#topart">الأعلى تفاعلاً</a>
+      <a href="fanart.html#create">نشر رسمة</a>
+    </div>
+  </div>
+</div>
 
 <div class="wrap">
   <div class="head" style="position:relative;">
@@ -859,6 +907,17 @@
       }, 300);
     });
   });
+
+  // ===== قائمة الجوال: تسكر لما تلمس برة الصندوق أو تضغط رابط =====
+  const mobPanel = document.getElementById("mobileNavPanel");
+  if(mobPanel){
+    mobPanel.addEventListener("click", function(e){
+      if(e.target === mobPanel) mobPanel.classList.remove("open");
+    });
+    mobPanel.querySelectorAll("a").forEach(function(a){
+      a.addEventListener("click", function(){ mobPanel.classList.remove("open"); });
+    });
+  }
 </script>
 </body>
 </html>
