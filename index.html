@@ -2288,40 +2288,49 @@ window.openMyTickets = function(){
 };
 async function openNewTicket(){
   if(!requireLogin()) return;
-  const existingOpen = allTickets.find(t=>t.uid===currentUser.uid && t.status==="open");
-  if(existingOpen){
-    toast("عندك تذكرة مفتوحة أصلاً — سكّرها أول قبل ما تفتح وحدة جديدة");
-    openTicketChat(existingOpen.id, existingOpen.number);
-    return;
-  }
+  const lockRef = doc(db,"ticketLocks",currentUser.uid);
   try{
     const newTicket = await runTransaction(db, async (trx)=>{
+      const lockSnap = await trx.get(lockRef);
+      if(lockSnap.exists() && lockSnap.data().openTicketId){
+        return { alreadyOpen:true, id: lockSnap.data().openTicketId, number: lockSnap.data().openTicketNumber };
+      }
       const counterRef = doc(db,"counters","tickets");
       const counterSnap = await trx.get(counterRef);
       const next = counterSnap.exists() ? (counterSnap.data().count||0) + 1 : 1;
       trx.set(counterRef, { count: next }, { merge:true });
       const ticketRef = doc(collection(db,"tickets"));
       trx.set(ticketRef, { number: next, uid: currentUser.uid, status:"open", createdAt: serverTimestamp() });
+      trx.set(lockRef, { openTicketId: ticketRef.id, openTicketNumber: next });
       return { id: ticketRef.id, number: next };
     });
+    if(newTicket.alreadyOpen) toast("عندك تذكرة مفتوحة أصلاً — سكّرها أول قبل ما تفتح وحدة جديدة");
     openTicketChat(newTicket.id, newTicket.number);
   }catch(err){ console.error("openNewTicket failed:", err); toast("حدث خطأ، حاول مرة أخرى"); }
 }
 window.openNewTicket = openNewTicket;
 function tsMillis(ts){ if(!ts) return 0; if(ts.toMillis) return ts.toMillis(); if(ts.seconds) return ts.seconds*1000; return 0; }
+let unsubCurrentTicket = null;
 function openTicketChat(ticketId, number){
   currentTicketId = ticketId;
-  const t = allTickets.find(x=>x.id===ticketId);
-  const ticketNumber = number || (t ? t.number : "?");
-  const isClosed = t ? t.status==="closed" : false;
-  const isMine = t && currentUser && t.uid === currentUser.uid;
-  document.getElementById("ticketChatTitle").textContent = "تذكرة #" + ticketNumber;
-  document.getElementById("ticketChatStatus").textContent = isClosed ? "🔒 مقفولة" : "🟢 مفتوحة";
-  document.getElementById("ticketCloseBtn").style.display = (!isClosed && isMine) ? "inline-block" : "none";
-  document.getElementById("ticketInputArea").style.display = isClosed ? "none" : "flex";
-  document.getElementById("ticketClosedNotice").style.display = isClosed ? "block" : "none";
+  document.getElementById("ticketChatTitle").textContent = "تذكرة #" + (number || "?");
   document.getElementById("ticketMessagesList").innerHTML = "";
   openOverlay("ticketChatOverlay");
+
+  // نراقب التذكرة نفسها مباشرة من السيرفر (مو من قائمة محلية ممكن تتأخر) عشان حالتها وزر الإغلاق يبانوا صح فورًا
+  if(unsubCurrentTicket) unsubCurrentTicket();
+  unsubCurrentTicket = onSnapshot(doc(db,"tickets",ticketId), (snap)=>{
+    if(!snap.exists()) return;
+    const t = snap.data();
+    const isClosed = t.status === "closed";
+    const isMine = !!(currentUser && t.uid === currentUser.uid);
+    document.getElementById("ticketChatTitle").textContent = "تذكرة #" + (t.number || number || "?");
+    document.getElementById("ticketChatStatus").textContent = isClosed ? "🔒 مقفولة" : "🟢 مفتوحة";
+    document.getElementById("ticketCloseBtn").style.display = (!isClosed && isMine) ? "inline-block" : "none";
+    document.getElementById("ticketInputArea").style.display = isClosed ? "none" : "flex";
+    document.getElementById("ticketClosedNotice").style.display = isClosed ? "block" : "none";
+  }, (err)=> console.error("ticket doc listener error", err));
+
   if(unsubTicketMessages) unsubTicketMessages();
   unsubTicketMessages = onSnapshot(
     query(collection(db,"ticketMessages"), where("ticketId","==",ticketId)),
@@ -2370,14 +2379,9 @@ async function sendTicketImage(input){
 window.sendTicketImage = sendTicketImage;
 window.closeTicketRoom = async function(){
   if(!currentTicketId || !currentUser) return;
-  const t = allTickets.find(x=>x.id===currentTicketId);
-  if(!t || t.uid !== currentUser.uid) return;
   try{
     await updateDoc(doc(db,"tickets",currentTicketId), { status:"closed" });
-    document.getElementById("ticketChatStatus").textContent = "🔒 مقفولة";
-    document.getElementById("ticketCloseBtn").style.display = "none";
-    document.getElementById("ticketInputArea").style.display = "none";
-    document.getElementById("ticketClosedNotice").style.display = "block";
+    await setDoc(doc(db,"ticketLocks",currentUser.uid), { openTicketId:null, openTicketNumber:null }, { merge:true });
     toast("تم إغلاق التذكرة");
   }catch(err){ console.error("closeTicketRoom failed:", err); toast("حدث خطأ، حاول مرة أخرى"); }
 };

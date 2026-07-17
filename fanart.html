@@ -2597,7 +2597,12 @@ window.sendTicketImage = sendTicketImage;
 async function closeTicketRoom(){
   if(!currentTicketId || !isAssistant()) return;
   if(!confirm("متأكد إنك بدك تقفل هالتذكرة؟")) return;
+  const ticketSnap = await getDoc(doc(db,"tickets",currentTicketId));
   await updateDoc(doc(db,"tickets",currentTicketId), { status:"closed" });
+  // نفك قفل "تذكرة مفتوحة" عن صاحب التذكرة عشان يقدر يفتح تذكرة جديدة بعدها
+  if(ticketSnap.exists() && ticketSnap.data().uid){
+    setDoc(doc(db,"ticketLocks",ticketSnap.data().uid), { openTicketId:null, openTicketNumber:null }, { merge:true }).catch(()=>{});
+  }
   // تقفل نافذة الشات وتختفي التذكرة من القوائم فوراً
   closeOverlay("ticketChatOverlay");
   currentTicketId = null;
