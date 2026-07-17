@@ -2288,6 +2288,12 @@ window.openMyTickets = function(){
 };
 async function openNewTicket(){
   if(!requireLogin()) return;
+  const existingOpen = allTickets.find(t=>t.uid===currentUser.uid && t.status==="open");
+  if(existingOpen){
+    toast("عندك تذكرة مفتوحة أصلاً — سكّرها أول قبل ما تفتح وحدة جديدة");
+    openTicketChat(existingOpen.id, existingOpen.number);
+    return;
+  }
   try{
     const newTicket = await runTransaction(db, async (trx)=>{
       const counterRef = doc(db,"counters","tickets");
@@ -2308,9 +2314,10 @@ function openTicketChat(ticketId, number){
   const t = allTickets.find(x=>x.id===ticketId);
   const ticketNumber = number || (t ? t.number : "?");
   const isClosed = t ? t.status==="closed" : false;
+  const isMine = t && currentUser && t.uid === currentUser.uid;
   document.getElementById("ticketChatTitle").textContent = "تذكرة #" + ticketNumber;
   document.getElementById("ticketChatStatus").textContent = isClosed ? "🔒 مقفولة" : "🟢 مفتوحة";
-  document.getElementById("ticketCloseBtn").style.display = "none"; // إغلاق التذكرة يصير من لوحة إدارة فان آرت
+  document.getElementById("ticketCloseBtn").style.display = (!isClosed && isMine) ? "inline-block" : "none";
   document.getElementById("ticketInputArea").style.display = isClosed ? "none" : "flex";
   document.getElementById("ticketClosedNotice").style.display = isClosed ? "block" : "none";
   document.getElementById("ticketMessagesList").innerHTML = "";
@@ -2361,7 +2368,19 @@ async function sendTicketImage(input){
   input.value = "";
 }
 window.sendTicketImage = sendTicketImage;
-window.closeTicketRoom = function(){}; // معطّل من الرئيسية، الإغلاق من لوحة إدارة فان آرت
+window.closeTicketRoom = async function(){
+  if(!currentTicketId || !currentUser) return;
+  const t = allTickets.find(x=>x.id===currentTicketId);
+  if(!t || t.uid !== currentUser.uid) return;
+  try{
+    await updateDoc(doc(db,"tickets",currentTicketId), { status:"closed" });
+    document.getElementById("ticketChatStatus").textContent = "🔒 مقفولة";
+    document.getElementById("ticketCloseBtn").style.display = "none";
+    document.getElementById("ticketInputArea").style.display = "none";
+    document.getElementById("ticketClosedNotice").style.display = "block";
+    toast("تم إغلاق التذكرة");
+  }catch(err){ console.error("closeTicketRoom failed:", err); toast("حدث خطأ، حاول مرة أخرى"); }
+};
 function renderMyTickets(){
   const el = document.getElementById("myTicketsList");
   if(!el || !currentUser) return;
