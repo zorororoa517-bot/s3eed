@@ -878,6 +878,7 @@
       </div>
 
       <div class="admin-tab-panel" id="adminPanelTickets" style="display:none;">
+        <button class="danger" style="padding:9px 16px;margin-bottom:14px;" onclick="closeAllTickets()">🔒 إغلاق كل التذاكر المفتوحة</button>
         <div class="admin-user-list" id="ticketsList"></div>
       </div>
 
@@ -2593,6 +2594,25 @@ async function sendTicketImage(input){
   input.value = "";
 }
 window.sendTicketImage = sendTicketImage;
+
+window.closeAllTickets = async function(){
+  if(!isAssistant()) return;
+  const openTickets = allTickets.filter(t=>t.status==="open");
+  if(!openTickets.length){ toast("ما فيه تذاكر مفتوحة أصلاً"); return; }
+  if(!confirm(`متأكد إنك بدك تقفل كل التذاكر المفتوحة؟ (${openTickets.length} تذكرة)`)) return;
+  try{
+    let batch = writeBatch(db);
+    let count = 0;
+    for(const t of openTickets){
+      batch.update(doc(db,"tickets",t.id), { status:"closed" });
+      batch.set(doc(db,"ticketLocks",t.uid), { openTicketId:null, openTicketNumber:null }, { merge:true });
+      count++;
+      if(count % 400 === 0){ await batch.commit(); batch = writeBatch(db); }
+    }
+    await batch.commit();
+    toast(`تم إغلاق ${openTickets.length} تذكرة`);
+  }catch(err){ console.error("closeAllTickets failed:", err); toast("حدث خطأ، حاول مرة أخرى"); }
+};
 
 async function closeTicketRoom(){
   if(!currentTicketId || !isAssistant()) return;
