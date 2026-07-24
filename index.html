@@ -286,7 +286,7 @@
   .btn-ghost:hover{ background:var(--charcoal); color:var(--tan); }
 
   /* ===== sections ===== */
-  section.block{ padding:46px 0; scroll-margin-top:90px; }
+  section.block{ padding:62px 0; scroll-margin-top:90px; }
   section.block.reveal-init{ opacity:0; transform:translateY(24px); }
   section.block.reveal-in{ opacity:1; transform:translateY(0); transition:opacity .7s ease, transform .7s ease; }
   @media(prefers-reduced-motion: reduce){ section.block.reveal-init{ opacity:1; transform:none; } }
@@ -967,6 +967,7 @@
 
         <a href="runner.html">ستيف رنر</a>
         <a href="puzzle.html">بازل</a>
+        <a href="memorycraft.html">ميموري كرافت</a>
       </div>
     </div>
   </nav>
@@ -1018,6 +1019,7 @@
       <a href="minecraftle.html">ماينكرافتل</a>
       <a href="runner.html">ستيف رنر</a>
       <a href="puzzle.html">بازل</a>
+      <a href="memorycraft.html">ميموري كرافت</a>
     </div>
     <div class="mobile-nav-group">
       <h4>S3eeD</h4>
@@ -1912,11 +1914,14 @@ function renderMobileLoginGroup(){
         <span>الدخول بـ Discord</span>
       </button>`;
   } else {
+    const staffRoles = ["owner","admin","assistant","rater"];
+    const isMobileAdmin = staffRoles.includes(myProfile.role);
     el.innerHTML = `
       <h4>حسابي</h4>
       <button onclick="document.getElementById('mobileNavPanel').classList.remove('open'); openMyProfile();">👤 بروفايلي</button>
       <button onclick="document.getElementById('mobileNavPanel').classList.remove('open'); openMySettings();">⚙️ الإعدادات</button>
       <button onclick="document.getElementById('mobileNavPanel').classList.remove('open'); openMyTickets();">🎫 تذاكري</button>
+      ${isMobileAdmin ? `<button onclick="window.location.href='admin.html'">🛡️ لوحة الإدارة</button>` : ""}
       <button onclick="document.getElementById('logoutBtn') ? document.getElementById('logoutBtn').click() : null;">🚪 تسجيل الخروج</button>`;
   }
 }
@@ -1959,7 +1964,7 @@ function renderAuthArea(){
         <button onclick="document.getElementById('userMenu').classList.remove('open'); openMySettings();">⚙️ الإعدادات</button>
         <button onclick="document.getElementById('userMenu').classList.remove('open'); openMyTickets();">🎫 تذاكري</button>
         <button onclick="window.location.href='fanart.html'">🎨 رسمات الحساب</button>
-        ${hasAdminAccess ? `<button onclick="window.location.href='fanart.html#admin'">🛡️ لوحة الإدارة</button>` : ""}
+        ${hasAdminAccess ? `<button onclick="window.location.href='admin.html'">🛡️ لوحة الإدارة</button>` : ""}
         <button id="logoutBtn">🚪 تسجيل الخروج</button>
       </div>
     </div>`;
@@ -3098,27 +3103,30 @@ function renderRatingGames(){
     return;
   }
 
-  // أفضل لعبة = الأعلى متوسط تقييم (وعندها تقييم واحد ع الأقل)
+  // أفضل لعبة = الأعلى متوسط تقييم (لازم تقييم واحد ع الأقل، ما نختار لعبة عشوائية بدون تقييمات)
   let best = null, bestAvg = -1;
   allRatingGames.forEach(g=>{
     const s = gameStats(g.id);
     if(s.count > 0 && s.avg > bestAvg){ bestAvg = s.avg; best = g; }
   });
-  if(!best) best = allRatingGames[0];
-  const bestStats = gameStats(best.id);
-  bannerEl.innerHTML = `<div class="best-game-banner" style="cursor:pointer;" onclick="openGameDetail('${best.id}')">
-    <div class="bg-info">
-      <div class="bg-rate-badge">${bestStats.count ? "★ " + bestStats.avg.toFixed(1) : "غير قابلة للتقييم"}</div>
-      <div class="bg-name">👑 ${escapeHtml(best.title||"")}</div>
-      <div class="bg-badge">🌟 أفضل لعبة</div>
-    </div>
-    ${best.coverUrl ? `<img class="bg-cover" src="${best.coverUrl}">` : ""}
-  </div>`;
+  if(!best){
+    bannerEl.innerHTML = "";
+  } else {
+    const bestStats = gameStats(best.id);
+    bannerEl.innerHTML = `<div class="best-game-banner" style="cursor:pointer;" onclick="openGameDetail('${best.id}')">
+      <div class="bg-info">
+        <div class="bg-rate-badge">★ ${bestStats.avg.toFixed(1)}</div>
+        <div class="bg-name">👑 ${escapeHtml(best.title||"")}</div>
+        <div class="bg-badge">🌟 أفضل لعبة</div>
+      </div>
+      ${best.coverUrl ? `<img class="bg-cover" src="${best.coverUrl}">` : ""}
+    </div>`;
+  }
 
   const buckets = { current:[], planned:[], completed:[] };
   allRatingGames.forEach(g=>{
     const cat = (g.category && buckets[g.category]) ? g.category : "completed";
-    if(g.id !== best.id) buckets[cat].push(g);
+    if(!best || g.id !== best.id) buckets[cat].push(g);
   });
 
   sectionsEl.innerHTML = Object.keys(GAME_CAT_LABELS).map(cat=>{

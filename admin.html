@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>S3eeD FAN ART — رسمات المجتمع</title>
+<title>لوحة التحكم — S3eeD</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -670,6 +670,14 @@
 </head>
 <body>
 
+<div id="adminGateOverlay" style="display:none;position:fixed;inset:0;z-index:500;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;gap:16px;text-align:center;padding:20px;">
+  <div style="font-size:44px;">🔒</div>
+  <h2 style="margin:0;color:var(--tan);font-size:20px;">لوحة التحكم</h2>
+  <p id="adminGateMsg" style="color:var(--text-soft);font-size:14px;max-width:340px;margin:0;"></p>
+  <a href="index.html#login" class="btn-main" style="display:inline-block;width:auto;padding:11px 26px;text-decoration:none;">تسجيل الدخول</a>
+  <a href="index.html" style="color:var(--text-soft);font-size:12.5px;">رجوع للموقع الرئيسي</a>
+</div>
+
 <!-- ============ SIDEBAR ============ -->
 <nav class="sidebar">
   <button class="side-btn" onclick="window.location.href='index.html'" title="الموقع الرئيسي">
@@ -689,6 +697,9 @@
   </button>
   <button class="side-btn" id="navRankRequest" onclick="showView('rankrequest')" title="طلب رتبة">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v11H7l-3 3V4Z"/><path d="M8 9h8M8 12h5"/></svg>
+  </button>
+  <button class="side-btn" id="navAdmin" onclick="showView('admin')" title="لوحة الإدارة" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
   </button>
 </nav>
 
@@ -1367,7 +1378,7 @@ function renderAuthArea(){
         ${myProfile.role ? `<div style="padding:6px 12px 2px;"><span class="admin-badge ${myProfile.role==='owner'?'owner':''}">${roleLabel(myProfile.role)}</span></div>` : ""}
         <button onclick="openProfile()">👤 ${d.profile}</button>
         <button onclick="openSettings()">⚙️ ${d.settings}</button>
-        ${isStaff() ? `<a href="admin.html" style="display:block;text-align:start;padding:10px 12px;border-radius:7px;font-size:14px;color:var(--text);text-decoration:none;">🛡️ ${d.adminPanel}</a>` : ""}
+        ${isStaff() ? `<button onclick="showView('admin')">🛡️ ${d.adminPanel}</button>` : ""}
         <button onclick="logout()">🚪 ${d.logout}</button>
       </div>
     </div>`;
@@ -1529,21 +1540,26 @@ onAuthStateChanged(auth, async (user)=>{
   subscribeNotifications();
   renderAll();
   checkProgressForMe();
-  if(window.location.hash === "#admin"){
-    window.location.replace("admin.html");
-    return;
-  } else if(window.location.hash === "#topart"){
-    showView("topart");
-    history.replaceState(null, "", window.location.pathname);
-  } else if(window.location.hash === "#home"){
-    showView("home");
-    history.replaceState(null, "", window.location.pathname);
-  } else if(window.location.hash === "#create"){
-    showView("home");
-    openCreateOverlay();
-    history.replaceState(null, "", window.location.pathname);
+  // هذي صفحة لوحة التحكم فقط — دايماً نعرض لوحة الإدارة (أو رسالة access-denied)، مو أي صفحة ثانية
+  if(!user){
+    showAdminGate("سجّل دخولك أول عشان توصل للوحة التحكم.");
+  } else if(!isStaff()){
+    showAdminGate("حسابك ما عنده صلاحية الوصول للوحة التحكم.");
+  } else {
+    document.getElementById("adminGateOverlay").style.display = "none";
+    showView("admin");
   }
+  history.replaceState(null, "", window.location.pathname);
 });
+
+function showAdminGate(msg){
+  const el = document.getElementById("adminGateOverlay");
+  if(el){
+    el.style.display = "flex";
+    document.getElementById("adminGateMsg").textContent = msg;
+  }
+}
+window.showAdminGate = showAdminGate;
 
 async function loadMyLikesAndFollows(){
   if(!currentUser) return;
@@ -2794,11 +2810,10 @@ function showView(view){
   const pageId = "page-" + (view==="top" ? "home" : view);
   document.querySelectorAll(".page").forEach(p=>p.classList.add("page-hidden"));
   document.getElementById(pageId).classList.remove("page-hidden");
-  const navMap = { home:"navHome", following:"navFollowing", topart:"navTopArt", reposts:"navReposts", rankrequest:"navRankRequest" };
+  const navMap = { home:"navHome", following:"navFollowing", topart:"navTopArt", reposts:"navReposts", rankrequest:"navRankRequest", admin:"navAdmin" };
   document.querySelectorAll(".side-btn").forEach(b=>b.classList.remove("active"));
   const navBtnId = navMap[view];
-  const navBtnEl = navBtnId ? document.getElementById(navBtnId) : null;
-  if(navBtnEl) navBtnEl.classList.add("active");
+  if(navBtnId) document.getElementById(navBtnId).classList.add("active");
   currentView = view;
   if(view==="following"){
     if(!requireLogin()){ showView("home"); return; }

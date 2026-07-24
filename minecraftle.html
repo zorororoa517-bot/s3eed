@@ -24,7 +24,7 @@
   a{color:inherit; text-decoration:none;}
 
   .topbar{
-    position:relative;
+    position:sticky; top:0; z-index:100;
     background: var(--header-bg); border-bottom: 1px solid var(--line);
     padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
   }
@@ -71,7 +71,7 @@
   .nav-dropdown{
     position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
     background:var(--surface); border:1px solid var(--line); border-radius:12px;
-    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:9999;
   }
   .nav-item.open .nav-dropdown{ display:flex; }
   .nav-dropdown a{
@@ -231,6 +231,7 @@
         <a href="minecraftle.html">ماينكرافتل</a>
         <a href="runner.html">ستيف رنر</a>
         <a href="puzzle.html">بازل</a>
+        <a href="memorycraft.html">ميموري كرافت</a>
       </div>
     </div>
     <div class="nav-item">

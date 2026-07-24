@@ -23,7 +23,7 @@
   a{color:inherit; text-decoration:none;}
 
   .topbar{
-    position:relative;
+    position:sticky; top:0; z-index:100;
     background: var(--header-bg); border-bottom: 1px solid var(--line);
     padding: 10px 22px; display:flex; align-items:center; gap:18px; flex-shrink:0;
   }
@@ -54,7 +54,7 @@
   .nav-dropdown{
     position:absolute; top:100%; inset-inline-start:0; margin-top:8px; min-width:190px;
     background:var(--surface); border:1px solid var(--line); border-radius:12px;
-    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:80;
+    box-shadow:var(--shadow); padding:6px; display:none; flex-direction:column; gap:2px; z-index:9999;
   }
   .nav-item.open .nav-dropdown{ display:flex; }
   .nav-dropdown a{ display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:8px; font-size:13px; font-weight:700; color:var(--tan); opacity:.9; white-space:nowrap; }
@@ -270,6 +270,11 @@
   .piece.dragging{ cursor:grabbing; filter:drop-shadow(0 8px 14px rgba(0,0,0,.65)); z-index:500 !important; }
   .piece.placed{ cursor:default; filter:none; z-index:8; }
   .piece.remote-drag{ z-index:400 !important; }
+  .piece.piece-snapped{ animation: pieceSnapFlash .42s ease; }
+  @keyframes pieceSnapFlash{
+    0%{ filter:brightness(1.7) drop-shadow(0 0 10px rgba(255,255,255,.85)); }
+    100%{ filter:none; }
+  }
   .piece-tag{
     position:absolute; top:-24px; inset-inline-start:50%; transform:translateX(-50%);
     background:var(--clay); color:#fff; font-size:11px; font-weight:800; padding:3px 9px;
@@ -314,6 +319,7 @@
         <a href="minecraftle.html">ماينكرافتل</a>
         <a href="runner.html">ستيف رنر</a>
         <a href="puzzle.html" class="active">بازل</a>
+        <a href="memorycraft.html">ميموري كرافت</a>
       </div>
     </div>
     <div class="nav-item">
@@ -1208,6 +1214,7 @@ async function renderBoardFromMeta(meta){
   }
   state.pieceEls = pieceEls;
   state.padding = P;
+  initPieceGroups(Object.keys(pieceEls));
 
   applyResponsiveScale();
   window.addEventListener("resize", applyResponsiveScale);
@@ -1343,10 +1350,81 @@ function setZoom(newZoom, anchorClientX, anchorClientY){
 })();
 
 /* ============================================================
+   التصاق القطع مع بعضها برّه اللوحة (تجميع القطع المتجاورة صحيحًا
+   إذا قرّبتها من بعض، وتصير تتحرك مع بعض كقطعة وحدة)
+   ============================================================ */
+let pieceGroupId = {}; // id القطعة -> id المجموعة الحالية
+let groupMembers = {}; // id المجموعة -> Set من ids القطع
+function initPieceGroups(ids){
+  ids.forEach(id=>{ pieceGroupId[id] = id; groupMembers[id] = new Set([id]); });
+}
+function getPiecePos(el){
+  const tf = el.style.transform.match(/-?\d+(\.\d+)?/g);
+  return { x: tf ? parseFloat(tf[0]) : 0, y: tf ? parseFloat(tf[1]) : 0 };
+}
+function setPiecePos(el, x, y){ el.style.transform = `translate(${x}px, ${y}px)`; }
+function neighborsOfPiece(id){
+  const m = id.match(/^r(\d+)c(\d+)$/);
+  if(!m) return [];
+  const r = parseInt(m[1]), c = parseInt(m[2]);
+  const list = [];
+  if(r>0) list.push("r"+(r-1)+"c"+c);
+  if(r<state.rows-1) list.push("r"+(r+1)+"c"+c);
+  if(c>0) list.push("r"+r+"c"+(c-1));
+  if(c<state.cols-1) list.push("r"+r+"c"+(c+1));
+  return list;
+}
+function mergeGroups(gidA, gidB){
+  if(gidA===gidB) return gidA;
+  groupMembers[gidB].forEach(id=>{ pieceGroupId[id]=gidA; groupMembers[gidA].add(id); });
+  delete groupMembers[gidB];
+  return gidA;
+}
+const PIECE_SNAP_THRESHOLD = 24;
+function tryPieceSnap(startGid){
+  let gid = startGid, mergedAny = true, guard = 0;
+  while(mergedAny && guard < 30){
+    mergedAny = false; guard++;
+    for(const id of Array.from(groupMembers[gid] || [])){
+      const el = state.pieceEls[id];
+      if(!el || el.classList.contains("placed")) continue;
+      const pos = getPiecePos(el);
+      const tx = parseFloat(el.dataset.targetX), ty = parseFloat(el.dataset.targetY);
+      for(const nid of neighborsOfPiece(id)){
+        if(pieceGroupId[nid] === gid) continue;
+        const nEl = state.pieceEls[nid];
+        if(!nEl || nEl.classList.contains("placed")) continue;
+        const nTx = parseFloat(nEl.dataset.targetX), nTy = parseFloat(nEl.dataset.targetY);
+        const expX = nTx - tx, expY = nTy - ty;
+        const nPos = getPiecePos(nEl);
+        const actX = nPos.x - pos.x, actY = nPos.y - pos.y;
+        if(Math.hypot(actX-expX, actY-expY) < PIECE_SNAP_THRESHOLD){
+          const deltaX = (pos.x+expX) - nPos.x, deltaY = (pos.y+expY) - nPos.y;
+          const otherGid = pieceGroupId[nid];
+          groupMembers[otherGid].forEach(mid=>{
+            const mEl = state.pieceEls[mid];
+            const mPos = getPiecePos(mEl);
+            const newX = mPos.x+deltaX, newY = mPos.y+deltaY;
+            setPiecePos(mEl, newX, newY);
+            mEl.classList.add("piece-snapped");
+            setTimeout(()=> mEl.classList.remove("piece-snapped"), 420);
+            pushPiece(mid, newX, newY, mEl.classList.contains("placed"));
+          });
+          gid = mergeGroups(gid, otherGid);
+          mergedAny = true;
+          break;
+        }
+      }
+      if(mergedAny) break;
+    }
+  }
+}
+
+/* ============================================================
    السحب والإفلات + المزامنة
    ============================================================ */
 function attachDrag(el){
-  let startX=0, startY=0, origX=0, origY=0, dragging=false;
+  let startX=0, startY=0, dragging=false, memberOrigins={};
   el.addEventListener("pointerdown", (e)=>{
     if(el.classList.contains("placed")) return;
     e.preventDefault();
@@ -1356,9 +1434,15 @@ function attachDrag(el){
     el.classList.add("dragging");
     el.setPointerCapture(e.pointerId);
     startX = e.clientX; startY = e.clientY;
-    const tf = el.style.transform.match(/-?\d+(\.\d+)?/g);
-    origX = tf ? parseFloat(tf[0]) : 0;
-    origY = tf ? parseFloat(tf[1]) : 0;
+    const gid = pieceGroupId[el.dataset.id];
+    memberOrigins = {};
+    groupMembers[gid].forEach(id=>{
+      const memberEl = state.pieceEls[id];
+      if(memberEl && !memberEl.classList.contains("placed")){
+        memberOrigins[id] = getPiecePos(memberEl);
+        memberEl.classList.add("dragging");
+      }
+    });
     setPieceTag(el, myId); // اسم اللي ماسك القطعة يظهر قدامها فورًا عندي
     db.ref(`puzzles/${state.roomId}/pieces/${el.dataset.id}/draggedBy`).set(myId).catch(()=>{});
   });
@@ -1371,10 +1455,14 @@ function attachDrag(el){
     const P = state.padding, pieceSize = state.cellSize + 2*P;
     const minX = -P, maxX = state.totalW - pieceSize + P;
     const minY = -P, maxY = state.totalH - pieceSize + P;
-    const nx = Math.max(minX, Math.min(maxX, origX+dx));
-    const ny = Math.max(minY, Math.min(maxY, origY+dy));
-    el.style.transform = `translate(${nx}px, ${ny}px)`;
-    throttledPush(el.dataset.id, nx, ny, false);
+    Object.keys(memberOrigins).forEach(id=>{
+      const memberEl = state.pieceEls[id];
+      const orig = memberOrigins[id];
+      const nx = Math.max(minX, Math.min(maxX, orig.x+dx));
+      const ny = Math.max(minY, Math.min(maxY, orig.y+dy));
+      setPiecePos(memberEl, nx, ny);
+      throttledPush(id, nx, ny, false);
+    });
   });
   function endDrag(e){
     if(!dragging) return;
@@ -1382,21 +1470,28 @@ function attachDrag(el){
     dragging = false;
     el.classList.remove("dragging");
     state.dragId = null;
-    const tf = el.style.transform.match(/-?\d+(\.\d+)?/g);
-    let nx = tf ? parseFloat(tf[0]) : 0;
-    let ny = tf ? parseFloat(tf[1]) : 0;
-    const tx = parseFloat(el.dataset.targetX), ty = parseFloat(el.dataset.targetY);
-    let placed = false;
-    if(Math.hypot(nx-tx, ny-ty) < 16){
-      nx = tx; ny = ty; placed = true;
-      el.style.transform = `translate(${nx}px, ${ny}px)`;
-      el.classList.add("placed");
-      el.style.zIndex = 2;
-    } else {
-      el.style.zIndex = 50;
-    }
-    setPieceTag(el, null);
-    pushPiece(el.dataset.id, nx, ny, placed);
+    const gid = pieceGroupId[el.dataset.id];
+    groupMembers[gid].forEach(id=>{
+      const memberEl = state.pieceEls[id];
+      if(!memberEl) return;
+      memberEl.classList.remove("dragging");
+      if(memberEl.classList.contains("placed")) return;
+      const pos = getPiecePos(memberEl);
+      const tx = parseFloat(memberEl.dataset.targetX), ty = parseFloat(memberEl.dataset.targetY);
+      let placed = false;
+      if(Math.hypot(pos.x-tx, pos.y-ty) < 16){
+        setPiecePos(memberEl, tx, ty);
+        memberEl.classList.add("placed");
+        memberEl.style.zIndex = 2;
+        placed = true;
+      } else {
+        memberEl.style.zIndex = 50;
+      }
+      setPieceTag(memberEl, null);
+      const finalPos = getPiecePos(memberEl);
+      pushPiece(id, finalPos.x, finalPos.y, placed);
+    });
+    tryPieceSnap(gid); // نتحقق إذا صارت قريبة من قطعة صح جارتها ونلزقهم مع بعض
   }
   el.addEventListener("pointerup", endDrag);
   el.addEventListener("pointercancel", endDrag);
