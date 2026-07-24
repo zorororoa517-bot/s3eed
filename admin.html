@@ -2516,23 +2516,23 @@ window.subscribeTickets = subscribeTickets;
 
 async function openNewTicket(){
   if(!requireLogin()) return;
-  const lockRef = doc(db,"ticketLocks",currentUser.uid);
   try{
+    const existingSnap = await getDocs(query(collection(db,"tickets"), where("uid","==",currentUser.uid), where("status","==","open")));
+    if(!existingSnap.empty){
+      const t = existingSnap.docs[0];
+      toast("عندك تذكرة مفتوحة أصلاً — سكّرها أول قبل ما تفتح وحدة جديدة");
+      openTicketChat(t.id, t.data().number);
+      return;
+    }
     const newTicket = await runTransaction(db, async (trx)=>{
-      const lockSnap = await trx.get(lockRef);
-      if(lockSnap.exists() && lockSnap.data().openTicketId){
-        return { alreadyOpen:true, id: lockSnap.data().openTicketId, number: lockSnap.data().openTicketNumber };
-      }
       const counterRef = doc(db,"counters","tickets");
       const counterSnap = await trx.get(counterRef);
       const next = counterSnap.exists() ? (counterSnap.data().count||0) + 1 : 1;
       trx.set(counterRef, { count: next }, { merge:true });
       const ticketRef = doc(collection(db,"tickets"));
       trx.set(ticketRef, { number: next, uid: currentUser.uid, status:"open", createdAt: serverTimestamp() });
-      trx.set(lockRef, { openTicketId: ticketRef.id, openTicketNumber: next });
       return { id: ticketRef.id, number: next };
     });
-    if(newTicket.alreadyOpen) toast("عندك تذكرة مفتوحة أصلاً — سكّرها أول قبل ما تفتح وحدة جديدة");
     openTicketChat(newTicket.id, newTicket.number);
   }catch(err){ console.error("openNewTicket failed:", err); toast("genericAuthError"); }
 }
@@ -2634,13 +2634,12 @@ window.closeAllTickets = async function(){
     let count = 0;
     for(const t of openTickets){
       batch.update(doc(db,"tickets",t.id), { status:"closed" });
-      batch.set(doc(db,"ticketLocks",t.uid), { openTicketId:null, openTicketNumber:null }, { merge:true });
       count++;
       if(count % 400 === 0){ await batch.commit(); batch = writeBatch(db); }
     }
     await batch.commit();
     toast(`تم إغلاق ${openTickets.length} تذكرة`);
-  }catch(err){ console.error("closeAllTickets failed:", err); toast("حدث خطأ، حاول مرة أخرى"); }
+  }catch(err){ console.error("closeAllTickets failed:", err); toast("تعذر الإغلاق — تحقق من صلاحيات Firestore (راجع الكونسول F12 لتفاصيل الخطأ)"); }
 };
 
 async function closeTicketRoom(){
@@ -2651,12 +2650,14 @@ async function closeTicketRoom(){
   const isMine = t.uid === currentUser.uid;
   if(!isMine && !isAssistant()) return;
   if(!confirm("متأكد إنك بدك تقفل هالتذكرة؟")) return;
-  await updateDoc(doc(db,"tickets",currentTicketId), { status:"closed" });
-  // نفك قفل "تذكرة مفتوحة" عن صاحب التذكرة عشان يقدر يفتح تذكرة جديدة بعدها
-  setDoc(doc(db,"ticketLocks",t.uid), { openTicketId:null, openTicketNumber:null }, { merge:true }).catch(()=>{});
-  // تقفل نافذة الشات وتختفي التذكرة من القوائم فوراً
-  closeOverlay("ticketChatOverlay");
-  currentTicketId = null;
+  try{
+    await updateDoc(doc(db,"tickets",currentTicketId), { status:"closed" });
+    closeOverlay("ticketChatOverlay");
+    currentTicketId = null;
+  }catch(err){
+    console.error("closeTicketRoom failed:", err);
+    toast("تعذر إغلاق التذكرة — تحقق من صلاحيات Firestore (راجع الكونسول F12 لتفاصيل الخطأ)");
+  }
 }
 window.closeTicketRoom = closeTicketRoom;
 
