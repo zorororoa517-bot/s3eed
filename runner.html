@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ستيف رنر — S3aS3 Games</title>
+<title>هادس رنر — S3aS3 Games</title>
 <link rel="icon" href="assets/avatar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
@@ -201,7 +201,7 @@
         <a href="quiz.html">أسئلة ماين كرافت</a>
         <a href="toolminer.html">كوكيز كليكر</a>
         <a href="minecraftle.html">ماينكرافتل</a>
-        <a href="runner.html">ستيف رنر</a>
+        <a href="runner.html">هادس رنر</a>
         <a href="puzzle.html">بازل</a>
         <a href="memorycraft.html">ميموري كرافت</a>
       </div>
@@ -232,7 +232,7 @@
 <div class="game-wrap">
   <div class="head-row">
     <span class="eyebrow">S3aS3 Games</span>
-    <h1>ستيف رنر</h1>
+    <h1>هادس رنر</h1>
   </div>
 
   <div class="runner-panel">
@@ -244,26 +244,26 @@
 
       <div id="overlay">
         <div id="startScreen">
-          <h2>ادخل يوزر ماين كرافت تبعك</h2>
-          <p>باش نجيبو راسك الحقيقي من السكن تبعك ونحطوه على ستيف في اللعبة. سيرفر بيدروك؟ زيد نقطة (.) قبل الاسم.</p>
+          <h2>أدخل اسم مستخدمك في ماين كرافت</h2>
+          <p>سنحضر رأسك الحقيقي من هيئتك (Skin) ونضعه على الشخصية داخل اللعبة. إذا كان حسابك من نسخة Bedrock، أضف نقطة (.) قبل الاسم.</p>
           <input id="usernameInput" type="text" placeholder="مثال: Notch" maxlength="18" autocomplete="off">
           <img id="skinPreview" class="skin-preview" alt="">
           <button class="mcBtn" id="startBtn">ابدأ اللعب 🎮</button>
           <p id="loadStatus"></p>
         </div>
         <div id="endScreen" class="hidden">
-          <h2 id="endTitle">خسرت!</h2>
+          <h2 id="endTitle">لقد خسرت!</h2>
           <p id="endMsg"></p>
           <button class="mcBtn" id="retryBtn">إعادة المحاولة 🔁</button>
         </div>
       </div>
     </div>
 
-    <div class="hint-line">اضغط مسافة أو فوق للقفز، واضغط سهم تحت للانحناء تحت العوائق الطايرة</div>
+    <div class="hint-line">اضغط مفتاح المسافة أو السهم للأعلى للقفز، واضغط السهم للأسفل للانحناء تحت العوائق الطائرة</div>
     <button class="mcBtn" id="fullscreenBtn" type="button">ملء الشاشة ⛶</button>
   </div>
 
-  <a href="games.html" class="back-btn">رجوع لكل الألعاب</a>
+  <a href="games.html" class="back-btn">العودة إلى جميع الألعاب</a>
 </div>
 
 <footer>S3eeD — S3aS3 Games © 2026</footer>
@@ -337,21 +337,32 @@
     headImg = drawProceduralSteveHead(64);
   }
 
-  // ---------- جلب راس اللاعب من API تبع MC Heads ----------
-  // التوثيق: https://mcheads.org/documentation
-  // الرابط: https://api.mcheads.org/head/{username}/{size}
-  // للاعبين بيدروك: زيد نقطة (.) قبل الاسم مثال: https://api.mcheads.org/head/.PlayerName/64
-  // ما تحتاج API key، ومفعّل عليها CORS تخدم مباشرة من المتصفح.
-  function fetchPlayerHead(username){
+  // ---------- جلب رأس اللاعب: نجرب مصدرين، ولو فشل الاثنين نستخدم الرأس الافتراضي ----------
+  // المصدر الأساسي: https://api.mcheads.org/head/{username}/{size}
+  // المصدر الاحتياطي: https://minotar.net/helm/{username}/{size}
+  // للاعبين Bedrock: أضف نقطة (.) قبل الاسم مثال: https://api.mcheads.org/head/.PlayerName/64
+  function loadImageWithTimeout(url, timeoutMs){
     return new Promise((resolve) => {
-      if(!username){ resolve(false); return; }
-      const url = `https://api.mcheads.org/head/${encodeURIComponent(username)}/64`;
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.onload = () => { headImg = img; resolve(true); };
-      img.onerror = () => resolve(false);
+      let done = false;
+      const timer = setTimeout(() => { if(!done){ done = true; resolve(null); } }, timeoutMs);
+      img.onload = () => { if(!done){ done = true; clearTimeout(timer); resolve(img); } };
+      img.onerror = () => { if(!done){ done = true; clearTimeout(timer); resolve(null); } };
       img.src = url;
     });
+  }
+  async function fetchPlayerHead(username){
+    if(!username) return false;
+    const sources = [
+      `https://api.mcheads.org/head/${encodeURIComponent(username)}/64`,
+      `https://minotar.net/helm/${encodeURIComponent(username)}/64`,
+    ];
+    for(const url of sources){
+      const img = await loadImageWithTimeout(url, 6000);
+      if(img){ headImg = img; return true; }
+    }
+    return false;
   }
 
   // ---------- Game state ----------
@@ -674,11 +685,11 @@
     overlay.classList.remove('hidden');
     endScreen.classList.remove('hidden');
     if(won){
-      endTitle.textContent = '🏆 فزت! وصلت 100 مليون نقطة!';
-      endMsg.textContent = 'أبطلت لعبة ستيف رنر يا بطل! السكور النهائي: ' + Math.floor(score).toString().padStart(6,'0');
+      endTitle.textContent = '🏆 لقد فزت! وصلت إلى 100 مليون نقطة!';
+      endMsg.textContent = 'لقد أنهيت لعبة هادس رنر أيها البطل! النتيجة النهائية: ' + Math.floor(score).toString().padStart(6,'0');
     } else {
-      endTitle.textContent = 'خسرت!';
-      endMsg.textContent = 'اصطدمت بعائق. السكور: ' + Math.floor(score).toString().padStart(6,'0') + ' — جرب مرة ثانية!';
+      endTitle.textContent = 'لقد خسرت!';
+      endMsg.textContent = 'اصطدمت بعائق. النتيجة: ' + Math.floor(score).toString().padStart(6,'0') + ' — حاول مرة أخرى!';
     }
   }
 
@@ -718,11 +729,11 @@
     startBtn.disabled = true;
 
     if(username){
-      loadStatus.textContent = 'قاعدين نجيبو الراس تبعك...';
+      loadStatus.textContent = 'جارٍ إحضار رأسك...';
       const ok = await fetchPlayerHead(username);
       loadStatus.textContent = ok
         ? ''
-        : 'ما لقيناش هذا اليوزر، رح نستخدم راس ستيف الافتراضي.';
+        : 'تعذّر العثور على هذا الاسم، سيتم استخدام الرأس الافتراضي.';
       if(!ok) loadHeadFallback();
     } else {
       loadHeadFallback();
@@ -734,26 +745,28 @@
     startGame();
   });
 
-  // معاينة الراس مباشرة وانت كاتب اليوزر (اختياري، بدون ما يوقفك عن اللعب)
+  // معاينة الرأس مباشرة أثناء الكتابة (اختياري، لا يمنع اللعب)
   let previewTimer = null;
   usernameInput.addEventListener('input', () => {
     clearTimeout(previewTimer);
     const val = usernameInput.value.trim();
     if(!val){ skinPreview.style.display = 'none'; skinPreview.removeAttribute('src'); return; }
-    previewTimer = setTimeout(() => {
-      // نحمّل الصورة بصورة "اختبار" أول، وما نوريها إلا لما تتأكد جاهزة فعلياً
-      // (بدل ما نحط src على الصورة المعروضة مباشرة، وتظهر فاضية لين يخلص التحميل)
-      const testImg = new Image();
-      testImg.onload = () => {
-        if(usernameInput.value.trim() !== val) return; // المستخدم غيّر اليوزر بالأثناء
-        skinPreview.src = testImg.src;
-        skinPreview.style.display = 'block';
-      };
-      testImg.onerror = () => {
-        skinPreview.style.display = 'none';
-        skinPreview.removeAttribute('src');
-      };
-      testImg.src = `https://api.mcheads.org/head/${encodeURIComponent(val)}/64`;
+    previewTimer = setTimeout(async () => {
+      const sources = [
+        `https://api.mcheads.org/head/${encodeURIComponent(val)}/64`,
+        `https://minotar.net/helm/${encodeURIComponent(val)}/64`,
+      ];
+      for(const url of sources){
+        const img = await loadImageWithTimeout(url, 5000);
+        if(usernameInput.value.trim() !== val) return; // المستخدم غيّر الاسم أثناء التحميل
+        if(img){
+          skinPreview.src = img.src;
+          skinPreview.style.display = 'block';
+          return;
+        }
+      }
+      skinPreview.style.display = 'none';
+      skinPreview.removeAttribute('src');
     }, 450);
   });
   usernameInput.addEventListener('keydown', (e) => {
