@@ -43,7 +43,16 @@ export async function onRequestGet(context) {
       }),
     });
     const tokenData = await tokenRes.json();
-    if (!tokenData.access_token) throw new Error("discord_token_exchange_failed: " + JSON.stringify(tokenData));
+    if (!tokenData.access_token) {
+      const diag = {
+        clientIdLen: (env.DISCORD_CLIENT_ID || "").length,
+        clientIdPreview: (env.DISCORD_CLIENT_ID || "").slice(0, 4) + "..." + (env.DISCORD_CLIENT_ID || "").slice(-4),
+        secretLen: (env.DISCORD_CLIENT_SECRET || "").length,
+        secretHasWhitespace: /\s/.test(env.DISCORD_CLIENT_SECRET || ""),
+        redirectUri: env.DISCORD_REDIRECT_URI || "",
+      };
+      throw new Error("discord_token_exchange_failed: " + JSON.stringify(tokenData) + " | DIAG:" + JSON.stringify(diag));
+    }
 
     // 2) نجيب بيانات المستخدم من ديسكورد
     const userRes = await fetch("https://discord.com/api/users/@me", {
