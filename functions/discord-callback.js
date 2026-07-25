@@ -43,7 +43,7 @@ export async function onRequestGet(context) {
       }),
     });
     const tokenData = await tokenRes.json();
-    if (!tokenData.access_token) throw new Error("discord_token_exchange_failed");
+    if (!tokenData.access_token) throw new Error("discord_token_exchange_failed: " + JSON.stringify(tokenData));
 
     // 2) نجيب بيانات المستخدم من ديسكورد
     const userRes = await fetch("https://discord.com/api/users/@me", {
