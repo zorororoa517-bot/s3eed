@@ -965,6 +965,10 @@
       <input type="checkbox" id="gameLockRatingInput" style="width:auto;">
       <label for="gameLockRatingInput" style="margin:0;cursor:pointer;">امنع الجمهور من التقييم والتعليق على هذي اللعبة (بس أنت تقدر)</label>
     </div>
+    <div class="field" style="display:flex;align-items:center;gap:8px;">
+      <input type="checkbox" id="gameIsBestInput" style="width:auto;">
+      <label for="gameIsBestInput" style="margin:0;cursor:pointer;">🌟 اجعلها "أفضل لعبة" (تظهر بالبانر الكبير بالصفحة الرئيسية — تختار وحدة بس)</label>
+    </div>
     <button class="btn-main" onclick="submitGame()">نشر اللعبة</button>
     <div id="gameError" style="color:var(--tan);font-size:12.5px;margin-top:8px;display:none;"></div>
   </div>
@@ -2334,12 +2338,26 @@ function gameCardHTML(g, adminMode){
             : (g.ratingLocked ? "" : (comments.length ? `<div class="game-rate-box">${comments.map(c=>`<div class="game-comment"><b>${escapeHtml(channelOf(c.uid).username||"")}</b> — ${"★".repeat(c.stars)}<br>${escapeHtml(c.comment)}</div>`).join("")}</div>` : ""))
           )
         : `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
+            <button style="padding:6px 10px;font-size:11.5px;border-radius:8px;border:1px solid var(--line);background:${g.isBest?"var(--clay)":"var(--paper)"};color:${g.isBest?"#fff":"var(--text)"};" onclick="toggleBestGame('${g.id}')">${g.isBest ? "🌟 أفضل لعبة (مفعّلة)" : "☆ اجعلها أفضل لعبة"}</button>
             <button style="padding:6px 10px;font-size:11.5px;border-radius:8px;border:1px solid var(--line);background:var(--paper);" onclick="toggleGameRatingLock('${g.id}', ${!g.ratingLocked})">${g.ratingLocked ? "🔓 افتح التقييم للجميع" : "🔒 امنع الجمهور من التقييم"}</button>
             <button style="padding:6px 10px;font-size:11.5px;border-radius:8px;border:1px solid var(--line);background:var(--paper);" onclick="deleteGame('${g.id}')">🗑 حذف</button>
           </div>`}
     </div>
   </div>`;
 }
+window.toggleBestGame = async function(gameId){
+  if(!isAssistant()) return;
+  const target = allGames.find(g=>g.id===gameId);
+  if(!target) return;
+  const makeItBest = !target.isBest;
+  if(makeItBest){
+    const others = allGames.filter(g=>g.isBest && g.id!==gameId);
+    for(const g of others){
+      updateDoc(doc(db,"games",g.id), { isBest:false }).catch(()=>{});
+    }
+  }
+  await updateDoc(doc(db,"games",gameId), { isBest: makeItBest });
+};
 /* ===================== GAME SEARCH (RAWG.io — موسوعة ألعاب) =====================
    حط مفتاح RAWG API هون حتى يشتغل البحث عن الألعاب بالاسم. مجاني، سجل بـ https://rawg.io/apidocs
    وخذ المفتاح من https://rawg.io/login?forward=developer */
@@ -2407,13 +2425,22 @@ async function submitGame(){
   const description = document.getElementById("gameDescInput").value.trim();
   const category = document.getElementById("gameCategoryInput").value || "completed";
   const ratingLocked = document.getElementById("gameLockRatingInput").checked;
+  const isBest = document.getElementById("gameIsBestInput").checked;
   if(!title){ errEl.textContent = translations[lang].fillFields; errEl.style.display="block"; return; }
-  await addDoc(collection(db,"games"), { title, coverUrl, playUrl, description, category, ratingLocked, createdBy: currentUser.uid, createdAt: serverTimestamp() });
+  if(isBest){
+    // بس لعبة وحدة تكون "أفضل لعبة" بنفس اللحظة، فنشيل العلامة عن أي لعبة ثانية عندها
+    const others = allGames.filter(g=>g.isBest);
+    for(const g of others){
+      updateDoc(doc(db,"games",g.id), { isBest:false }).catch(()=>{});
+    }
+  }
+  await addDoc(collection(db,"games"), { title, coverUrl, playUrl, description, category, ratingLocked, isBest, createdBy: currentUser.uid, createdAt: serverTimestamp() });
   document.getElementById("gameTitleInput").value = "";
   document.getElementById("gamePlayInput").value = "";
   document.getElementById("gameDescInput").value = "";
   document.getElementById("gameCategoryInput").value = "completed";
   document.getElementById("gameLockRatingInput").checked = false;
+  document.getElementById("gameIsBestInput").checked = false;
   clearSelectedGame();
   closeOverlay("addGameOverlay");
   toast(translations[lang].addGame);

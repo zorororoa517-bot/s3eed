@@ -385,10 +385,6 @@
   ::-webkit-scrollbar-thumb:hover{ background: var(--tan-deep); }
 
   footer{ text-align:center; padding:40px 20px 50px; color:var(--text-soft); font-size:12px; position:relative; }
-  footer::before{
-    content:""; position:absolute; top:0; inset-inline-start:50%; transform:translateX(-50%);
-    width:min(90%,600px); height:1px; background:linear-gradient(90deg, transparent, var(--tan-deep), transparent);
-  }
   #scrollProgressBar{
     position:fixed; top:0; inset-inline-start:0; height:3px; width:0%; z-index:999; pointer-events:none;
     background:linear-gradient(90deg, var(--sage), var(--tan), var(--clay));
@@ -3103,19 +3099,15 @@ function renderRatingGames(){
     return;
   }
 
-  // أفضل لعبة = الأعلى متوسط تقييم (لازم تقييم واحد ع الأقل، ما نختار لعبة عشوائية بدون تقييمات)
-  let best = null, bestAvg = -1;
-  allRatingGames.forEach(g=>{
-    const s = gameStats(g.id);
-    if(s.count > 0 && s.avg > bestAvg){ bestAvg = s.avg; best = g; }
-  });
+  // أفضل لعبة = لعبة وحدة تحددها الإدارة يدويًا (isBest)، مو حساب تلقائي بالتقييم
+  const best = allRatingGames.find(g=>g.isBest) || null;
   if(!best){
     bannerEl.innerHTML = "";
   } else {
     const bestStats = gameStats(best.id);
     bannerEl.innerHTML = `<div class="best-game-banner" style="cursor:pointer;" onclick="openGameDetail('${best.id}')">
       <div class="bg-info">
-        <div class="bg-rate-badge">★ ${bestStats.avg.toFixed(1)}</div>
+        <div class="bg-rate-badge">${bestStats.count ? "★ " + bestStats.avg.toFixed(1) : "غير مقيَّمة بعد"}</div>
         <div class="bg-name">👑 ${escapeHtml(best.title||"")}</div>
         <div class="bg-badge">🌟 أفضل لعبة</div>
       </div>

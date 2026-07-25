@@ -1449,17 +1449,29 @@ function attachDrag(el){
   el.addEventListener("pointermove", (e)=>{
     if(!dragging) return;
     e.stopPropagation();
-    const dx = (e.clientX-startX)/state.scale;
-    const dy = (e.clientY-startY)/state.scale;
-    // حصر القطعة داخل مساحة اللوحة نفسها عشان ما تضيع أو تختفي ورا حواف الإطار
+    let dx = (e.clientX-startX)/state.scale;
+    let dy = (e.clientY-startY)/state.scale;
+    // حصر المجموعة كلها داخل مساحة اللوحة، بس كوحدة واحدة (نفس الانزياح لكل قطعها)
+    // عشان ما تتفكك المجموعة لو وحدة من قطعها توصل لطرف اللوحة قبل الباقي
     const P = state.padding, pieceSize = state.cellSize + 2*P;
     const minX = -P, maxX = state.totalW - pieceSize + P;
     const minY = -P, maxY = state.totalH - pieceSize + P;
-    Object.keys(memberOrigins).forEach(id=>{
+    const ids = Object.keys(memberOrigins);
+    let minDx = -Infinity, maxDx = Infinity, minDy = -Infinity, maxDy = Infinity;
+    ids.forEach(id=>{
+      const orig = memberOrigins[id];
+      minDx = Math.max(minDx, minX - orig.x);
+      maxDx = Math.min(maxDx, maxX - orig.x);
+      minDy = Math.max(minDy, minY - orig.y);
+      maxDy = Math.min(maxDy, maxY - orig.y);
+    });
+    dx = Math.max(minDx, Math.min(maxDx, dx));
+    dy = Math.max(minDy, Math.min(maxDy, dy));
+    ids.forEach(id=>{
       const memberEl = state.pieceEls[id];
       const orig = memberOrigins[id];
-      const nx = Math.max(minX, Math.min(maxX, orig.x+dx));
-      const ny = Math.max(minY, Math.min(maxY, orig.y+dy));
+      const nx = orig.x + dx;
+      const ny = orig.y + dy;
       setPiecePos(memberEl, nx, ny);
       throttledPush(id, nx, ny, false);
     });
