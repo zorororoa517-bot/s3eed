@@ -1050,7 +1050,7 @@ function piecePath(P, w, h, top, right, bottom, left){
 let state = {
   roomId:null, theme:null, rows:0, cols:0, cellSize:CELL, boardW:0, boardH:0,
   pieces:{}, placedCount:0, total:0, scale:1, dragId:null,
-  baseScale:1, zoom:1, panX:0, panY:0, minZoom:1, maxZoom:4,
+  baseScale:1, zoom:1, panX:0, panY:0, minZoom:0.35, maxZoom:5,
   hostId:null, isHost:false
 };
 
@@ -1231,8 +1231,8 @@ function applyResponsiveScale(){
   const availH = outer.clientHeight - 16;
   const s = Math.min(1, availW / state.totalW, availH / state.totalH);
   state.baseScale = s;
-  state.minZoom = 1;
-  state.maxZoom = 4;
+  state.minZoom = 0.35;
+  state.maxZoom = 5;
   clampPan();
   applyTransform();
 }
@@ -1454,24 +1454,11 @@ function attachDrag(el){
   el.addEventListener("pointermove", (e)=>{
     if(!dragging) return;
     e.stopPropagation();
-    let dx = (e.clientX-startX)/state.scale;
-    let dy = (e.clientY-startY)/state.scale;
-    // حصر المجموعة كلها داخل مساحة اللوحة، بس كوحدة واحدة (نفس الانزياح لكل قطعها)
-    // عشان ما تتفكك المجموعة لو وحدة من قطعها توصل لطرف اللوحة قبل الباقي
-    const P = state.padding, pieceSize = state.cellSize + 2*P;
-    const minX = -P, maxX = state.totalW - pieceSize + P;
-    const minY = -P, maxY = state.totalH - pieceSize + P;
+    const dx = (e.clientX-startX)/state.scale;
+    const dy = (e.clientY-startY)/state.scale;
+    // كل قطع المجموعة تتحرك بنفس القيمة بالضبط (dx, dy)، بدون أي حصر/شرط وقت السحب،
+    // عشان تضمن 100% إنها تتحرك كقطعة وحدة صلبة، بغض النظر عن أي قطعة بالمجموعة تمسكها
     const ids = Object.keys(memberOrigins);
-    let minDx = -Infinity, maxDx = Infinity, minDy = -Infinity, maxDy = Infinity;
-    ids.forEach(id=>{
-      const orig = memberOrigins[id];
-      minDx = Math.max(minDx, minX - orig.x);
-      maxDx = Math.min(maxDx, maxX - orig.x);
-      minDy = Math.max(minDy, minY - orig.y);
-      maxDy = Math.min(maxDy, maxY - orig.y);
-    });
-    dx = Math.max(minDx, Math.min(maxDx, dx));
-    dy = Math.max(minDy, Math.min(maxDy, dy));
     ids.forEach(id=>{
       const memberEl = state.pieceEls[id];
       const orig = memberOrigins[id];
