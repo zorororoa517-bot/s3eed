@@ -286,7 +286,7 @@
     position:fixed; inset:0; background:rgba(20,14,8,.86); display:none; align-items:center; justify-content:center;
     z-index:1000; flex-direction:column; gap:14px; text-align:center; padding:20px;
   }
-  #winOverlay .card{ padding:30px 34px; max-width:380px; }
+  #winOverlay .card{ padding:30px 34px; max-width:420px; }
   #winOverlay h2{ font-family:'Cairo',sans-serif; color:var(--tan); margin:0 0 8px; font-size:24px; }
   #winOverlay p{ color:var(--text-soft); margin:0 0 18px; font-size:14px; }
 
@@ -452,6 +452,7 @@
 
         <div>
           <p class="lobby-label" id="progressTxt">0 / 0 قطعة</p>
+          <p class="lobby-label" id="gameTimerTxt">⏱️ 00:00</p>
           <div class="players-list" id="playersList"></div>
         </div>
 
@@ -489,6 +490,8 @@
   <div class="card">
     <h2>🎉 خلصتوا الأحجية!</h2>
     <p id="winTime"></p>
+    <div style="text-align:start;margin:12px 0 18px;font-size:13px;font-weight:800;color:var(--tan);">🏆 الأكثر تركيبًا للقطع</div>
+    <div id="winLeaderboard" style="display:flex;flex-direction:column;gap:4px;margin-bottom:18px;max-height:220px;overflow:auto;"></div>
     <button class="go-btn" onclick="location.href='puzzle.html'">أحجية جديدة</button>
   </div>
 </div>
@@ -1121,6 +1124,8 @@ async function renderBoardFromMeta(meta){
   state.rows = meta.rows; state.cols = meta.cols; state.cellSize = meta.cellSize;
   state.boardW = meta.cols*meta.cellSize; state.boardH = meta.rows*meta.cellSize;
   state.total = meta.rows*meta.cols;
+  state.startedAt = meta.createdAt || Date.now();
+  startGameTimer();
 
   const P = Math.round(meta.cellSize*0.34);
   // مساحة فاضية حوالين اللوحة تنحط فيها القطع المبعثرة، تكبر مع عدد القطع بحيث تستوعبها كلها بدون تراكب
@@ -1483,25 +1488,41 @@ function attachDrag(el){
     el.classList.remove("dragging");
     state.dragId = null;
     const gid = pieceGroupId[el.dataset.id];
-    groupMembers[gid].forEach(id=>{
+    const members = Array.from(groupMembers[gid]).filter(id=>{
       const memberEl = state.pieceEls[id];
-      if(!memberEl) return;
-      memberEl.classList.remove("dragging");
-      if(memberEl.classList.contains("placed")) return;
+      return memberEl && !memberEl.classList.contains("placed");
+    });
+    // نقرر التثبيت للمجموعة كلها مع بعض أو ولا وحدة (مو كل قطعة لحالها)، عشان ما تنفصل مجموعة
+    // مرتبطة لو قطعة وحدة منها بالصدفة قربت من مكانها الصح وباقي المجموعة لأ
+    const allWithinRange = members.length > 0 && members.every(id=>{
+      const memberEl = state.pieceEls[id];
       const pos = getPiecePos(memberEl);
       const tx = parseFloat(memberEl.dataset.targetX), ty = parseFloat(memberEl.dataset.targetY);
+      return Math.hypot(pos.x-tx, pos.y-ty) < 16;
+    });
+    members.forEach(id=>{
+      const memberEl = state.pieceEls[id];
+      memberEl.classList.remove("dragging");
+      const tx = parseFloat(memberEl.dataset.targetX), ty = parseFloat(memberEl.dataset.targetY);
       let placed = false;
-      if(Math.hypot(pos.x-tx, pos.y-ty) < 16){
+      if(allWithinRange){
         setPiecePos(memberEl, tx, ty);
         memberEl.classList.add("placed");
         memberEl.style.zIndex = 2;
         placed = true;
+        memberEl.classList.add("piece-snapped");
+        setTimeout(()=> memberEl.classList.remove("piece-snapped"), 420);
       } else {
         memberEl.style.zIndex = 50;
       }
       setPieceTag(memberEl, null);
       const finalPos = getPiecePos(memberEl);
       pushPiece(id, finalPos.x, finalPos.y, placed);
+    });
+    // القطع اللي كانت "placed" أصلاً (من قبل هالسحبة) نشيل عنها وسم السحب بس
+    groupMembers[gid].forEach(id=>{
+      const memberEl = state.pieceEls[id];
+      if(memberEl && memberEl.classList.contains("placed")) memberEl.classList.remove("dragging");
     });
     tryPieceSnap(gid); // نتحقق إذا صارت قريبة من قطعة صح جارتها ونلزقهم مع بعض
   }
@@ -1578,7 +1599,13 @@ function listenPieces(){
       const el = state.pieceEls[id];
       if(!el) return;
       el.style.transform = `translate(${p.x}px, ${p.y}px)`;
-      if(p.placed){ el.classList.add("placed"); el.style.zIndex=2; placedCount++; }
+      if(p.placed){
+        if(!el.classList.contains("placed")){
+          el.classList.add("piece-snapped");
+          setTimeout(()=> el.classList.remove("piece-snapped"), 420);
+        }
+        el.classList.add("placed"); el.style.zIndex=2; placedCount++;
+      }
       else { el.classList.remove("placed"); el.style.zIndex=5; }
     });
     state.placedCount = placedCount;
@@ -1655,10 +1682,52 @@ document.getElementById("playersList").addEventListener("click", (e)=>{
   if(confirm("متأكد إنك تبي تطرد هالشخص من الغرفة؟")) kickPlayer(btn.dataset.pid);
 });
 
+let gameTimerInterval = null;
+function formatElapsed(ms){
+  const totalSec = Math.max(0, Math.floor(ms/1000));
+  const mm = Math.floor(totalSec/60).toString().padStart(2,"0");
+  const ss = (totalSec%60).toString().padStart(2,"0");
+  return `${mm}:${ss}`;
+}
+function startGameTimer(){
+  if(gameTimerInterval) clearInterval(gameTimerInterval);
+  const el = document.getElementById("gameTimerTxt");
+  const tick = ()=>{
+    if(!el || !state.startedAt) return;
+    el.textContent = "⏱️ " + formatElapsed(Date.now() - state.startedAt);
+  };
+  tick();
+  gameTimerInterval = setInterval(tick, 1000);
+}
+
 let winShown = false;
 function showWin(){
   if(winShown) return;
   winShown = true;
+  if(gameTimerInterval){ clearInterval(gameTimerInterval); gameTimerInterval = null; }
+
+  const elapsedMs = state.startedAt ? (Date.now() - state.startedAt) : 0;
+  const winTimeEl = document.getElementById("winTime");
+  if(winTimeEl) winTimeEl.textContent = "⏱️ الوقت المستغرق: " + formatElapsed(elapsedMs);
+
+  // لوحة المتصدرين: الأكثر تركيبًا للقطع
+  const rows = Object.keys(latestPlayers).map(pid=>({
+    name: (latestPlayers[pid] && latestPlayers[pid].name) || "لاعب",
+    color: (latestPlayers[pid] && latestPlayers[pid].color) || "#6F4E37",
+    count: latestPieceCounts[pid] || 0,
+  })).sort((a,b)=> b.count - a.count);
+
+  const leaderboardEl = document.getElementById("winLeaderboard");
+  if(leaderboardEl){
+    leaderboardEl.innerHTML = rows.length ? rows.map((r,i)=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:${i===0?'rgba(228,208,180,.12)':'transparent'};">
+        <span style="width:20px;font-weight:800;color:var(--tan);">${i===0?"🥇":i===1?"🥈":i===2?"🥉":(i+1)+"."}</span>
+        <span class="p-dot" style="background:${r.color};width:22px;height:22px;font-size:11px;">${escapeHtml(r.name.slice(0,1).toUpperCase())}</span>
+        <span style="flex:1;font-size:13px;">${escapeHtml(r.name)}</span>
+        <span style="font-size:12.5px;color:var(--text-soft);">${r.count} قطعة</span>
+      </div>`).join("") : "";
+  }
+
   document.getElementById("winOverlay").style.display = "flex";
 }
 
