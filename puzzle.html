@@ -1214,9 +1214,9 @@ async function renderBoardFromMeta(meta){
       el.dataset.targetY = cellY - P + M;
       stage.appendChild(el);
       pieceEls[id] = el;
-      attachDrag(el);
     }
   }
+  setupGlobalDrag();
   state.pieceEls = pieceEls;
   state.padding = P;
   initPieceGroups(Object.keys(pieceEls));
@@ -1428,19 +1428,22 @@ function tryPieceSnap(startGid){
 /* ============================================================
    السحب والإفلات + المزامنة
    ============================================================ */
-function attachDrag(el){
-  let startX=0, startY=0, dragging=false, memberOrigins={};
-  el.addEventListener("pointerdown", (e)=>{
-    if(el.classList.contains("placed")) return;
+let dragState = null; // { startX, startY, gid, memberOrigins } — حالة سحب واحدة مشتركة لكل اللوحة
+let globalDragSetup = false;
+function setupGlobalDrag(){
+  if(globalDragSetup) return; // نضمن ما نضيف المستمعين إلا مرة وحدة بس
+  globalDragSetup = true;
+  const stage = document.getElementById("boardArea");
+  if(!stage) return;
+
+  stage.addEventListener("pointerdown", (e)=>{
+    const pieceEl = e.target.closest(".piece");
+    if(!pieceEl || pieceEl.classList.contains("placed")) return;
     e.preventDefault();
     e.stopPropagation(); // منع تحريك/بعثرة اللوحة (pan) وقت سحب قطعة
-    dragging = true;
-    state.dragId = el.dataset.id;
-    el.classList.add("dragging");
-    el.setPointerCapture(e.pointerId);
-    startX = e.clientX; startY = e.clientY;
-    const gid = pieceGroupId[el.dataset.id];
-    memberOrigins = {};
+    stage.setPointerCapture(e.pointerId);
+    const gid = pieceGroupId[pieceEl.dataset.id];
+    const memberOrigins = {};
     groupMembers[gid].forEach(id=>{
       const memberEl = state.pieceEls[id];
       if(memberEl && !memberEl.classList.contains("placed")){
@@ -1448,33 +1451,36 @@ function attachDrag(el){
         memberEl.classList.add("dragging");
       }
     });
-    setPieceTag(el, myId); // اسم اللي ماسك القطعة يظهر قدامها فورًا عندي
-    db.ref(`puzzles/${state.roomId}/pieces/${el.dataset.id}/draggedBy`).set(myId).catch(()=>{});
+    dragState = { startX: e.clientX, startY: e.clientY, gid, memberOrigins };
+    state.dragId = pieceEl.dataset.id;
+    setPieceTag(pieceEl, myId); // اسم اللي ماسك القطعة يظهر قدامها فورًا عندي
+    db.ref(`puzzles/${state.roomId}/pieces/${pieceEl.dataset.id}/draggedBy`).set(myId).catch(()=>{});
   });
-  el.addEventListener("pointermove", (e)=>{
-    if(!dragging) return;
+
+  stage.addEventListener("pointermove", (e)=>{
+    if(!dragState) return;
     e.stopPropagation();
-    const dx = (e.clientX-startX)/state.scale;
-    const dy = (e.clientY-startY)/state.scale;
-    // كل قطع المجموعة تتحرك بنفس القيمة بالضبط (dx, dy)، بدون أي حصر/شرط وقت السحب،
-    // عشان تضمن 100% إنها تتحرك كقطعة وحدة صلبة، بغض النظر عن أي قطعة بالمجموعة تمسكها
-    const ids = Object.keys(memberOrigins);
+    const dx = (e.clientX-dragState.startX)/state.scale;
+    const dy = (e.clientY-dragState.startY)/state.scale;
+    // كل قطع المجموعة تتحرك بنفس القيمة بالضبط (dx, dy) من مصدر واحد مشترك،
+    // بدون أي حالة سحب منفصلة لكل قطعة، عشان تضمن 100% إنها تتحرك كقطعة وحدة صلبة
+    const ids = Object.keys(dragState.memberOrigins);
     ids.forEach(id=>{
       const memberEl = state.pieceEls[id];
-      const orig = memberOrigins[id];
+      const orig = dragState.memberOrigins[id];
       const nx = orig.x + dx;
       const ny = orig.y + dy;
       setPiecePos(memberEl, nx, ny);
       throttledPush(id, nx, ny, false);
     });
   });
+
   function endDrag(e){
-    if(!dragging) return;
+    if(!dragState) return;
     e.stopPropagation();
-    dragging = false;
-    el.classList.remove("dragging");
+    const gid = dragState.gid;
+    dragState = null;
     state.dragId = null;
-    const gid = pieceGroupId[el.dataset.id];
     const members = Array.from(groupMembers[gid]).filter(id=>{
       const memberEl = state.pieceEls[id];
       return memberEl && !memberEl.classList.contains("placed");
@@ -1507,14 +1513,14 @@ function attachDrag(el){
       pushPiece(id, finalPos.x, finalPos.y, placed);
     });
     // القطع اللي كانت "placed" أصلاً (من قبل هالسحبة) نشيل عنها وسم السحب بس
-    groupMembers[gid].forEach(id=>{
+    (groupMembers[gid] || []).forEach(id=>{
       const memberEl = state.pieceEls[id];
       if(memberEl && memberEl.classList.contains("placed")) memberEl.classList.remove("dragging");
     });
     tryPieceSnap(gid); // نتحقق إذا صارت قريبة من قطعة صح جارتها ونلزقهم مع بعض
   }
-  el.addEventListener("pointerup", endDrag);
-  el.addEventListener("pointercancel", endDrag);
+  stage.addEventListener("pointerup", endDrag);
+  stage.addEventListener("pointercancel", endDrag);
 }
 
 let pushTimer = {};
