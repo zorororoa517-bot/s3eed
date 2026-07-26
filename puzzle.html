@@ -1609,16 +1609,41 @@ function joinPresence(){
 function resetPieces(){
   if(!state.isHost){ return; }
   if(!state.roomId || !state.pieceEls) return;
-  const slots = shuffleArray(buildScatterSlots(state.margin, state.boardW, state.boardH, state.cellSize));
 
+  const nonPlacedIds = Object.keys(state.pieceEls).filter(id=>{
+    const el = state.pieceEls[id];
+    return el && !el.classList.contains("placed");
+  });
+
+  // نجمع القطع الغير موضوعة حسب مجموعتها (لو مرتبطة ببعض) عشان نبعثر كل مجموعة كوحدة وحدة
+  // ونحافظ على ترتيبها النسبي (بدل ما توزع كل قطعة لمكان عشوائي لحالها وتنفصل عن رفيقاتها)
+  const seenGroups = new Set();
+  const groupsToScatter = [];
+  nonPlacedIds.forEach(id=>{
+    const gid = pieceGroupId[id];
+    const key = gid || ("solo:" + id);
+    if(seenGroups.has(key)) return;
+    seenGroups.add(key);
+    const members = gid && groupMembers[gid]
+      ? Array.from(groupMembers[gid]).filter(mid=>nonPlacedIds.includes(mid))
+      : [id];
+    groupsToScatter.push(members);
+  });
+
+  const slots = shuffleArray(buildScatterSlots(state.margin, state.boardW, state.boardH, state.cellSize));
   const updates = {};
   let slotIdx = 0;
-  Object.keys(state.pieceEls).forEach(id=>{
-    const el = state.pieceEls[id];
-    if(el.classList.contains("placed")) return;
+  groupsToScatter.forEach(members=>{
+    const anchorEl = state.pieceEls[members[0]];
+    const anchorTx = parseFloat(anchorEl.dataset.targetX), anchorTy = parseFloat(anchorEl.dataset.targetY);
     const slot = slots[slotIdx] || slots[slotIdx % Math.max(1, slots.length)] || {x:0, y:0};
-    updates[id] = { x: slot.x, y: slot.y, placed:false, placedBy:null };
     slotIdx++;
+    members.forEach(id=>{
+      const el = state.pieceEls[id];
+      const tx = parseFloat(el.dataset.targetX), ty = parseFloat(el.dataset.targetY);
+      const offX = tx - anchorTx, offY = ty - anchorTy;
+      updates[id] = { x: slot.x + offX, y: slot.y + offY, placed:false, placedBy:null };
+    });
   });
   if(Object.keys(updates).length === 0) return;
   db.ref(`puzzles/${state.roomId}/pieces`).update(updates).catch(()=>{});
