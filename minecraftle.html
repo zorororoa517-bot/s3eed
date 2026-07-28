@@ -934,7 +934,8 @@
     var q = normalize(query);
     var already = mode.state.guesses.map(function(g){ return g.name; });
     var matches = mode.items.filter(function(m){
-      return normalize(m.name).indexOf(q) !== -1 && already.indexOf(m.name) === -1 && m.name !== mode.secret.name;
+      var isSecretAndFirstTry = (m.name === mode.secret.name) && mode.state.guesses.length === 0;
+      return normalize(m.name).indexOf(q) !== -1 && already.indexOf(m.name) === -1 && !isSecretAndFirstTry;
     }).slice(0, 8);
     if(matches.length === 0){ suggestList.classList.remove("show"); return; }
     matches.forEach(function(m){

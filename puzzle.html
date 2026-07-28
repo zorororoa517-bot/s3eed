@@ -1219,7 +1219,6 @@ async function renderBoardFromMeta(meta){
   setupGlobalDrag();
   state.pieceEls = pieceEls;
   state.padding = P;
-  initPieceGroups(Object.keys(pieceEls));
 
   applyResponsiveScale();
   window.addEventListener("resize", applyResponsiveScale);
@@ -1358,77 +1357,16 @@ function setZoom(newZoom, anchorClientX, anchorClientY){
    التصاق القطع مع بعضها برّه اللوحة (تجميع القطع المتجاورة صحيحًا
    إذا قرّبتها من بعض، وتصير تتحرك مع بعض كقطعة وحدة)
    ============================================================ */
-let pieceGroupId = {}; // id القطعة -> id المجموعة الحالية
-let groupMembers = {}; // id المجموعة -> Set من ids القطع
-function initPieceGroups(ids){
-  ids.forEach(id=>{ pieceGroupId[id] = id; groupMembers[id] = new Set([id]); });
-}
 function getPiecePos(el){
   const tf = el.style.transform.match(/-?\d+(\.\d+)?/g);
   return { x: tf ? parseFloat(tf[0]) : 0, y: tf ? parseFloat(tf[1]) : 0 };
 }
 function setPiecePos(el, x, y){ el.style.transform = `translate(${x}px, ${y}px)`; }
-function neighborsOfPiece(id){
-  const m = id.match(/^r(\d+)c(\d+)$/);
-  if(!m) return [];
-  const r = parseInt(m[1]), c = parseInt(m[2]);
-  const list = [];
-  if(r>0) list.push("r"+(r-1)+"c"+c);
-  if(r<state.rows-1) list.push("r"+(r+1)+"c"+c);
-  if(c>0) list.push("r"+r+"c"+(c-1));
-  if(c<state.cols-1) list.push("r"+r+"c"+(c+1));
-  return list;
-}
-function mergeGroups(gidA, gidB){
-  if(gidA===gidB) return gidA;
-  groupMembers[gidB].forEach(id=>{ pieceGroupId[id]=gidA; groupMembers[gidA].add(id); });
-  delete groupMembers[gidB];
-  return gidA;
-}
-const PIECE_SNAP_THRESHOLD = 24;
-function tryPieceSnap(startGid){
-  let gid = startGid, mergedAny = true, guard = 0;
-  while(mergedAny && guard < 30){
-    mergedAny = false; guard++;
-    for(const id of Array.from(groupMembers[gid] || [])){
-      const el = state.pieceEls[id];
-      if(!el || el.classList.contains("placed")) continue;
-      const pos = getPiecePos(el);
-      const tx = parseFloat(el.dataset.targetX), ty = parseFloat(el.dataset.targetY);
-      for(const nid of neighborsOfPiece(id)){
-        if(pieceGroupId[nid] === gid) continue;
-        const nEl = state.pieceEls[nid];
-        if(!nEl || nEl.classList.contains("placed")) continue;
-        const nTx = parseFloat(nEl.dataset.targetX), nTy = parseFloat(nEl.dataset.targetY);
-        const expX = nTx - tx, expY = nTy - ty;
-        const nPos = getPiecePos(nEl);
-        const actX = nPos.x - pos.x, actY = nPos.y - pos.y;
-        if(Math.hypot(actX-expX, actY-expY) < PIECE_SNAP_THRESHOLD){
-          const deltaX = (pos.x+expX) - nPos.x, deltaY = (pos.y+expY) - nPos.y;
-          const otherGid = pieceGroupId[nid];
-          groupMembers[otherGid].forEach(mid=>{
-            const mEl = state.pieceEls[mid];
-            const mPos = getPiecePos(mEl);
-            const newX = mPos.x+deltaX, newY = mPos.y+deltaY;
-            setPiecePos(mEl, newX, newY);
-            mEl.classList.add("piece-snapped");
-            setTimeout(()=> mEl.classList.remove("piece-snapped"), 420);
-            pushPiece(mid, newX, newY, mEl.classList.contains("placed"));
-          });
-          gid = mergeGroups(gid, otherGid);
-          mergedAny = true;
-          break;
-        }
-      }
-      if(mergedAny) break;
-    }
-  }
-}
 
 /* ============================================================
    السحب والإفلات + المزامنة
    ============================================================ */
-let dragState = null; // { startX, startY, gid, memberOrigins } — حالة سحب واحدة مشتركة لكل اللوحة
+let dragState = null; // { id, startX, startY, origX, origY } — قطعة وحدة بس تتحرك لحالها
 let globalDragSetup = false;
 function setupGlobalDrag(){
   if(globalDragSetup) return; // نضمن ما نضيف المستمعين إلا مرة وحدة بس
@@ -1442,82 +1380,57 @@ function setupGlobalDrag(){
     e.preventDefault();
     e.stopPropagation(); // منع تحريك/بعثرة اللوحة (pan) وقت سحب قطعة
     stage.setPointerCapture(e.pointerId);
-    const gid = pieceGroupId[pieceEl.dataset.id];
-    const memberOrigins = {};
-    groupMembers[gid].forEach(id=>{
-      const memberEl = state.pieceEls[id];
-      if(memberEl && !memberEl.classList.contains("placed")){
-        memberOrigins[id] = getPiecePos(memberEl);
-        memberEl.classList.add("dragging");
-      }
-    });
-    dragState = { startX: e.clientX, startY: e.clientY, gid, memberOrigins };
-    state.dragId = pieceEl.dataset.id;
+    const id = pieceEl.dataset.id;
+    const orig = getPiecePos(pieceEl);
+    pieceEl.classList.add("dragging");
+    pieceEl.style.zIndex = 500;
+    dragState = { id, startX: e.clientX, startY: e.clientY, origX: orig.x, origY: orig.y };
+    state.dragId = id;
     setPieceTag(pieceEl, myId); // اسم اللي ماسك القطعة يظهر قدامها فورًا عندي
-    db.ref(`puzzles/${state.roomId}/pieces/${pieceEl.dataset.id}/draggedBy`).set(myId).catch(()=>{});
+    db.ref(`puzzles/${state.roomId}/pieces/${id}/draggedBy`).set(myId).catch(()=>{});
   });
 
   stage.addEventListener("pointermove", (e)=>{
     if(!dragState) return;
     e.stopPropagation();
+    const memberEl = state.pieceEls[dragState.id];
+    if(!memberEl) return;
     const dx = (e.clientX-dragState.startX)/state.scale;
     const dy = (e.clientY-dragState.startY)/state.scale;
-    // كل قطع المجموعة تتحرك بنفس القيمة بالضبط (dx, dy) من مصدر واحد مشترك،
-    // بدون أي حالة سحب منفصلة لكل قطعة، عشان تضمن 100% إنها تتحرك كقطعة وحدة صلبة
-    const ids = Object.keys(dragState.memberOrigins);
-    ids.forEach(id=>{
-      const memberEl = state.pieceEls[id];
-      const orig = dragState.memberOrigins[id];
-      const nx = orig.x + dx;
-      const ny = orig.y + dy;
-      setPiecePos(memberEl, nx, ny);
-      throttledPush(id, nx, ny, false);
-    });
+    const P = state.padding, pieceSize = state.cellSize + 2*P;
+    const minX = -P, maxX = state.totalW - pieceSize + P;
+    const minY = -P, maxY = state.totalH - pieceSize + P;
+    const nx = Math.max(minX, Math.min(maxX, dragState.origX + dx));
+    const ny = Math.max(minY, Math.min(maxY, dragState.origY + dy));
+    setPiecePos(memberEl, nx, ny);
+    throttledPush(dragState.id, nx, ny, false);
   });
 
   function endDrag(e){
     if(!dragState) return;
     e.stopPropagation();
-    const gid = dragState.gid;
+    const id = dragState.id;
     dragState = null;
     state.dragId = null;
-    const members = Array.from(groupMembers[gid]).filter(id=>{
-      const memberEl = state.pieceEls[id];
-      return memberEl && !memberEl.classList.contains("placed");
-    });
-    // نقرر التثبيت للمجموعة كلها مع بعض أو ولا وحدة (مو كل قطعة لحالها)، عشان ما تنفصل مجموعة
-    // مرتبطة لو قطعة وحدة منها بالصدفة قربت من مكانها الصح وباقي المجموعة لأ
-    const allWithinRange = members.length > 0 && members.every(id=>{
-      const memberEl = state.pieceEls[id];
-      const pos = getPiecePos(memberEl);
-      const tx = parseFloat(memberEl.dataset.targetX), ty = parseFloat(memberEl.dataset.targetY);
-      return Math.hypot(pos.x-tx, pos.y-ty) < 16;
-    });
-    members.forEach(id=>{
-      const memberEl = state.pieceEls[id];
-      memberEl.classList.remove("dragging");
-      const tx = parseFloat(memberEl.dataset.targetX), ty = parseFloat(memberEl.dataset.targetY);
-      let placed = false;
-      if(allWithinRange){
-        setPiecePos(memberEl, tx, ty);
-        memberEl.classList.add("placed");
-        memberEl.style.zIndex = 2;
-        placed = true;
-        memberEl.classList.add("piece-snapped");
-        setTimeout(()=> memberEl.classList.remove("piece-snapped"), 420);
-      } else {
-        memberEl.style.zIndex = 50;
-      }
-      setPieceTag(memberEl, null);
-      const finalPos = getPiecePos(memberEl);
-      pushPiece(id, finalPos.x, finalPos.y, placed);
-    });
-    // القطع اللي كانت "placed" أصلاً (من قبل هالسحبة) نشيل عنها وسم السحب بس
-    (groupMembers[gid] || []).forEach(id=>{
-      const memberEl = state.pieceEls[id];
-      if(memberEl && memberEl.classList.contains("placed")) memberEl.classList.remove("dragging");
-    });
-    tryPieceSnap(gid); // نتحقق إذا صارت قريبة من قطعة صح جارتها ونلزقهم مع بعض
+    const memberEl = state.pieceEls[id];
+    if(!memberEl) return;
+    memberEl.classList.remove("dragging");
+    const pos = getPiecePos(memberEl);
+    const tx = parseFloat(memberEl.dataset.targetX), ty = parseFloat(memberEl.dataset.targetY);
+    let placed = false;
+    if(Math.hypot(pos.x-tx, pos.y-ty) < 16){
+      setPiecePos(memberEl, tx, ty);
+      memberEl.classList.add("placed");
+      memberEl.style.zIndex = 2;
+      placed = true;
+      memberEl.classList.add("piece-snapped");
+      setTimeout(()=> memberEl.classList.remove("piece-snapped"), 420);
+    } else {
+      memberEl.style.zIndex = 50;
+    }
+    setPieceTag(memberEl, null);
+    const finalPos = getPiecePos(memberEl);
+    pushPiece(id, finalPos.x, finalPos.y, placed);
   }
   stage.addEventListener("pointerup", endDrag);
   stage.addEventListener("pointercancel", endDrag);
@@ -1635,35 +1548,11 @@ function resetPieces(){
     return el && !el.classList.contains("placed");
   });
 
-  // نجمع القطع الغير موضوعة حسب مجموعتها (لو مرتبطة ببعض) عشان نبعثر كل مجموعة كوحدة وحدة
-  // ونحافظ على ترتيبها النسبي (بدل ما توزع كل قطعة لمكان عشوائي لحالها وتنفصل عن رفيقاتها)
-  const seenGroups = new Set();
-  const groupsToScatter = [];
-  nonPlacedIds.forEach(id=>{
-    const gid = pieceGroupId[id];
-    const key = gid || ("solo:" + id);
-    if(seenGroups.has(key)) return;
-    seenGroups.add(key);
-    const members = gid && groupMembers[gid]
-      ? Array.from(groupMembers[gid]).filter(mid=>nonPlacedIds.includes(mid))
-      : [id];
-    groupsToScatter.push(members);
-  });
-
   const slots = shuffleArray(buildScatterSlots(state.margin, state.boardW, state.boardH, state.cellSize));
   const updates = {};
-  let slotIdx = 0;
-  groupsToScatter.forEach(members=>{
-    const anchorEl = state.pieceEls[members[0]];
-    const anchorTx = parseFloat(anchorEl.dataset.targetX), anchorTy = parseFloat(anchorEl.dataset.targetY);
-    const slot = slots[slotIdx] || slots[slotIdx % Math.max(1, slots.length)] || {x:0, y:0};
-    slotIdx++;
-    members.forEach(id=>{
-      const el = state.pieceEls[id];
-      const tx = parseFloat(el.dataset.targetX), ty = parseFloat(el.dataset.targetY);
-      const offX = tx - anchorTx, offY = ty - anchorTy;
-      updates[id] = { x: slot.x + offX, y: slot.y + offY, placed:false, placedBy:null };
-    });
+  nonPlacedIds.forEach((id, idx)=>{
+    const slot = slots[idx] || slots[idx % Math.max(1, slots.length)] || {x:0, y:0};
+    updates[id] = { x: slot.x, y: slot.y, placed:false, placedBy:null };
   });
   if(Object.keys(updates).length === 0) return;
   db.ref(`puzzles/${state.roomId}/pieces`).update(updates).catch(()=>{});
