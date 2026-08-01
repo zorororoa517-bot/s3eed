@@ -146,9 +146,11 @@
   html[data-theme="dark"] .icon-btn{ background:rgba(0,0,0,.25); border-color:rgba(255,255,255,.2);}
 
   .auth-btn{
-    background:var(--charcoal); color:var(--tan); padding:9px 18px; border-radius:20px; border:none;
-    font-weight:700; font-size:13px;
+    background:rgba(255,255,255,.1); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    color:var(--tan); padding:9px 18px; border-radius:20px; border:1px solid rgba(255,255,255,.22);
+    font-weight:700; font-size:13px; transition:background .2s ease;
   }
+  .auth-btn:hover{ background:rgba(255,255,255,.2); }
   .login-icon-wrap{ position:relative; }
   .login-icon-btn{
     width:36px; height:36px; border-radius:50%; border:2px solid var(--charcoal); background:var(--tan);
@@ -268,22 +270,25 @@
   .hero p{ font-size:15.5px; color:var(--text-soft); max-width:520px; margin:0 auto 26px; line-height:1.8; }
   .hero-cta{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
   .btn-primary{
-    background:linear-gradient(135deg, #8a6244, var(--clay)); color:#fff; padding:13px 26px; border-radius:24px; font-weight:700; font-size:14px;
-    box-shadow:0 8px 20px rgba(111,78,55,.45); display:inline-flex; align-items:center; gap:8px; position:relative; overflow:hidden;
+    background:rgba(255,255,255,.10); backdrop-filter:blur(14px) saturate(1.5); -webkit-backdrop-filter:blur(14px) saturate(1.5);
+    border:1px solid rgba(255,255,255,.28); color:#fff; padding:13px 26px; border-radius:24px; font-weight:700; font-size:14px;
+    box-shadow:0 10px 26px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.3); display:inline-flex; align-items:center; gap:8px; position:relative; overflow:hidden;
+    transition:background .2s ease, transform .18s ease, box-shadow .18s ease;
   }
   .btn-primary::before{
     content:""; position:absolute; top:0; inset-inline-start:-60%; width:40%; height:100%;
-    background:linear-gradient(120deg, transparent, rgba(255,255,255,.35), transparent);
+    background:linear-gradient(120deg, transparent, rgba(255,255,255,.45), transparent);
     transform:skewX(-20deg);
   }
   .btn-primary:hover::before{ animation: btnShine .9s ease; }
   @keyframes btnShine{ from{ inset-inline-start:-60%; } to{ inset-inline-start:130%; } }
-  .btn-primary:hover{ background:linear-gradient(135deg, #96704f, #7a5840); }
+  .btn-primary:hover{ background:rgba(255,255,255,.2); transform:translateY(-2px); box-shadow:0 14px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.4); }
   .btn-ghost{
-    border:1.5px solid var(--charcoal); color:var(--charcoal); padding:12px 24px; border-radius:24px; font-weight:700; font-size:14px;
+    border:1px solid rgba(255,255,255,.22); background:rgba(255,255,255,.06); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    color:var(--charcoal); padding:12px 24px; border-radius:24px; font-weight:700; font-size:14px; transition:background .2s ease;
   }
-  html[data-theme="dark"] .btn-ghost{ border-color:var(--tan); color:var(--tan); }
-  .btn-ghost:hover{ background:var(--charcoal); color:var(--tan); }
+  html[data-theme="dark"] .btn-ghost{ border-color:rgba(255,255,255,.22); color:var(--tan); }
+  .btn-ghost:hover{ background:rgba(255,255,255,.16); color:var(--tan); }
 
   /* ===== sections ===== */
   section.block{ padding:62px 0; scroll-margin-top:90px; }
@@ -426,8 +431,11 @@
     width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line); background:var(--bg); color:var(--text); font-size:14px;
   }
   .btn-main{
-    width:100%; padding:12px; border-radius:8px; border:none; background:var(--charcoal); color:var(--tan); font-weight:700; margin-top:6px;
+    width:100%; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.08); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+    color:var(--tan); font-weight:700; margin-top:6px; transition:background .2s ease;
   }
+  .btn-main:hover{ background:rgba(255,255,255,.16); }
   .btn-google{
     width:100%; padding:11px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text);
     font-weight:600; display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px;
@@ -459,12 +467,12 @@
   }
   .sug-note{ font-size:10.5px; color:var(--text-soft); }
   .sug-send-btn{
-    margin-top:16px; padding:12px 26px; border-radius:24px; border:none;
-    background:linear-gradient(135deg, var(--tan), var(--tan-deep)); color:var(--charcoal);
+    margin-top:16px; padding:12px 26px; border-radius:24px; border:1px solid rgba(255,255,255,.28);
+    background:rgba(255,255,255,.12); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); color:var(--tan);
     font-weight:800; font-size:13.5px; display:flex; align-items:center; gap:8px; justify-content:center; width:100%;
-    box-shadow:0 8px 20px rgba(228,208,180,.25); transition:transform .18s ease, box-shadow .18s ease;
+    box-shadow:0 8px 20px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.25); transition:transform .18s ease, box-shadow .18s ease, background .2s ease;
   }
-  .sug-send-btn:hover{ transform:translateY(-2px); box-shadow:0 12px 26px rgba(228,208,180,.35); }
+  .sug-send-btn:hover{ transform:translateY(-2px); background:rgba(255,255,255,.2); box-shadow:0 12px 26px rgba(0,0,0,.35); }
   .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--charcoal); color:var(--tan);
     padding:11px 22px; border-radius:24px; font-size:13px; z-index:400; opacity:0; pointer-events:none; transition:opacity .25s;
@@ -588,9 +596,11 @@
   .rate-comment .mini-stars{ direction:ltr; color:#f0b429; font-size:10px; margin-inline-start:4px; }
 
   .see-all-comments-btn{
-    display:block; width:100%; margin-top:10px; padding:8px; border-radius:10px; border:1px solid var(--line);
-    background:var(--paper); color:var(--tan); font-family:inherit; font-size:12px; font-weight:700;
+    display:block; width:100%; margin-top:10px; padding:9px; border-radius:12px; border:1px solid rgba(255,255,255,.2);
+    background:rgba(255,255,255,.08); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    color:var(--tan); font-family:inherit; font-size:12px; font-weight:700; transition:background .2s ease;
   }
+  .see-all-comments-btn:hover{ background:rgba(255,255,255,.16); }
   .game-detail-modal{ max-width:920px; padding:28px; text-align:start; }
   .game-detail-grid{ display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; }
   .game-detail-side{ flex:1 1 280px; min-width:240px; }
