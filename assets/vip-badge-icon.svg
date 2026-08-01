@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <defs>
+    <linearGradient id="vipShield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f2d475"/>
+      <stop offset="100%" stop-color="#b8860b"/>
+    </linearGradient>
+  </defs>
+  <path d="M20,3l12,4.2v9.1c0,8.4-5.4,13.6-12,16.7c-6.6-3.1-12-8.3-12-16.7V7.2z" fill="url(#vipShield)" stroke="#7a5a08" stroke-width="1.2"/>
+  <polygon points="20,10 22.7,16.1 29.3,16.7 24.3,21 25.8,27.5 20,24 14.2,27.5 15.7,21 10.7,16.7 17.3,16.1" fill="#fff8e6" stroke="#b8860b" stroke-width="0.6" stroke-linejoin="round"/>
+</svg>
