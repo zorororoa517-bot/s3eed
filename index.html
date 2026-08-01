@@ -1219,7 +1219,7 @@
           <img src="assets/twitch-vip-icon.png" style="width:44px;height:44px;object-fit:contain;margin-bottom:6px;image-rendering:pixelated;">
           <div style="font-weight:800;margin-bottom:4px;">سب على تويتش</div>
           <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">يحتاج اسمك بتويتش — موافقة الإدارة</div>
-          <button class="btn-primary" style="width:100%;" onclick="openTwitchTierRequest('sub', 5000)">اطلب الآن (5,000 عملة)</button>
+          <button class="btn-primary" style="width:100%;" onclick="openTwitchTierRequest('sub', 800)">اطلب الآن (800 عملة)</button>
         </div>
 
         <!-- VIP تويتش -->
@@ -1227,7 +1227,7 @@
           <img src="assets/twitch-vip-icon.png" style="width:44px;height:44px;object-fit:contain;margin-bottom:6px;image-rendering:pixelated;">
           <div style="font-weight:800;margin-bottom:4px;">VIP على تويتش</div>
           <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">يحتاج اسمك بتويتش — موافقة الإدارة</div>
-          <button class="btn-primary" style="width:100%;" onclick="openTwitchTierRequest('vip', 50000)">اطلب الآن (50,000 عملة)</button>
+          <button class="btn-primary" style="width:100%;" onclick="openTwitchTierRequest('vip', 3000)">اطلب الآن (3,000 عملة)</button>
         </div>
 
         <!-- بادج VIP -->
@@ -1235,29 +1235,7 @@
           <img src="assets/vip-badge-icon.svg" style="width:44px;height:44px;object-fit:contain;margin-bottom:6px;">
           <div style="font-weight:800;margin-bottom:4px;">بادج VIP بالموقع</div>
           <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">يضاف تلقائياً لبروفايلك فوراً — رمز التوثيق K30</div>
-          <button class="btn-primary" style="width:100%;" id="buyVipBadgeBtn" onclick="buyRankBadge('shop_vip', 200000)">شراء بادج VIP (200,000 عملة)</button>
-        </div>
-
-        <!-- رتب إضافية (بادجات) -->
-        <div class="stat-card" style="text-align:center;padding:18px 14px;">
-          <span style="font-size:40px;display:block;margin-bottom:6px;">🛡️</span>
-          <div style="font-weight:800;margin-bottom:4px;">بادج حارس المجتمع</div>
-          <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">للأعضاء الملتزمين والداعمين</div>
-          <button class="btn-primary" style="width:100%;" id="buyGuardianBadgeBtn" onclick="buyRankBadge('shop_guardian', 30000)">شراء (30,000 عملة)</button>
-        </div>
-
-        <div class="stat-card" style="text-align:center;padding:18px 14px;">
-          <span style="font-size:40px;display:block;margin-bottom:6px;">💎</span>
-          <div style="font-weight:800;margin-bottom:4px;">بادج عضو الماس</div>
-          <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">للأعضاء النشيطين بشكل مميز</div>
-          <button class="btn-primary" style="width:100%;" id="buyDiamondBadgeBtn" onclick="buyRankBadge('shop_diamond', 80000)">شراء (80,000 عملة)</button>
-        </div>
-
-        <div class="stat-card" style="text-align:center;padding:18px 14px;">
-          <span style="font-size:40px;display:block;margin-bottom:6px;">👑</span>
-          <div style="font-weight:800;margin-bottom:4px;">بادج أسطورة القناة</div>
-          <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">أعلى رتبة يقدر يشتريها عضو</div>
-          <button class="btn-primary" style="width:100%;" id="buyLegendBadgeBtn" onclick="buyRankBadge('shop_legend', 500000)">شراء (500,000 عملة)</button>
+          <button class="btn-primary" style="width:100%;" id="buyVipBadgeBtn" onclick="buyRankBadge('shop_vip', 5000)">شراء بادج VIP (5,000 عملة)</button>
         </div>
 
       </div>
@@ -2616,8 +2594,7 @@ window.submitTwitchTierRequest = async function(){
 };
 
 const RANK_BADGE_LABELS = {
-  shop_vip: "🎖️ بادج VIP بالموقع", shop_guardian: "🛡️ بادج حارس المجتمع",
-  shop_diamond: "💎 بادج عضو الماس", shop_legend: "👑 بادج أسطورة القناة"
+  shop_vip: "🎖️ بادج VIP بالموقع"
 };
 window.buyRankBadge = async function(key, cost){
   if(!requireLogin()) return;
